@@ -29,7 +29,8 @@ class Konohana:
                  image_size=(224, 224), 
                  num_classes=10, 
                  learning_rate=1e-4,
-                 model_save_path='best_image_model.h5'):
+                 model_save_path='best_image_model.h5',
+                 pretrained_weights=None):
         """
         高度な画像識別・学習AIクラス
         
@@ -38,13 +39,63 @@ class Konohana:
             num_classes (int): 分類するクラス数
             learning_rate (float): 学習率
             model_save_path (str): モデル保存パス
+            pretrained_weights (str, optional): 事前学習済みモデルの重みファイルパス
         """
         self.image_size = image_size
         self.num_classes = num_classes
         self.learning_rate = learning_rate
         self.model_save_path = model_save_path
-        self.model = self._build_model()
-        logging.info(f'Konohana AI初期化: クラス数={num_classes}, 画像サイズ={image_size}')
+        
+        # モデルの初期化
+        try:
+            if pretrained_weights and os.path.exists(pretrained_weights):
+                # 事前学習済みの重みがある場合はロード
+                self.model = self._load_model(pretrained_weights)
+                logging.info(f'事前学習済みモデルをロード: {pretrained_weights}')
+            else:
+                # 新規モデルを構築
+                self.model = self._build_model()
+                logging.info(f'新規モデルを構築: クラス数={num_classes}, 画像サイズ={image_size}')
+        except Exception as e:
+            logging.error(f'モデル初期化中にエラー発生: {e}')
+            raise
+
+    def _load_model(self, weights_path):
+        """
+        事前学習済みモデルの重みをロードする
+
+        Args:
+            weights_path (str): モデル重みファイルのパス
+
+        Returns:
+            tf.keras.Model: ロードされたモデル
+        """
+        try:
+            base_model = MobileNetV2(
+                weights='imagenet', 
+                include_top=False, 
+                input_shape=self.image_size + (3,)
+            )
+            x = base_model.output
+            x = GlobalAveragePooling2D()(x)
+            x = Dense(1024, activation='relu')(x)
+            predictions = Dense(self.num_classes, activation='softmax')(x)
+            
+            model = Model(inputs=base_model.input, outputs=predictions)
+            model.load_weights(weights_path)
+            
+            # モデルをコンパイル
+            model.compile(
+                optimizer=Adam(learning_rate=self.learning_rate),
+                loss='categorical_crossentropy',
+                metrics=['accuracy']
+            )
+            
+            return model
+        except Exception as e:
+            logging.error(f'モデルのロード中にエラー: {e}')
+            # フォールバックとして新規モデルを構築
+            return self._build_model()
     
     def _build_model(self):
         """
