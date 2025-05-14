@@ -67,6 +67,65 @@ MIT License
 
 プルリクエストは歓迎します。大きな変更を行う前に、まずissueで議論してください。
 
+## 🔥 主な特徴と機能
+
+### 🤖 高度な画像インテリジェンス
+- **マルチブログ収集**: 複数のTumblrブログから同時に画像を収集
+- **高度なフィルタリング**:
+  - 解像度フィルタ
+  - いいね数によるフィルタリング
+  - NSFWコンテンツ検出
+  - スタイル分類
+
+### 🔍 画像処理機能
+- **重複排除**: 知覚的ハッシュを使用した画像の重複検出
+- **メタデータ抽出**: 画像の詳細情報を自動収集
+- **エントロピー分析**: 画像の複雑さを評価
+
+### 🔰️ 堅牢な設計
+- **エラーハンドリング**: 高度な再試行メカニズム
+- **ログ管理**: 詳細なダウンロード統計
+- **プロキシサポート**: ネットワーク接続の柜軟性
+
+### 🔧 詳細な設定オプション
+```python
+collection_params = {
+    'blogs': ['example.tumblr.com'],
+    'tags': ['art', 'photography'],
+    'max_images': 100,
+    'min_resolution': (800, 600),
+    'min_likes': 10,
+    'date_range': {
+        'start': datetime(2023, 1, 1),
+        'end': datetime.now()
+    },
+    'advanced_filters': {
+        'nsfw_filter': True,
+        'style_classification': ['illustration', 'photography'],
+        'entropy_threshold': 2.5,
+        'color_palette': ['blue', 'green']
+    }
+}
+
+results = collector.auto_image_collection(collection_params)
+```
+
+### 🌟 高度な使用例
+```python
+# 継続的な画像収集と再開
+previous_results = collector._load_last_collection_state()
+resumed_results = collector.resume_image_collection(
+    previous_collection_results=previous_results,
+    additional_params={
+        'extend_date_range': True,
+        'skip_downloaded_images': True
+    }
+)
+
+# メタデータのエクスポート
+collector.export_metadata(output_format='json')
+```
+
 ## 主な特徴 🚀
 
 ### 🤖 高度な画像インテリジェンス
