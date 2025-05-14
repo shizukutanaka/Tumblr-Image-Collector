@@ -19,6 +19,9 @@ pyyaml==6.0
 # テスト用
 pytest==7.3.1
 pytest-cov==4.0.0
+unittest2==1.1.0
+mock==5.0.2
+pytest-cov==4.0.0
 
 # 開発ツール
 black==23.3.0
