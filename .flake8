@@ -1,0 +1,17 @@
+[flake8]
+max-line-length = 120
+exclude = 
+    .git,
+    __pycache__,
+    venv,
+    .venv,
+    build,
+    dist
+ignore = 
+    E203,  # スペースの前後に関する警告を無視
+    W503,  # 改行後の演算子に関する警告を無視
+    F401,  # 未使用のインポートに関する警告を無視
+max-complexity = 15
+per-file-ignores = 
+    __init__.py:F401
+    test_*.py:S101  # アサーションに関する警告を無視
