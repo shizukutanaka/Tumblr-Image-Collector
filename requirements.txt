@@ -10,6 +10,7 @@ PySocks>=1.7.1
 # Security
 urllib3>=2.2.2
 certifi>=2024.7.4
+cryptography>=42.0.0
 
 # System Monitoring
 psutil>=5.9.8
@@ -25,3 +26,6 @@ pytest-timeout>=2.3.0
 
 # Optional: Environment Variables
 python-dotenv>=1.0.0
+
+# Personal Use Features
+keyring>=25.0.0

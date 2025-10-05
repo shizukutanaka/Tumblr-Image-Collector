@@ -1,0 +1,103 @@
+{
+  "mode": "personal",
+  "consumer_key": "",
+  "consumer_secret": "",
+  "output_folder_name": "tumblr_images",
+  "max_download_workers": 10,
+  "enable_deep_model": true,
+
+  "filters": {
+    "max_file_size_mb": 50,
+    "min_file_size_kb": 10,
+    "min_resolution": [1280, 720],
+    "max_resolution": [7680, 4320],
+    "allowed_formats": ["jpg", "jpeg", "png", "gif", "webp"],
+    "nsfw_threshold": 0.25,
+    "blur_threshold": 40,
+    "enable_quality_filter": true,
+    "min_quality_score": 0.6
+  },
+
+  "network": {
+    "download_timeout_seconds": 60,
+    "max_retries": 5,
+    "backoff_factor": 1.0,
+    "max_backoff_seconds": 60,
+    "verify_ssl": true,
+    "use_http2": true
+  },
+
+  "cache": {
+    "enabled": true,
+    "ttl_seconds": 604800,
+    "max_entries": 10000,
+    "disk_cache_size_mb": 2048,
+    "enable_aggressive_caching": true
+  },
+
+  "logging": {
+    "level": "INFO",
+    "max_bytes": 52428800,
+    "backup_count": 10,
+    "enable_debug_mode": false,
+    "log_performance_metrics": true
+  },
+
+  "personal_features": {
+    "auto_organize_by_date": true,
+    "auto_organize_by_tags": true,
+    "auto_backup": true,
+    "backup_interval_hours": 24,
+    "create_thumbnails": true,
+    "thumbnail_size": [400, 400],
+    "generate_metadata": true,
+    "auto_tag_images": true,
+    "duplicate_action": "move_to_duplicates",
+    "enable_smart_collections": true,
+    "auto_cleanup_temp_files": true,
+    "enable_favorite_blogs": true,
+    "enable_blocklist": true,
+    "save_post_metadata": true,
+    "save_comments": false,
+    "enable_scheduling": true,
+    "quiet_hours_start": "22:00",
+    "quiet_hours_end": "08:00"
+  },
+
+  "security": {
+    "enable_encryption": true,
+    "encrypt_credentials": true,
+    "secure_delete": false,
+    "rate_limit_aggressive": false,
+    "enable_privacy_mode": true,
+    "clear_logs_after_days": 30,
+    "enable_vpn_check": false,
+    "allowed_networks": []
+  },
+
+  "advanced": {
+    "enable_ai_classification": true,
+    "enable_facial_detection": false,
+    "enable_ocr": false,
+    "enable_color_analysis": true,
+    "enable_similarity_search": true,
+    "similarity_threshold": 0.85,
+    "auto_enhance_images": false,
+    "convert_to_format": null,
+    "compression_quality": 90,
+    "strip_metadata": false,
+    "watermark_text": null,
+    "enable_statistics": true,
+    "statistics_export_format": "json"
+  },
+
+  "ui": {
+    "enable_interactive_mode": true,
+    "enable_progress_bar": true,
+    "enable_notifications": true,
+    "notification_sound": false,
+    "color_output": true,
+    "show_preview": true,
+    "auto_open_folder": false
+  }
+}
