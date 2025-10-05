@@ -1,0 +1,222 @@
+# Helm Chart Values for Tumblr Image Collector
+
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: "fast-ssd"
+
+replicaCount: 3
+
+image:
+  repository: image-collector
+  pullPolicy: IfNotPresent
+  tag: "2.0.0"
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "9090"
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8000
+  metricsPort: 9090
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: api.imagecollector.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: image-collector-tls
+      hosts:
+        - api.imagecollector.com
+
+resources:
+  limits:
+    cpu: 2000m
+    memory: 2Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - image-collector
+        topologyKey: kubernetes.io/hostname
+
+persistence:
+  enabled: true
+  storageClass: "fast-ssd"
+  accessMode: ReadWriteMany
+  size: 100Gi
+
+postgresql:
+  enabled: true
+  auth:
+    username: imgcollector
+    password: changeme
+    database: imagedb
+  primary:
+    persistence:
+      enabled: true
+      size: 50Gi
+  metrics:
+    enabled: true
+
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: changeme
+  master:
+    persistence:
+      enabled: true
+      size: 10Gi
+  metrics:
+    enabled: true
+
+rabbitmq:
+  enabled: true
+  auth:
+    username: admin
+    password: changeme
+  persistence:
+    enabled: true
+    size: 10Gi
+  metrics:
+    enabled: true
+
+elasticsearch:
+  enabled: false
+  replicas: 3
+  minimumMasterNodes: 2
+  volumeClaimTemplate:
+    resources:
+      requests:
+        storage: 30Gi
+
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+  grafana:
+    enabled: true
+    adminPassword: changeme
+
+tracing:
+  enabled: true
+  jaeger:
+    enabled: true
+    agent:
+      port: 6831
+
+worker:
+  enabled: true
+  replicaCount: 5
+  resources:
+    limits:
+      cpu: 4000m
+      memory: 4Gi
+    requests:
+      cpu: 1000m
+      memory: 1Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 5
+    maxReplicas: 50
+    targetCPUUtilizationPercentage: 60
+
+configMap:
+  data:
+    LOG_LEVEL: "INFO"
+    CACHE_TTL: "3600"
+    MAX_WORKERS: "10"
+    RATE_LIMIT_PER_SECOND: "100"
+    ENABLE_METRICS: "true"
+
+secrets:
+  tumblrApiKey: ""
+  jwtSecret: ""
+  encryptionKey: ""
+
+backup:
+  enabled: true
+  schedule: "0 2 * * *"
+  retention: 30
+
+networkPolicy:
+  enabled: true
+  policyTypes:
+    - Ingress
+    - Egress
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 2
+
+serviceMonitor:
+  enabled: true
+  interval: 30s
+
+healthcheck:
+  liveness:
+    enabled: true
+    path: /health/live
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readiness:
+    enabled: true
+    path: /health/ready
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3

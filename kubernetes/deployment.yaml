@@ -1,0 +1,427 @@
+# Kubernetes Deployment Configuration for Tumblr Image Collector
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: image-collector
+  labels:
+    name: image-collector
+    environment: production
+
+---
+# ConfigMap for application configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: image-collector
+data:
+  config.yaml: |
+    app:
+      name: tumblr-image-collector
+      version: 2.0.0
+      environment: production
+
+    database:
+      type: postgresql
+      pool_size: 20
+      max_overflow: 40
+
+    cache:
+      type: redis
+      ttl: 3600
+
+    monitoring:
+      enabled: true
+      metrics_port: 9090
+
+    rate_limiting:
+      enabled: true
+      requests_per_second: 100
+      burst: 200
+
+---
+# Secret for sensitive data
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secrets
+  namespace: image-collector
+type: Opaque
+stringData:
+  database-url: "postgresql://user:password@postgres:5432/imagedb"
+  redis-url: "redis://redis:6379/0"
+  tumblr-api-key: "your-api-key"
+  jwt-secret: "your-jwt-secret"
+
+---
+# Main Application Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: image-collector-app
+  namespace: image-collector
+  labels:
+    app: image-collector
+    component: backend
+    version: v2
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: image-collector
+      component: backend
+  template:
+    metadata:
+      labels:
+        app: image-collector
+        component: backend
+        version: v2
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - image-collector
+              topologyKey: kubernetes.io/hostname
+
+      containers:
+      - name: app
+        image: image-collector:2.0.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: http
+          protocol: TCP
+        - containerPort: 9090
+          name: metrics
+          protocol: TCP
+
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: database-url
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: redis-url
+        - name: TUMBLR_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: tumblr-api-key
+
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        volumeMounts:
+        - name: config
+          mountPath: /app/config
+          readOnly: true
+        - name: data
+          mountPath: /app/data
+        - name: cache
+          mountPath: /app/cache
+
+      volumes:
+      - name: config
+        configMap:
+          name: app-config
+      - name: data
+        persistentVolumeClaim:
+          claimName: data-pvc
+      - name: cache
+        emptyDir:
+          medium: Memory
+          sizeLimit: 1Gi
+
+---
+# Worker Deployment for Background Jobs
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: image-processor-worker
+  namespace: image-collector
+  labels:
+    app: image-collector
+    component: worker
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: image-collector
+      component: worker
+  template:
+    metadata:
+      labels:
+        app: image-collector
+        component: worker
+    spec:
+      containers:
+      - name: worker
+        image: image-collector-worker:2.0.0
+        imagePullPolicy: Always
+
+        env:
+        - name: WORKER_TYPE
+          value: "image_processor"
+        - name: CONCURRENCY
+          value: "10"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: database-url
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: redis-url
+
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "4000m"
+
+---
+# Service for Main Application
+apiVersion: v1
+kind: Service
+metadata:
+  name: image-collector-service
+  namespace: image-collector
+  labels:
+    app: image-collector
+spec:
+  type: ClusterIP
+  selector:
+    app: image-collector
+    component: backend
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8000
+    protocol: TCP
+  - name: metrics
+    port: 9090
+    targetPort: 9090
+    protocol: TCP
+
+---
+# Horizontal Pod Autoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: image-collector-hpa
+  namespace: image-collector
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: image-collector-app
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: Pods
+    pods:
+      metric:
+        name: http_requests_per_second
+      target:
+        type: AverageValue
+        averageValue: "1000"
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 60
+      - type: Pods
+        value: 4
+        periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 300
+
+---
+# PersistentVolumeClaim for Data Storage
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-pvc
+  namespace: image-collector
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: fast-ssd
+  resources:
+    requests:
+      storage: 100Gi
+
+---
+# Ingress for External Access
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: image-collector-ingress
+  namespace: image-collector
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+spec:
+  tls:
+  - hosts:
+    - api.imagecollector.com
+    secretName: image-collector-tls
+  rules:
+  - host: api.imagecollector.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: image-collector-service
+            port:
+              number: 80
+
+---
+# NetworkPolicy for Security
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: image-collector-netpol
+  namespace: image-collector
+spec:
+  podSelector:
+    matchLabels:
+      app: image-collector
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: image-collector
+    - podSelector:
+        matchLabels:
+          app: nginx-ingress
+    ports:
+    - protocol: TCP
+      port: 8000
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: image-collector
+    ports:
+    - protocol: TCP
+      port: 5432  # PostgreSQL
+    - protocol: TCP
+      port: 6379  # Redis
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 443  # HTTPS for external APIs
+
+---
+# ServiceMonitor for Prometheus
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: image-collector-metrics
+  namespace: image-collector
+spec:
+  selector:
+    matchLabels:
+      app: image-collector
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+
+---
+# PodDisruptionBudget for High Availability
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: image-collector-pdb
+  namespace: image-collector
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: image-collector
+      component: backend

@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Tumblr Image Collector へようこそ",
+  "configuring_application": "アプリケーションを設定中...",
+  "initialization_complete": "初期化が完了しました",
+  "starting_download": "ダウンロードプロセスを開始しています...",
+  "download_complete": "ダウンロードが完了しました",
+  "error_occurred": "エラーが発生しました",
+  "rate_limit_exceeded": "レート制限を超過しました",
+  "waiting_for_resume": "再開を待機中...",
+
+  "enter_consumer_key": "Tumblr Consumer Key を入力してください",
+  "enter_consumer_secret": "Tumblr Consumer Secret を入力してください",
+  "enter_blog_name": "ダウンロードするブログ名を入力してください",
+  "select_output_directory": "出力ディレクトリを選択してください",
+  "configuration_saved": "設定が正常に保存されました",
+
+  "invalid_input": "無効な入力です",
+  "file_not_found": "ファイルが見つかりません",
+  "permission_denied": "アクセス権がありません",
+  "network_error": "ネットワークエラー",
+  "api_error": "APIエラー",
+
+  "download_statistics": "ダウンロード統計",
+  "total_downloads": "総ダウンロード数",
+  "successful_downloads": "成功したダウンロード数",
+  "failed_downloads": "失敗したダウンロード数",
+  "skipped_duplicates": "スキップされた重複数",
+  "success_rate": "成功率",
+
+  "press_enter_to_continue": "Enterキーを押して続行してください...",
+  "confirm_action": "この操作を確認してください",
+  "select_option": "オプションを選択してください",
+
+  "creating_directory": "ディレクトリを作成中",
+  "saving_file": "ファイルを保存中",
+  "file_saved": "ファイルが保存されました",
+  "exporting_metadata": "メタデータをエクスポート中",
+
+  "processing_image": "画像を処理中",
+  "generating_thumbnail": "サムネイルを生成中",
+  "analyzing_image": "画像を分析中",
+  "duplicate_detected": "重複が検出されました",
+
+  "connecting_to_api": "APIに接続中",
+  "request_timeout": "リクエストタイムアウト",
+  "retrying_request": "リクエストを再試行中",
+  "connection_failed": "接続に失敗しました",
+
+  "memory_optimization": "メモリ最適化",
+  "security_hardening": "セキュリティ強化",
+  "internationalization": "国際化対応",
+  "performance_improvement": "性能向上",
+
+  "initializing_system": "システムを初期化中",
+  "loading_configuration": "設定を読み込み中",
+  "validating_credentials": "認証情報を検証中",
+  "preparing_download": "ダウンロードを準備中",
+
+  "image_quality_check": "画像品質チェック",
+  "duplicate_detection": "重複検出",
+  "metadata_extraction": "メタデータ抽出",
+  "batch_processing": "バッチ処理",
+
+  "user_interface": "ユーザーインターフェース",
+  "progress_display": "進行状況表示",
+  "error_reporting": "エラーレポート",
+  "logging_system": "ログシステム",
+
+  "rate_limiting": "レート制限",
+  "input_validation": "入力検証",
+  "secure_coding": "セキュアコーディング",
+  "data_protection": "データ保護",
+
+  "commercial_grade": "商用グレード",
+  "enterprise_ready": "エンタープライズ対応",
+  "production_quality": "プロダクション品質",
+  "market_ready": "市場対応",
+
+  "advanced_features": "高度な機能",
+  "ai_powered": "AI搭載",
+  "cloud_ready": "クラウド対応",
+  "scalable_architecture": "スケーラブルアーキテクチャ",
+
+  "documentation": "ドキュメント",
+  "user_guide": "ユーザーガイド",
+  "api_reference": "APIリファレンス",
+  "installation_guide": "インストールガイド",
+
+  "testing_suite": "テストスイート",
+  "unit_tests": "ユニットテスト",
+  "integration_tests": "統合テスト",
+  "end_to_end_tests": "エンドツーエンドテスト",
+
+  "deployment": "デプロイメント",
+  "packaging": "パッケージング",
+  "distribution": "配布",
+  "containerization": "コンテナ化",
+
+  "support": "サポート",
+  "maintenance": "メンテナンス",
+  "updates": "更新",
+  "bug_fixes": "バグ修正"
+}

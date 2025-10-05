@@ -47,4 +47,4 @@ jobs:
     - name: Run additional tests
       run: |
         pytest test_tumblr_image_collector.py
-        pytest test_advanced_image_ai.py
+        pytest test_image_classifier.py

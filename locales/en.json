@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Welcome to Tumblr Image Collector",
+  "configuring_application": "Configuring application...",
+  "initialization_complete": "Initialization complete",
+  "starting_download": "Starting download process...",
+  "download_complete": "Download complete",
+  "error_occurred": "An error occurred",
+  "rate_limit_exceeded": "Rate limit exceeded",
+  "waiting_for_resume": "Waiting to resume...",
+
+  "enter_consumer_key": "Enter your Tumblr Consumer Key",
+  "enter_consumer_secret": "Enter your Tumblr Consumer Secret",
+  "enter_blog_name": "Enter the blog name to download from",
+  "select_output_directory": "Select output directory",
+  "configuration_saved": "Configuration saved successfully",
+
+  "invalid_input": "Invalid input",
+  "file_not_found": "File not found",
+  "permission_denied": "Permission denied",
+  "network_error": "Network error",
+  "api_error": "API error",
+
+  "download_statistics": "Download Statistics",
+  "total_downloads": "Total Downloads",
+  "successful_downloads": "Successful Downloads",
+  "failed_downloads": "Failed Downloads",
+  "skipped_duplicates": "Skipped Duplicates",
+  "success_rate": "Success Rate",
+
+  "press_enter_to_continue": "Press Enter to continue...",
+  "confirm_action": "Confirm this action",
+  "select_option": "Select an option",
+
+  "creating_directory": "Creating directory",
+  "saving_file": "Saving file",
+  "file_saved": "File saved",
+  "exporting_metadata": "Exporting metadata",
+
+  "processing_image": "Processing image",
+  "generating_thumbnail": "Generating thumbnail",
+  "analyzing_image": "Analyzing image",
+  "duplicate_detected": "Duplicate detected",
+
+  "connecting_to_api": "Connecting to API",
+  "request_timeout": "Request timeout",
+  "retrying_request": "Retrying request",
+  "connection_failed": "Connection failed",
+
+  "memory_optimization": "Memory optimization",
+  "security_hardening": "Security hardening",
+  "internationalization": "Internationalization",
+  "performance_improvement": "Performance improvement",
+
+  "initializing_system": "Initializing system",
+  "loading_configuration": "Loading configuration",
+  "validating_credentials": "Validating credentials",
+  "preparing_download": "Preparing download",
+
+  "image_quality_check": "Image quality check",
+  "duplicate_detection": "Duplicate detection",
+  "metadata_extraction": "Metadata extraction",
+  "batch_processing": "Batch processing",
+
+  "user_interface": "User Interface",
+  "progress_display": "Progress Display",
+  "error_reporting": "Error Reporting",
+  "logging_system": "Logging System",
+
+  "rate_limiting": "Rate Limiting",
+  "input_validation": "Input Validation",
+  "secure_coding": "Secure Coding",
+  "data_protection": "Data Protection",
+
+  "commercial_grade": "Commercial Grade",
+  "enterprise_ready": "Enterprise Ready",
+  "production_quality": "Production Quality",
+  "market_ready": "Market Ready",
+
+  "advanced_features": "Advanced Features",
+  "ai_powered": "AI Powered",
+  "cloud_ready": "Cloud Ready",
+  "scalable_architecture": "Scalable Architecture",
+
+  "documentation": "Documentation",
+  "user_guide": "User Guide",
+  "api_reference": "API Reference",
+  "installation_guide": "Installation Guide",
+
+  "testing_suite": "Testing Suite",
+  "unit_tests": "Unit Tests",
+  "integration_tests": "Integration Tests",
+  "end_to_end_tests": "End-to-End Tests",
+
+  "deployment": "Deployment",
+  "packaging": "Packaging",
+  "distribution": "Distribution",
+  "containerization": "Containerization",
+
+  "support": "Support",
+  "maintenance": "Maintenance",
+  "updates": "Updates",
+  "bug_fixes": "Bug Fixes"
+}

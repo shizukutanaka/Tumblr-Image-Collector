@@ -3,32 +3,66 @@ import requests
 import os
 import time
 import random
-from PIL import Image, ImageHash
+from PIL import Image
 from io import BytesIO
 import datetime
 import webbrowser
 import json
 import logging
+import csv
+from logging.handlers import RotatingFileHandler
 import concurrent.futures
+import shutil
 from pathlib import Path
 import argparse
 from functools import partial
 import socket
-import ssl
+import threading
+import queue
 from urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.poolmanager import PoolManager
 import imagehash
 import urllib3
 import socks
-import socket
 from urllib.parse import urlparse
 import traceback
 import platform
 import uuid
 import sys
-from typing import Optional, Dict, Any
-from image_classifier import ImageClassifier
+import tempfile
+import atexit
+import signal
+from typing import Optional, Dict, Any, Iterable
+
+try:
+    from dotenv import load_dotenv
+    _DOTENV_AVAILABLE = True
+except ImportError:  # pragma: no cover - optional dependency
+    load_dotenv = None
+    _DOTENV_AVAILABLE = False
+from ui import InteractiveCLI, ProgressDisplay
+from config import ConfigWizard
+
+try:
+    import cv2
+    _CV2_AVAILABLE = True
+except ImportError:
+    cv2 = None
+    _CV2_AVAILABLE = False
+
+try:
+    import numpy as np
+    _NUMPY_AVAILABLE = True
+except ImportError:
+    np = None
+    _NUMPY_AVAILABLE = False
+
+try:
+    import skimage.feature
+    _SKIMAGE_AVAILABLE = True
+except ImportError:
+    skimage = None
+    _SKIMAGE_AVAILABLE = False
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -49,6 +83,60 @@ DEFAULT_PROXY_CONFIG = {
 DEFAULT_CONFIG_FILE = "config.json"
 DEFAULT_LOG_FILE = "tumblr_collector.log"
 
+# Network and Processing Constants
+DEFAULT_TIMEOUT_SECONDS = 30
+DEFAULT_RETRY_ATTEMPTS = 3
+DEFAULT_BACKOFF_FACTOR = 0.5
+MAX_DIMENSION_RESIZE = 2048
+EXPONENTIAL_BACKOFF_BASE = 2
+DEFAULT_CHUNK_SIZE = 8192
+
+# Image Processing Constants
+MIN_IMAGE_DIMENSION = 500
+MIN_RESOLUTION_WIDTH = 300
+MIN_RESOLUTION_HEIGHT = 300
+MAX_FILE_SIZE_MB = 10
+DEFAULT_THUMBNAIL_SIZE = (200, 200)
+DEFAULT_QUALITY = 85
+MAX_METADATA_SIZE_BYTES = 1024 * 1024  # 1MB guardrail
+
+# AI Model Constants
+DEFAULT_MODEL_INPUT_SIZE = 224
+DEFAULT_DENSE_LAYER_SIZE = 1024
+DEFAULT_EPOCHS = 50
+DEFAULT_BATCH_SIZE = 32
+
+# Image Analysis Constants
+CANNY_LOWER_THRESHOLD = 100
+CANNY_UPPER_THRESHOLD = 200
+BLUR_THRESHOLD = 50
+FACE_MIN_SIZE = 30
+FACE_MAX_SIZE = 300
+DEFAULT_COLOR_CLUSTERS = 3
+QUALITY_THRESHOLD_LOW = 0.3
+BRIGHTNESS_THRESHOLD_LOW = 0.3
+CONFIDENCE_THRESHOLD = 0.5
+IOU_THRESHOLD = 0.3
+RESIZE_THRESHOLD = 300
+SCALE_FACTOR_FACE = 1.1
+MIN_NEIGHBORS_FACE = 3
+
+# Cache and Memory Constants
+DEFAULT_CACHE_SIZE_MB = 500
+CLEANUP_THRESHOLD = 0.8
+MEMORY_CHUNK_SIZE = 1048576  # 1024*1024
+BYTES_TO_MB_DIVISOR = 1048576  # 1024*1024
+
+# Date and Time Constants
+DEFAULT_DAYS_BACK = 30
+DEFAULT_PAGE_LIMIT = 50
+SOBEL_KERNEL_SIZE = 3
+
+# Color Analysis Constants
+COLOR_TOLERANCE = 30
+HISTOGRAM_BINS = 256
+COLOR_HISTOGRAM_BINS = 16
+
 # --- Global Logger ---
 # Logger will be configured in main() based on args
 logger = logging.getLogger(__name__)
@@ -66,12 +154,13 @@ class TumblrImageCollector:
         'total_attempts': 0,
         'successful_downloads': 0,
         'failed_downloads': 0,
-        
+        'skipped_duplicates': 0,
+
         # 基本ダウンロード統計
         'total_images_processed': 0,
         'total_images_downloaded': 0,
         'total_images_skipped': 0,
-        
+
         # AI画像分類統計
         'ai_classification_stats': {
             'valid_images': 0,
@@ -79,13 +168,9 @@ class TumblrImageCollector:
             'high_resolution_images': 0,
             'low_resolution_images': 0,
             'potentially_nsfw_images': 0,
-            'image_type_distribution': {}
+            'image_type_distribution': {},
+            'metrics_summary': {}
         }
-    }
-        'total_attempts': 0,
-        'successful_downloads': 0,
-        'failed_downloads': 0,
-        'skipped_duplicates': 0
     }
 
     # エラー種別
@@ -98,17 +183,20 @@ class TumblrImageCollector:
 
     # 画像フィルタリングオプション
     IMAGE_FILTERS = {
-        'min_width': 500,
-        'min_height': 500,
+        'min_width': MIN_IMAGE_DIMENSION,
+        'min_height': MIN_IMAGE_DIMENSION,
         'allowed_formats': ['jpg', 'jpeg', 'png', 'gif', 'webp'],
         'max_file_size_mb': 10,
         'aspect_ratio_range': (0.5, 2.0),  # 縦横比の制限
         'color_threshold': 0.1,  # カラー画像の判定閾値
-        'blur_threshold': 50,  # ぼかし度の閾値
+        'blur_threshold': BLUR_THRESHOLD,  # ぼかし度の閾値
         'nsfw_detection': True  # NSFWコンテンツの検出
     }
 
     def __init__(self, config_file=DEFAULT_CONFIG_FILE, output_dir_override=None, workers_override=None, proxy_config=None):
+        if _DOTENV_AVAILABLE:
+            load_dotenv()
+
         self.config_file = Path(config_file).resolve()
         self.config = self._load_config()
         self.script_dir = Path(__file__).parent.resolve()
@@ -121,7 +209,8 @@ class TumblrImageCollector:
         self._setup_proxy()
 
         # Determine output folder: CLI override > config > default
-        output_folder_name = output_dir_override or self.config.get("output_folder_name", "tumblr_images")
+        default_values = ConfigWizard.default_config_values()
+        output_folder_name = output_dir_override or self.config.get("output_folder_name", default_values["output_folder_name"])
         # Ensure output_folder is absolute path
         if Path(output_folder_name).is_absolute():
              self.output_folder = Path(output_folder_name)
@@ -129,13 +218,29 @@ class TumblrImageCollector:
              self.output_folder = self.script_dir / output_folder_name
 
         # Determine max workers: CLI override > config > default
-        self.max_workers = workers_override or self.config.get("max_download_workers", 5)
+        self.max_workers = workers_override or self.config.get("max_download_workers", default_values["max_download_workers"])
 
         self.api_batch_sleep = self.config.get("api_batch_sleep_seconds", 2)
         self.api_wait_hours = self.config.get("api_wait_hours", 1)
 
+        cache_cfg = self.config.get('cache', {})
+        self.cache_enabled = bool(cache_cfg.get('enabled', True))
+        default_cache_cfg = ConfigWizard.default_config_values().get('cache', {})
+        self.cache_ttl_seconds = int(cache_cfg.get('ttl_seconds', default_cache_cfg.get('ttl_seconds', 24 * 60 * 60)))
+        self.cache_max_entries = int(cache_cfg.get('max_entries', default_cache_cfg.get('max_entries', 2048)))
+
         self.downloaded_files = set()
+        self.downloaded_hashes = set()
         self._setup_output_directory()
+        self._cache_dir = self.output_folder / "cache"
+        self._cache_index = {}
+        if self.cache_enabled:
+            try:
+                self._cache_dir.mkdir(parents=True, exist_ok=True)
+                self._cache_index = self._load_cache_index()
+            except Exception as cache_err:
+                logger.warning(f"キャッシュディレクトリの作成に失敗しました: {cache_err}")
+                self.cache_enabled = False
         self._load_downloaded_files()
 
         self.consumer_key = None
@@ -144,39 +249,404 @@ class TumblrImageCollector:
         self.token_secret = None
         self._setup_credentials() # Reads from self.config
 
+        self.image_classifier = ImageClassifier(
+            enable_deep_model=self.config.get('enable_deep_model', default_values['enable_deep_model'])
+        )
+
+        filters_cfg = self.config.get('filters', {})
+        default_filters = default_values.get('filters', {})
+        self.nsfw_threshold = float(filters_cfg.get('nsfw_threshold', default_filters.get('nsfw_threshold', 0.35)))
+
+        security_cfg = self.config.get('security', {})
+        self.allowed_domains = self._load_allowed_domains(security_cfg.get('allowed_domains'))
+        self.max_download_limit = int(self.config.get('max_download_limit', 1000))
+        self.slow_response_threshold = int(self.config.get('slow_response_threshold', 45))
+
+        network_cfg = self.config.get('network', {})
+        default_network = default_values['network']
+        self.download_timeout = int(network_cfg.get('download_timeout_seconds', default_network['download_timeout_seconds']))
+        self.max_retries = int(network_cfg.get('max_retries', default_network['max_retries']))
+        self.backoff_factor = float(network_cfg.get('backoff_factor', default_network['backoff_factor']))
+        self.max_backoff_seconds = int(network_cfg.get('max_backoff_seconds', default_network['max_backoff_seconds']))
+
         self.client = self._initialize_client()
         self.executor = None # Will be managed by 'with' statement in run()
 
+        self.session = self._create_requests_session(self.max_retries, self.backoff_factor)
+        self.proxies = self._build_requests_proxies(self.proxy_config)
+
+        # CLIフィルタの初期値
+        self._cli_tags = []
+        self._cli_start_date = None
+        self._cli_end_date = None
+        self._include_likes = False
+
+        # レート制限管理
+        self._rate_limiter = self._create_rate_limiter()
+        self._request_timestamps = []
+        self._download_stats.setdefault('cache_hits', 0)
+        self._download_stats.setdefault('cache_misses', 0)
+
+        # シャットダウンハンドラーを登録
+        import atexit
+        atexit.register(self._cleanup_resources)
+
+        # シグナルハンドラーを登録（graceful shutdown）
+        self._setup_signal_handlers()
+
+        # 起動時の設定検証
+        self._validate_configuration()
+
+    def _cleanup_resources(self):
+        """リソースのクリーンアップとメモリリーク防止"""
+        try:
+            # スレッドプールのクリーンアップ
+            if self.executor:
+                self.executor.shutdown(wait=False)
+                self.executor = None
+
+            # HTTPセッションのクリーンアップ
+            if self.session:
+                self.session.close()
+                self.session = None
+
+            # キャッシュのクリーンアップ
+            if hasattr(self, '_image_cache'):
+                self._image_cache.clear()
+                delattr(self, '_image_cache')
+
+            # ダウンロード済みファイルのセットをクリア
+            if hasattr(self, 'downloaded_files'):
+                self.downloaded_files.clear()
+
+            # 統計情報を保存
+            self._save_statistics()
+            logger.info("リソースをクリーンアップしました")
+
+            # ガベージコレクションの実行
+            import gc
+            gc.collect()
+
+        except Exception as e:
+            logger.error(f"リソースクリーンアップ中にエラー: {e}")
+
+    def _create_rate_limiter(self):
+        """
+        レート制限機能を作成
+
+        Returns:
+            dict: レート制限設定
+        """
+        return {
+            'requests_per_minute': self.config.get('rate_limit', {}).get('requests_per_minute', 30),
+            'burst_limit': self.config.get('rate_limit', {}).get('burst_limit', 5),
+            'window_seconds': 60
+        }
+
+    def _load_cache_index(self) -> Dict[str, Dict[str, Any]]:
+        """キャッシュインデックスを読み込む"""
+        index_path = self._cache_dir / "index.json"
+        if not index_path.exists():
+            return {}
+        try:
+            with open(index_path, 'r', encoding='utf-8') as index_file:
+                data = json.load(index_file)
+            if isinstance(data, dict):
+                return data
+        except json.JSONDecodeError as decode_err:
+            logger.warning(f"キャッシュインデックスの読み込みに失敗しました: {decode_err}")
+        except OSError as os_err:
+            logger.warning(f"キャッシュインデックスファイルにアクセスできません: {os_err}")
+        return {}
+
+    def _persist_cache_index(self) -> None:
+        """キャッシュインデックスを保存"""
+        if not self.cache_enabled:
+            return
+        index_path = self._cache_dir / "index.json"
+        try:
+            with open(index_path, 'w', encoding='utf-8') as index_file:
+                json.dump(self._cache_index, index_file, ensure_ascii=False, indent=2)
+        except OSError as os_err:
+            logger.warning(f"キャッシュインデックスの保存に失敗しました: {os_err}")
+
+    def _cache_key(self, image_url: str) -> str:
+        return image_url.strip().lower()
+
+    def _check_cache(self, image_url: str) -> Optional[Path]:
+        """キャッシュ済みファイルのパスを返す"""
+        if not self.cache_enabled:
+            return None
+        key = self._cache_key(image_url)
+        cached_entry = self._cache_index.get(key)
+        if not cached_entry:
+            self._download_stats['cache_misses'] += 1
+            return None
+
+        cached_path = self._cache_dir / cached_entry.get('filename', '')
+        if not cached_path.exists():
+            self._download_stats['cache_misses'] += 1
+            self._cache_index.pop(key, None)
+            return None
+
+        expires_at = cached_entry.get('expires_at')
+        if expires_at and time.time() > expires_at:
+            logger.debug(f"キャッシュの有効期限切れ: {image_url}")
+            try:
+                cached_path.unlink(missing_ok=True)
+            except OSError:
+                pass
+            self._cache_index.pop(key, None)
+            self._download_stats['cache_misses'] += 1
+            return None
+
+        self._download_stats['cache_hits'] += 1
+        return cached_path
+
+    def _prune_cache_index(self) -> None:
+        """キャッシュの最大件数を超える場合に古いエントリを削除（TTL強制実施）"""
+        current_time = time.time()
+        expired_keys = []
+
+        # 期限切れエントリを収集
+        for key, info in self._cache_index.items():
+            expires_at = info.get('expires_at')
+            if expires_at and current_time > expires_at:
+                expired_keys.append(key)
+
+        # 期限切れエントリを削除
+        for key in expired_keys:
+            info = self._cache_index.get(key)
+            if info:
+                filename = info.get('filename')
+                if filename:
+                    file_path = self._cache_dir / filename
+                    try:
+                        file_path.unlink(missing_ok=True)
+                    except OSError as e:
+                        logger.debug(f"期限切れキャッシュファイルの削除失敗: {file_path} - {e}")
+                self._cache_index.pop(key, None)
+
+        # 最大件数チェック
+        if len(self._cache_index) <= self.cache_max_entries:
+            return
+
+        # LRU: 最も古いエントリから削除
+        sorted_items = sorted(
+            self._cache_index.items(),
+            key=lambda item: item[1].get('stored_at', 0)
+        )
+
+        removed_count = 0
+        target_removal = len(self._cache_index) - self.cache_max_entries
+
+        for key, info in sorted_items:
+            if removed_count >= target_removal:
+                break
+
+            filename = info.get('filename')
+            if filename:
+                file_path = self._cache_dir / filename
+                try:
+                    file_path.unlink(missing_ok=True)
+                    removed_count += 1
+                except OSError as e:
+                    logger.debug(f"キャッシュファイルの削除失敗: {file_path} - {e}")
+
+            self._cache_index.pop(key, None)
+
+        if removed_count > 0:
+            logger.info(f"キャッシュを整理: {removed_count}件のエントリを削除")
+
+    def _save_to_cache(self, file_path: Path, image_url: str) -> None:
+        """ダウンロードしたファイルをキャッシュに保存"""
+        if not self.cache_enabled:
+            return
+        key = self._cache_key(image_url)
+        cached_name = f"{uuid.uuid4().hex}{file_path.suffix.lower()}"
+        cached_path = self._cache_dir / cached_name
+        try:
+            shutil.copy2(file_path, cached_path)
+        except OSError as copy_err:
+            logger.warning(f"キャッシュへの保存に失敗: {copy_err}")
+            return
+
+        self._cache_index[key] = {
+            'filename': cached_name,
+            'stored_at': time.time(),
+            'expires_at': time.time() + self.cache_ttl_seconds if self.cache_ttl_seconds else None
+        }
+        self._prune_cache_index()
+        self._persist_cache_index()
+
+    def _is_metadata_size_safe(self, metadata: Dict[str, Any]) -> bool:
+        try:
+            serialized = json.dumps(metadata, ensure_ascii=False)
+        except (TypeError, OverflowError):
+            return False
+        return len(serialized.encode('utf-8')) <= MAX_METADATA_SIZE_BYTES
+
+    def _check_rate_limit(self):
+        """
+        レート制限をチェックし、必要に応じて待機
+
+        Returns:
+            bool: リクエスト可能かどうか
+        """
+        current_time = time.time()
+        rate_limiter = self._rate_limiter
+
+        # 古いタイムスタンプを削除
+        self._request_timestamps = [
+            ts for ts in self._request_timestamps
+            if current_time - ts < rate_limiter['window_seconds']
+        ]
+
+        # レート制限チェック
+        if len(self._request_timestamps) >= rate_limiter['requests_per_minute']:
+            # バースト制限チェック
+            recent_requests = [ts for ts in self._request_timestamps
+                             if current_time - ts < 1]  # 1秒以内のリクエスト
+
+            if len(recent_requests) >= rate_limiter['burst_limit']:
+                sleep_time = 1.0
+                logger.warning(f"レート制限に達しました。{sleep_time}秒待機します。")
+                time.sleep(sleep_time)
+                return self._check_rate_limit()
+
+        # リクエストタイムスタンプを記録
+        self._request_timestamps.append(current_time)
+        return True
+
+    def _serialize_cli_filters(self):
+        return {
+            'tags': list(self._cli_tags) if self._cli_tags else [],
+            'start_date': self._cli_start_date.isoformat() if self._cli_start_date else None,
+            'end_date': self._cli_end_date.isoformat() if self._cli_end_date else None,
+            'include_likes': bool(self._include_likes)
+        }
+
+    def _restore_cli_filters(self, cli_filters):
+        if not cli_filters:
+            return
+
+        tags = cli_filters.get('tags') or []
+        self._cli_tags = [str(tag).lower() for tag in tags]
+
+        start_iso = cli_filters.get('start_date')
+        end_iso = cli_filters.get('end_date')
+
+        self._cli_start_date = datetime.datetime.fromisoformat(start_iso) if start_iso else None
+        self._cli_end_date = datetime.datetime.fromisoformat(end_iso) if end_iso else None
+
+        self._include_likes = bool(cli_filters.get('include_likes', False))
+
+    def _save_statistics(self):
+        """統計情報を保存"""
+        stats_path_json = self.script_dir / 'download_statistics.json'
+        stats_path_csv = self.script_dir / 'download_statistics.csv'
+
+        try:
+            # JSON保存
+            with open(stats_path_json, 'w', encoding='utf-8') as f:
+                json.dump(self._download_stats, f, ensure_ascii=False, indent=2)
+
+            # CSV保存
+            with open(stats_path_csv, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile)
+
+                writer.writerow(['metric', 'value'])
+                writer.writerow(['total_attempts', self._download_stats['total_attempts']])
+                writer.writerow(['successful_downloads', self._download_stats['successful_downloads']])
+                writer.writerow(['failed_downloads', self._download_stats['failed_downloads']])
+                writer.writerow(['skipped_duplicates', self._download_stats['skipped_duplicates']])
+
+                ai_stats = self._download_stats.get('ai_classification_stats', {})
+                writer.writerow([])
+                writer.writerow(['AI Classification Stats'])
+                writer.writerow(['valid_images', ai_stats.get('valid_images', 0)])
+                writer.writerow(['invalid_images', ai_stats.get('invalid_images', 0)])
+                writer.writerow(['potentially_nsfw_images', ai_stats.get('potentially_nsfw_images', 0)])
+
+                metrics_summary = ai_stats.get('metrics_summary', {})
+                if metrics_summary:
+                    writer.writerow([])
+                    writer.writerow(['Metric', 'count', 'mean', 'min', 'max'])
+                    for metric_name, metric_data in metrics_summary.items():
+                        count = metric_data.get('count', 0)
+                        mean_value = (metric_data['sum'] / count) if count else 0.0
+                        writer.writerow([
+                            metric_name,
+                            count,
+                            f"{mean_value:.4f}",
+                            f"{metric_data['min']:.4f}",
+                            f"{metric_data['max']:.4f}"
+                        ])
+
+            logger.info(f"統計情報を保存しました: {stats_path_json}, {stats_path_csv}")
+        except Exception as e:
+            logger.error(f"統計情報の保存に失敗: {e}")
+
     def _setup_logging(self):
-        """高度なロギングシステムを設定する"""
+        """高度なロギングシステムを設定する（セキュリティフィルタ付き）"""
         # ログディレクトリを作成
         log_dir = self.script_dir / 'logs'
         log_dir.mkdir(exist_ok=True)
 
-        # ログファイルのパスを設定
-        log_filename = log_dir / f"tumblr_collector_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+        logging_cfg = self.config.get('logging', {})
+        default_logging = ConfigWizard.default_config_values()['logging']
+        max_bytes = int(logging_cfg.get('max_bytes', default_logging['max_bytes'])) or default_logging['max_bytes']
+        backup_count = int(logging_cfg.get('backup_count', default_logging['backup_count'])) or 1
+        log_level_name = str(logging_cfg.get('level', default_logging['level'])).upper()
+        log_level = getattr(logging, log_level_name, logging.INFO)
 
-        # カスタムログフォーマッター
+        log_filename = log_dir / "tumblr_collector.log"
+
+        # セキュリティフィルタ：機密情報をマスキング
+        class SensitiveDataFilter(logging.Filter):
+            """機密情報をログから除外するフィルタ"""
+            SENSITIVE_PATTERNS = [
+                (r'(consumer_key["\']?\s*[:=]\s*["\']?)([^"\']+)', r'\1***REDACTED***'),
+                (r'(consumer_secret["\']?\s*[:=]\s*["\']?)([^"\']+)', r'\1***REDACTED***'),
+                (r'(token["\']?\s*[:=]\s*["\']?)([^"\']+)', r'\1***REDACTED***'),
+                (r'(password["\']?\s*[:=]\s*["\']?)([^"\']+)', r'\1***REDACTED***'),
+                (r'(api_key["\']?\s*[:=]\s*["\']?)([^"\']+)', r'\1***REDACTED***'),
+                # OAuth tokenの部分マスキング（最初10文字のみ表示）
+                (r'oauth_token=([a-zA-Z0-9]{10})[a-zA-Z0-9]+', r'oauth_token=\1...'),
+            ]
+
+            def filter(self, record):
+                if hasattr(record, 'msg') and isinstance(record.msg, str):
+                    for pattern, replacement in self.SENSITIVE_PATTERNS:
+                        record.msg = re.sub(pattern, replacement, record.msg, flags=re.IGNORECASE)
+                return True
+
         formatter = logging.Formatter(
             '%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s',
             datefmt='%Y-%m-%d %H:%M:%S'
         )
 
-        # ファイルハンドラー
-        file_handler = logging.FileHandler(log_filename, encoding='utf-8')
+        file_handler = RotatingFileHandler(
+            log_filename,
+            maxBytes=max(1024 * 1024, max_bytes),
+            backupCount=max(1, backup_count),
+            encoding='utf-8'
+        )
         file_handler.setFormatter(formatter)
-        file_handler.setLevel(logging.DEBUG)
+        file_handler.setLevel(log_level)
+        file_handler.addFilter(SensitiveDataFilter())
 
-        # コンソールハンドラー
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(formatter)
-        console_handler.setLevel(logging.INFO)
+        console_handler.setLevel(log_level)
+        console_handler.addFilter(SensitiveDataFilter())
 
-        # ロガーを設定
-        logging.basicConfig(
-            level=logging.DEBUG,
-            handlers=[file_handler, console_handler]
-        )
+        root_logger = logging.getLogger()
+        for handler in list(root_logger.handlers):
+            root_logger.removeHandler(handler)
+        root_logger.setLevel(log_level)
+        root_logger.addHandler(file_handler)
+        root_logger.addHandler(console_handler)
 
         # 未処理の例外をキャッチするハンドラーを追加
         def handle_exception(exc_type, exc_value, exc_traceback):
@@ -226,14 +696,42 @@ class TumblrImageCollector:
             raise IOError(f"Cannot create output directory: {self.output_folder}") from e
 
     def _load_downloaded_files(self):
-        """出力フォルダから既存のファイル名を読み込み、セットに追加する"""
+        """出力フォルダから既存のファイル情報を読み込み、キャッシュを初期化する"""
         if not self.output_folder.exists():
              logger.warning(f"Output folder {self.output_folder} does not exist yet.")
              return
         try:
-            existing_files = {f.name for f in self.output_folder.iterdir() if f.is_file()}
+            existing_files = {f.name for f in self.output_folder.iterdir() if f.is_file() and f.suffix.lower() not in {'.json', '.log'}}
             self.downloaded_files.update(existing_files)
-            logger.info(f"Loaded {len(existing_files)} existing filenames from {self.output_folder}.")
+
+            # 既存ファイルのハッシュをメタデータから読み込み、可能であればキャッシュする
+            loaded_hashes = 0
+            skipped_hashes = 0
+            for filename in existing_files:
+                metadata_path = (self.output_folder / filename).with_suffix('.json')
+                if not metadata_path.exists():
+                    skipped_hashes += 1
+                    continue
+                try:
+                    with open(metadata_path, 'r', encoding='utf-8') as meta_file:
+                        metadata = json.load(meta_file)
+                    image_hash = metadata.get('image_hash')
+                    if image_hash:
+                        self.downloaded_hashes.add(image_hash)
+                        loaded_hashes += 1
+                    else:
+                        skipped_hashes += 1
+                except Exception as e:
+                    skipped_hashes += 1
+                    logger.debug(f"Failed to load metadata hash for {filename}: {e}")
+
+            logger.info(
+                "Loaded %d existing files and %d cached hashes from %s (skipped %d).",
+                len(existing_files),
+                loaded_hashes,
+                self.output_folder,
+                skipped_hashes
+            )
         except Exception as e:
             logger.error(f"Error reading existing files from {self.output_folder}: {e}")
 
@@ -246,25 +744,54 @@ class TumblrImageCollector:
         oauth_client = pytumblr.TumblrRestClient(self.consumer_key, self.consumer_secret)
         try:
             url = oauth_client.get_authorize_url()
-            logger.info(f"Please visit the following URL in your browser to get the OAuth verifier: {url}")
+
+            # URL検証（セキュリティチェック）
+            if not url or not isinstance(url, str):
+                logger.error("Invalid OAuth URL received")
+                return None, None
+
+            # URLがTumblrドメインであることを確認
+            from urllib.parse import urlparse
+            parsed = urlparse(url)
+            if not parsed.netloc.endswith('tumblr.com'):
+                logger.error(f"OAuth URL is not from Tumblr domain: {parsed.netloc}")
+                return None, None
+
+            logger.info("Please visit the following URL in your browser to get the OAuth verifier:")
+            logger.info(url)
+
             # Try to open browser, but don't fail if it doesn't work
             try:
                 webbrowser.open(url)
-            except Exception:
-                 logger.warning("Could not automatically open browser.")
+            except Exception as browser_error:
+                 logger.warning(f"Could not automatically open browser: {browser_error}")
 
-            verifier = input("Enter the OAuth verifier here: ")
+            # Verifierの入力と検証
+            verifier = input("Enter the OAuth verifier here: ").strip()
             if not verifier:
                  logger.error("OAuth verifier is required.")
                  return None, None
 
+            # Verifierの形式検証（英数字のみ、適切な長さ）
+            if not verifier.isalnum() or len(verifier) < 6 or len(verifier) > 128:
+                logger.error("Invalid OAuth verifier format")
+                return None, None
+
             oauth_client.get_access_token(verifier)
 
-            logger.info("OAuth access token obtained!")
-            logger.info(f"OAuth Token: {oauth_client.token}")
-            logger.info(f"OAuth Token Secret: {oauth_client.token_secret}")
+            # トークンの検証
+            if not oauth_client.token or not oauth_client.token_secret:
+                logger.error("Failed to obtain valid OAuth tokens")
+                return None, None
+
+            logger.info("OAuth access token obtained successfully!")
+            # セキュリティ: トークンの全体をログに出力しない
+            logger.debug(f"OAuth Token (first 10 chars): {oauth_client.token[:10]}...")
             return oauth_client.token, oauth_client.token_secret
 
+        except KeyboardInterrupt:
+            logger.warning("OAuth flow cancelled by user")
+            return None, None
         except Exception as e:
             logger.error(f"Error obtaining OAuth token: {e}")
             return None, None
@@ -305,54 +832,308 @@ class TumblrImageCollector:
             # プロキシ設定をリセット
             self.proxy_config = DEFAULT_PROXY_CONFIG
 
-    def _extract_image_metadata(self, image_path: str) -> Optional[Dict[str, Any]]:
+    def _validate_input(self, input_value, input_type, max_length=None, allowed_chars=None):
         """
-        画像メタデータを抽出する関数
-        
+        入力値を検証する
+
         Args:
-            image_path (str): 画像ファイルのパス
-        
+            input_value (str): 検証する入力値
+            input_type (str): 入力の種類 ('url', 'filename', 'path', 'text')
+            max_length (int): 最大長
+            allowed_chars (str): 許可する文字セット
+
         Returns:
-            Optional[Dict[str, Any]]: 画像メタデータ
+            bool: 検証結果
         """
+        if not isinstance(input_value, str):
+            return False
+
+        # 空文字列チェック
+        if not input_value.strip():
+            return False
+
+        # 最大長チェック
+        if max_length and len(input_value) > max_length:
+            return False
+
+        # 文字セットチェック
+        if allowed_chars:
+            if not all(c in allowed_chars for c in input_value):
+                return False
+
+        # 入力タイプ別の追加検証
+        if input_type == 'url':
+            try:
+                from urllib.parse import urlparse
+                parsed = urlparse(input_value)
+                return bool(parsed.scheme and parsed.netloc)
+            except Exception:
+                return False
+
+        elif input_type == 'filename':
+            import re
+            # ファイル名として危険な文字をチェック
+            dangerous_chars = ['/', '\\', ':', '*', '?', '"', '<', '>', '|']
+            return not any(char in input_value for char in dangerous_chars)
+
+        elif input_type == 'path':
+            # パストラバーサルとnullバイト攻撃をチェック
+            if '..' in input_value:
+                return False
+            if '\0' in input_value:
+                return False
+            # Windowsパストラバーサル対策
+            if input_value.startswith(('/', '\\')):
+                return False
+            # ドライブレター検証
+            if len(input_value) > 1 and input_value[1] == ':':
+                return False
+            return True
+
+        return True
+
+    def _sanitize_filename(self, filename):
+        """
+        ファイル名をサニタイズする
+
+        Args:
+            filename (str): 元のファイル名
+
+        Returns:
+            str: サニタイズされたファイル名
+        """
+        import re
+
+        if not isinstance(filename, str):
+            return f"image_{int(time.time())}.jpg"
+
+        # 制御文字とnullバイトを除去
+        sanitized = ''.join(char for char in filename if ord(char) >= 32 and char != '\0')
+
+        # 危険な文字を置換
+        dangerous_chars = ['/', '\\', ':', '*', '?', '"', '<', '>', '|']
+        for char in dangerous_chars:
+            sanitized = sanitized.replace(char, '_')
+
+        # 連続するアンダースコアを1つに
+        sanitized = re.sub(r'_+', '_', sanitized)
+
+        # 先頭と末尾の空白・ピリオドを除去（Windowsファイルシステム対策）
+        sanitized = sanitized.strip('. ')
+
+        # 予約語チェック（Windows）
+        reserved_names = {'CON', 'PRN', 'AUX', 'NUL', 'COM1', 'COM2', 'COM3', 'COM4',
+                         'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'LPT1', 'LPT2',
+                         'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9'}
+        name_part = sanitized.split('.')[0].upper()
+        if name_part in reserved_names:
+            sanitized = f"file_{sanitized}"
+
+        # ファイル名が長すぎる場合は切り詰め（拡張子を保持）
+        max_length = 200  # 安全なマージンを確保
+        if len(sanitized) > max_length:
+            name, ext = os.path.splitext(sanitized)
+            # 拡張子を保持しつつファイル名を短縮
+            available_length = max_length - len(ext)
+            sanitized = name[:available_length] + ext
+
+        # ファイル名が空になった場合はデフォルト名を使用
+        if not sanitized.strip():
+            sanitized = f"image_{int(time.time())}.jpg"
+
+        return sanitized
+
+    def _process_image_efficiently(self, image_path, max_dimension=MAX_DIMENSION_RESIZE):
+        """メモリ効率を重視した画像処理を行う"""
+        if not _NUMPY_AVAILABLE:
+            logger.debug("NumPyが利用できないため、簡易的な画像処理のみ実施します。")
+
+        image_copy = None
+        img_array = None
+
         try:
+            # ファイルサイズチェック（メモリ保護）
+            file_size = Path(image_path).stat().st_size
+            max_file_size = 100 * 1024 * 1024  # 100MB制限
+            if file_size > max_file_size:
+                logger.warning(f"ファイルサイズが大きすぎます: {file_size / 1024 / 1024:.2f}MB")
+                return {}
+
             with Image.open(image_path) as img:
-                # 画像の基本情報
-                width, height = img.size
-                file_size = os.path.getsize(image_path)
-                file_format = img.format
-                color_mode = img.mode
-                
-                # 知覚的ハッシュによる重複検出
-                phash = str(imagehash.phash(img))
-                
-                # 画質計算
-                quality_score = self._calculate_image_quality(img)
-                
-                # AI画像分類器による追加分析
-                classifier = ImageClassifier()
-                classification_result = classifier.analyze_image(image_path)
-                
-                metadata = {
-                    'width': width,
-                    'height': height,
-                    'file_size': file_size,
-                    'format': file_format,
-                    'color_mode': color_mode,
-                    'phash': phash,
-                    'quality_score': quality_score,
-                    'ai_classification': {
-                        'is_valid': classification_result.get('is_valid', False),
-                        'is_high_resolution': classification_result.get('is_high_resolution', False),
-                        'is_potentially_nsfw': classification_result.get('is_potentially_nsfw', False),
-                        'top_predictions': classification_result.get('top_predictions', [])
-                    }
+                original_width, original_height = img.size
+
+                # 画像サイズの検証（爆弾画像対策）
+                max_pixels = 178956970  # PIL の DECOMPRESSION_BOMB_CHECK のデフォルト
+                if original_width * original_height > max_pixels:
+                    logger.warning(f"画像サイズが大きすぎます: {original_width}x{original_height}")
+                    return {}
+
+                image_copy = img.copy()
+                if max(original_width, original_height) > max_dimension:
+                    image_copy.thumbnail((max_dimension, max_dimension), Image.LANCZOS)
+
+                features = {
+                    'dimensions': {
+                        'width': image_copy.size[0],
+                        'height': image_copy.size[1]
+                    },
+                    'aspect_ratio': image_copy.size[0] / image_copy.size[1] if image_copy.size[1] else 0,
+                    'color_mode': image_copy.mode,
                 }
-                
-                return metadata
+
+                if _NUMPY_AVAILABLE:
+                    img_array = np.array(image_copy)
+                    color_channels = img_array.shape[2] if len(img_array.shape) > 2 else 1
+                    features.update({
+                        'color_channels': color_channels,
+                        'mean_color': np.mean(img_array, axis=(0, 1)).tolist() if color_channels > 1 else []
+                    })
+                else:
+                    features.update({
+                        'color_channels': len(image_copy.getbands()),
+                        'mean_color': []
+                    })
+
+                return features
+
+        except FileNotFoundError:
+            logger.error(f"画像ファイルが見つかりません: {image_path}")
+        except Exception as e:
+            logger.error(f"メモリ効率の良い画像処理中にエラー: {e}")
+        finally:
+            # メモリ解放
+            if image_copy is not None:
+                del image_copy
+            if img_array is not None:
+                del img_array
+            import gc
+            gc.collect()
+
+        return {}
+
+    def _extract_image_metadata(self, image_path):
+        """画像ファイルからメタデータを抽出する"""
+        try:
+            path_obj = Path(image_path)
+            if not path_obj.exists():
+                logger.warning(f"メタデータ抽出対象のファイルが存在しません: {image_path}")
+                return None
+
+            with Image.open(path_obj) as img:
+                width, height = img.size
+                file_size = path_obj.stat().st_size
+                file_format = img.format or 'UNKNOWN'
+                color_mode = img.mode
+
+                try:
+                    phash = str(imagehash.phash(img))
+                except Exception as hash_error:
+                    logger.warning(f"画像ハッシュ算出に失敗しました: {hash_error}")
+                    phash = None
+
+                quality_score = 0.0
+                try:
+                    quality_score = float(self._calculate_image_quality(img))
+                except Exception as quality_error:
+                    logger.warning(f"画質評価に失敗しました: {quality_error}")
+
+                nsfw_score = None
+                if _CV2_AVAILABLE and _NUMPY_AVAILABLE:
+                    try:
+                        nsfw_input = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+                        nsfw_score = float(self._estimate_nsfw_content(nsfw_input))
+                    except Exception as nsfw_error:
+                        logger.warning(f"NSFWスコア算出に失敗しました: {nsfw_error}")
+                else:
+                    nsfw_score = None
+
+            classification_result = {}
+            if getattr(self, "image_classifier", None) is not None:
+                try:
+                    classification_result = self.image_classifier.analyze_image(str(path_obj)) or {}
+                except Exception as clf_error:
+                    logger.warning(f"AI画像分類に失敗しました: {clf_error}")
+                    classification_result = {}
+
+            metadata = {
+                'width': width,
+                'height': height,
+                'file_size': file_size,
+                'format': file_format,
+                'color_mode': color_mode,
+                'phash': phash,
+                'quality_score': quality_score,
+                'ai_classification': {
+                    'is_valid': classification_result.get('is_valid', False),
+                    'is_high_resolution': classification_result.get('is_high_resolution', False),
+                    'is_potentially_nsfw': classification_result.get('is_potentially_nsfw', False),
+                    'top_predictions': classification_result.get('top_predictions', []),
+                    'metrics': dict(classification_result.get('metrics', {}) or {})
+                }
+            }
+
+            processed_features = self._process_image_efficiently(str(path_obj))
+            if processed_features:
+                metadata['processed_features'] = processed_features
+
+            if nsfw_score is not None:
+                metrics_section = metadata['ai_classification'].setdefault('metrics', {})
+                metrics_section['nsfw_score'] = nsfw_score
+                metadata['ai_classification']['is_potentially_nsfw'] = (
+                    metadata['ai_classification']['is_potentially_nsfw']
+                    or nsfw_score >= self.nsfw_threshold
+                )
+
+            return metadata
         except Exception as e:
             logger.error(f"メタデータ抽出エラー: {e}")
             return None
+
+    def _generate_filename_from_path(self, cached_path: Path) -> str:
+        """キャッシュまたはテンポラリファイルパスから保存用ファイル名を生成する"""
+        cached_path = Path(cached_path)
+        extension = cached_path.suffix.lower() or '.jpg'
+        safe_name = cached_path.stem
+        return f"cached_{safe_name}{extension}"
+
+    def _generate_output_filename(self, source_path, metadata, image_url=None, post_data=None):
+        """画像メタデータと投稿情報から保存ファイル名を生成する"""
+        path_obj = Path(source_path)
+        extension = path_obj.suffix.lower() or '.jpg'
+
+        blog_name = ''
+        if isinstance(post_data, dict):
+            blog_name = post_data.get('blog_name') or post_data.get('blog', '')
+
+        if not blog_name and image_url:
+            try:
+                blog_name = urlparse(image_url).netloc.split('.')[0]
+            except Exception:
+                blog_name = ''
+
+        timestamp_token = ''
+        if isinstance(post_data, dict) and post_data.get('timestamp'):
+            try:
+                timestamp_token = datetime.datetime.fromtimestamp(post_data['timestamp']).strftime('%Y%m%d_%H%M%S')
+            except Exception:
+                timestamp_token = ''
+
+        if not timestamp_token:
+            timestamp_token = datetime.datetime.utcnow().strftime('%Y%m%d_%H%M%S')
+
+        width = metadata.get('width') if isinstance(metadata, dict) else None
+        height = metadata.get('height') if isinstance(metadata, dict) else None
+        size_token = f"{width}x{height}" if width and height else ''
+
+        base_token = path_obj.stem
+        components = [blog_name, timestamp_token, size_token, base_token]
+        raw_name = '_'.join(filter(None, components)) or f"image_{timestamp_token}"
+
+        sanitized = self._sanitize_filename(raw_name)
+        if not sanitized.lower().endswith(extension):
+            sanitized = f"{sanitized}{extension}"
+
+        return sanitized
 
     def _advanced_image_analysis(self, image_path):
         """
@@ -366,8 +1147,8 @@ class TumblrImageCollector:
         """
         try:
             # OpenCVを使用した画像分析
-            import cv2
-            import numpy as np
+            if not _CV2_AVAILABLE or not _NUMPY_AVAILABLE:
+                return {}
 
             # 画像をロード
             img = cv2.imread(str(image_path))
@@ -383,7 +1164,7 @@ class TumblrImageCollector:
             }
             
             # エッジ検出
-            edges = cv2.Canny(img, 100, 200)
+            edges = cv2.Canny(img, CANNY_LOWER_THRESHOLD, CANNY_UPPER_THRESHOLD)
             edge_density = np.sum(edges) / (height * width)
             
             # ぼかし度の検出
@@ -441,43 +1222,6 @@ class TumblrImageCollector:
             logger.error(f"画像分析中にエラー: {e}")
             return {}
 
-    def _extract_dominant_colors(self, image, top_n=5):
-        """
-        画像から支配的な色を抽出
-        
-        Args:
-            image (numpy.ndarray): OpenCV形式の画像
-            top_n (int): 抽出する上位の色の数
-        
-        Returns:
-            list: 支配的な色のRGB値
-        """
-        try:
-            # 画像をRGBに変換
-            img_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            
-            # 画像をリシェイプ
-            pixels = img_rgb.reshape((-1, 3))
-            
-            # float32に変換
-            pixels = np.float32(pixels)
-            
-            # K-meansクラスタリング
-            criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.2)
-            k = min(top_n, pixels.shape[0])
-            _, labels, centers = cv2.kmeans(pixels, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
-            
-            # 色をカウント
-            unique, counts = np.unique(labels, return_counts=True)
-            
-            # 色を出現頻度でソート
-            sorted_indices = np.argsort(counts)[::-1]
-            
-            # RGB値を返す
-            return [centers[idx].astype(int).tolist() for idx in sorted_indices]
-        except Exception as e:
-            logger.error(f"支配的な色の抽出中にエラー: {e}")
-            return []
 
     def _estimate_nsfw_content(self, image):
         """
@@ -489,24 +1233,52 @@ class TumblrImageCollector:
         Returns:
             float: NSFWスコア（0.0〜1.0）
         """
-        # TODO: 機械学習モデルやAPIを使用した本格的なNSFW検出
-        # 現在は簡易的な肌色検出を使用
+        if not _CV2_AVAILABLE or not _NUMPY_AVAILABLE:
+            logger.debug("NSFW推定に必要なOpenCV/Numpyが利用できないため、スコア0.0を返します。")
+            return 0.0
+
         try:
-            # HSV色空間に変換
             hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-            
-            # 肌色の色相範囲（おおよそ）
-            lower_skin = np.array([0, 48, 80], dtype=np.uint8)
-            upper_skin = np.array([20, 255, 255], dtype=np.uint8)
-            
-            # 肌色マスクを作成
+
+            lower_skin = np.array([0, 40, 60], dtype=np.uint8)
+            upper_skin = np.array([25, 255, 255], dtype=np.uint8)
+
             skin_mask = cv2.inRange(hsv, lower_skin, upper_skin)
-            
-            # 肌色ピクセルの割合を計算
-            skin_ratio = np.sum(skin_mask > 0) / (image.shape[0] * image.shape[1])
-            
-            # 簡易的なNSFWスコア（肌色の割合に基づく）
-            return min(skin_ratio * 2, 1.0)  # 最大1.0に制限
+
+            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+            skin_mask = cv2.morphologyEx(skin_mask, cv2.MORPH_CLOSE, kernel, iterations=2)
+
+            skin_ratio = np.sum(skin_mask > 0) / float(image.shape[0] * image.shape[1])
+
+            saturation = hsv[:, :, 1]
+            brightness = hsv[:, :, 2]
+            high_saturation_ratio = np.mean(saturation > 120)
+            high_brightness_ratio = np.mean(brightness > 150)
+            brightness_mean = float(brightness.mean())
+            brightness_ratio = brightness_mean / 255.0
+
+            contour_result = cv2.findContours(skin_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            if len(contour_result) == 2:
+                contours, _ = contour_result
+            elif len(contour_result) == 3:
+                _, contours, _ = contour_result
+            else:  # pragma: no cover
+                contours = []
+
+            largest_region = 0.0
+            if contours:
+                largest_region = max(cv2.contourArea(cnt) for cnt in contours) / float(image.shape[0] * image.shape[1])
+
+            score = (
+                0.5 * skin_ratio +
+                0.2 * high_saturation_ratio +
+                0.15 * largest_region +
+                0.15 * high_brightness_ratio
+            )
+
+            if brightness_mean < 40:
+                score *= max(0.2, brightness_ratio)
+            return float(min(max(score, 0.0), 1.0))
         except Exception as e:
             logger.error(f"NSFW推定中にエラー: {e}")
             return 0.0
@@ -523,19 +1295,19 @@ class TumblrImageCollector:
         """
         try:
             # メタデータと高度な分析を統合
-            with Image.open(image_path) as img:
-                basic_metadata = self._extract_image_metadata(img)
-            
+            basic_metadata = self._extract_image_metadata(str(image_path)) or {}
+
             advanced_analysis = self._advanced_image_analysis(image_path)
             
             # レポートを統合
+            last_modified = datetime.datetime.fromtimestamp(image_path.stat().st_mtime).isoformat()
             comprehensive_report = {
                 'basic_metadata': basic_metadata,
                 'advanced_analysis': advanced_analysis,
                 'file_info': {
                     'path': str(image_path),
                     'size_bytes': image_path.stat().st_size,
-                    'last_modified': datetime.datetime.fromtimestamp(image_path.stat().st_mtime)
+                    'last_modified': last_modified
                 }
             }
             
@@ -571,13 +1343,48 @@ class TumblrImageCollector:
             logger.error(f"GLCM計算中にエラー: {e}")
             return None
 
+    def _generate_crash_report(self, exc_type, exc_value, exc_traceback):
+        """
+        クラッシュレポートを生成して保存
+
+        Args:
+            exc_type: 例外の型
+            exc_value: 例外の値
+            exc_traceback: 例外のトレースバック
+        """
+        try:
+            crash_id = str(uuid.uuid4())
+            crash_time = datetime.datetime.now().isoformat()
+
+            crash_report = {
+                'crash_id': crash_id,
+                'timestamp': crash_time,
+                'platform': platform.platform(),
+                'python_version': sys.version,
+                'exception_type': str(exc_type.__name__) if exc_type else 'Unknown',
+                'exception_message': str(exc_value) if exc_value else 'No message',
+                'traceback': traceback.format_exception(exc_type, exc_value, exc_traceback) if exc_traceback else [],
+                'download_stats': self._download_stats,
+                'config': {k: v for k, v in self.config.items() if k not in ['consumer_key', 'consumer_secret', 'token', 'token_secret']}
+            }
+
+            report_path = CRASH_REPORT_DIR / f"crash_{crash_time.replace(':', '-')}_{crash_id[:8]}.json"
+            with open(report_path, 'w', encoding='utf-8') as f:
+                json.dump(crash_report, f, ensure_ascii=False, indent=2, default=str)
+
+            logger.error(f"クラッシュレポートを保存しました: {report_path}")
+            return report_path
+        except Exception as e:
+            logger.error(f"クラッシュレポートの生成に失敗: {e}")
+            return None
+
     def _extract_glcm_features(self, glcm):
         """
         GLCMから特徴量を抽出
-        
+
         Args:
             glcm (numpy.ndarray): グレイレベル共起行列
-        
+
         Returns:
             dict: テクスチャ特徴量
         """
@@ -607,8 +1414,8 @@ class TumblrImageCollector:
             numpy.ndarray: エッジ方向ヒストグラム
         """
         try:
-            import cv2
-            import numpy as np
+            if not _CV2_AVAILABLE or not _NUMPY_AVAILABLE:
+                return {}
             
             # エッジの勾配方向を計算
             gx = cv2.Sobel(edges, cv2.CV_64F, 1, 0, ksize=3)
@@ -636,8 +1443,8 @@ class TumblrImageCollector:
             float: 色の均一性スコア
         """
         try:
-            import cv2
-            import numpy as np
+            if not _CV2_AVAILABLE or not _NUMPY_AVAILABLE:
+                return {}
             
             # HSV色空間に変換
             hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -657,7 +1464,7 @@ class TumblrImageCollector:
 
 
 
-    def _detect_faces(self, image, min_neighbors=3, scale_factor=1.1, advanced_analysis=True, detection_method='cascade'):
+    def _detect_faces(self, image, min_neighbors=MIN_NEIGHBORS_FACE, scale_factor=SCALE_FACTOR_FACE, advanced_analysis=True, detection_method='cascade'):
         """
         画像内の顔を高度に検出
         
@@ -672,8 +1479,8 @@ class TumblrImageCollector:
             dict: 顔検出結果
         """
         try:
-            import cv2
-            import numpy as np
+            if not _CV2_AVAILABLE or not _NUMPY_AVAILABLE:
+                return {}
             
             # 画像の前処理
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -704,7 +1511,7 @@ class TumblrImageCollector:
                     'path/to/deploy.prototxt', 
                     'path/to/res10_300x300_ssd_iter_140000.caffemodel'
                 )
-                blob = cv2.dnn.blobFromImage(image, 1.0, (300, 300), (104.0, 177.0, 123.0))
+                blob = cv2.dnn.blobFromImage(image, 1.0, (FACE_MAX_SIZE, FACE_MAX_SIZE), (104.0, 177.0, 123.0))
                 net.setInput(blob)
                 detections = net.forward()
                 
@@ -712,7 +1519,7 @@ class TumblrImageCollector:
                     confidence = detections[0, 0, i, 2]
                     
                     # 信頼度のしきい値を設定
-                    if confidence > 0.5:  # 50%以上の信頼度
+                    if confidence > CONFIDENCE_THRESHOLD:  # 50%以上の信頼度
                         # 顔の位置座標を計算
                         box = detections[0, 0, i, 3:7] * np.array([image.shape[1], image.shape[0], image.shape[1], image.shape[0]])
                         (startX, startY, endX, endY) = box.astype('int')
@@ -722,7 +1529,7 @@ class TumblrImageCollector:
                         height = endY - startY
                         
                         # 小さすぎる顔や大きすぎる顔を除外
-                        if 30 <= width <= 300 and 30 <= height <= 300:
+                        if FACE_MIN_SIZE <= width <= FACE_MAX_SIZE and FACE_MIN_SIZE <= height <= FACE_MAX_SIZE:
                             faces.append([startX, startY, width, height])
                     
                     # 検出された顔の数が一定数を超えたら処理を中断
@@ -781,8 +1588,8 @@ class TumblrImageCollector:
             float: 顔の品質スコア
         """
         try:
-            import cv2
-            import numpy as np
+            if not _CV2_AVAILABLE or not _NUMPY_AVAILABLE:
+                return {}
             
             # ノイズレベルの評価
             noise_level = cv2.meanStdDev(face_roi)[1][0][0]
@@ -816,8 +1623,8 @@ class TumblrImageCollector:
             dict: 顔の特徴情報
         """
         try:
-            import cv2
-            import numpy as np
+            if not _CV2_AVAILABLE or not _NUMPY_AVAILABLE:
+                return {}
             
             # グレースケールに変換
             gray_face = cv2.cvtColor(face_roi, cv2.COLOR_BGR2GRAY) if len(face_roi.shape) == 3 else face_roi
@@ -838,7 +1645,7 @@ class TumblrImageCollector:
             logger.error(f"顔特徴抽出中にエラー: {e}")
             return {}
     
-    def _extract_dominant_colors(self, image, k=3):
+    def _extract_dominant_colors(self, image, k=DEFAULT_COLOR_CLUSTERS):
         """
         画像から主要な色を抽出
         
@@ -850,8 +1657,8 @@ class TumblrImageCollector:
             list: 主要な色のリスト
         """
         try:
-            import cv2
-            import numpy as np
+            if not _CV2_AVAILABLE or not _NUMPY_AVAILABLE:
+                return {}
             from sklearn.cluster import MiniBatchKMeans
             
             # 画像のリサイズと前処理
@@ -887,7 +1694,8 @@ class TumblrImageCollector:
         """
         try:
             import concurrent.futures
-            import numpy as np
+            if not _NUMPY_AVAILABLE:
+                return np.array([])
             
             def detect_faces_method(method):
                 return self._detect_faces(
@@ -919,7 +1727,7 @@ class TumblrImageCollector:
             logger.error(f"並列顔検出中にエラー: {e}")
             return {'detected_faces': 0, 'face_locations': []}
     
-    def _remove_duplicate_faces(self, faces, iou_threshold=0.3, confidence_threshold=0.5):
+    def _remove_duplicate_faces(self, faces, iou_threshold=IOU_THRESHOLD, confidence_threshold=CONFIDENCE_THRESHOLD):
         """
         重複する顔領域を除去し、高品質の顔を選択
         
@@ -961,7 +1769,7 @@ class TumblrImageCollector:
             aspect_ratio = w / h
             
             # 顔領域の大きさと形状に基づく品質スコア
-            size_score = min(1.0, area / (300 * 300))
+            size_score = min(1.0, area / (FACE_MAX_SIZE * FACE_MAX_SIZE))
             aspect_score = 1.0 - abs(aspect_ratio - 1.0)  # 正方形に近いほど高いスコア
             
             return size_score * aspect_score
@@ -1042,41 +1850,20 @@ class TumblrImageCollector:
             return {}
     
     def extract_image_metadata(self, image_path, post_data=None):
-        import os
-        import cv2
-        import numpy as np
-        
-        metadata = {
-            'filename': os.path.basename(image_path),
-            'file_size': os.path.getsize(image_path),
-            'tags': post_data.get('tags', []) if post_data else [],
-            'detected_faces': 0,
-            'face_locations': [],
-            'dominant_colors': [],
-            'image_quality': 0.0
-        }
-        
-        try:
-            # 画像読み込み
-            image = cv2.imread(image_path)
-            
-            # 顔検出
-            face_result = self._adaptive_face_detection(image)
-            metadata['detected_faces'] = face_result['detected_faces']
-            metadata['face_locations'] = face_result['face_locations']
-            
-            # 主要色抽出
-            metadata['dominant_colors'] = self._extract_dominant_colors(image)
-            
-            # 画像品質評価
-            metadata['image_quality'] = self._calculate_image_quality(image)
-            
-            # タグに基づく分類フラグ
-            metadata['is_person'] = self._classify_by_tags(metadata['tags'])
-            
-        except Exception as e:
-            logger.error(f"{image_path}のメタデータ抽出中にエラー: {e}")
-        
+        metadata = self._extract_image_metadata(image_path) or {}
+
+        if isinstance(post_data, dict):
+            metadata.setdefault('tags', post_data.get('tags', []))
+        else:
+            metadata.setdefault('tags', [])
+
+        if metadata.get('tags'):
+            try:
+                classification = self._classify_by_tags(metadata['tags'])
+                metadata['tag_classification'] = classification
+            except Exception as e:
+                logger.warning(f"タグ分類に失敗しました: {e}")
+
         return metadata
     
     def _translate_tags(self, tag):
@@ -1206,8 +1993,8 @@ class TumblrImageCollector:
         Returns:
             list: 推奨タグのリスト
         """
-        import cv2
-        import numpy as np
+        if not _CV2_AVAILABLE or not _NUMPY_AVAILABLE:
+            return {}
         from PIL import Image
         
         recommended_tags = []
@@ -1225,7 +2012,7 @@ class TumblrImageCollector:
             
             # 画像の明るさと雰囲気
             brightness = np.mean(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)) / 255.0
-            if brightness < 0.3:
+            if brightness < BRIGHTNESS_THRESHOLD_LOW:
                 recommended_tags.append('dark')
             elif brightness > 0.7:
                 recommended_tags.append('bright')
@@ -1242,7 +2029,7 @@ class TumblrImageCollector:
             quality_score = self._calculate_image_quality(image)
             if quality_score > 0.8:
                 recommended_tags.append('high-quality')
-            elif quality_score < 0.3:
+            elif quality_score < QUALITY_THRESHOLD_LOW:
                 recommended_tags.append('low-quality')
             
             return list(set(recommended_tags))
@@ -1263,14 +2050,14 @@ class TumblrImageCollector:
         Returns:
             dict or float: 画像品質スコアまたは詳細情報
         """
-        import cv2
-        import numpy as np
+        if not _CV2_AVAILABLE or not _NUMPY_AVAILABLE:
+            return {}
         
         try:
             # 画像サイズの縮小で計算間隔を前値する
             original_shape = image.shape
-            if fast_mode and image.shape[0] > 300:
-                scale_factor = 300 / image.shape[0]
+            if fast_mode and image.shape[0] > RESIZE_THRESHOLD:
+                scale_factor = RESIZE_THRESHOLD / image.shape[0]
                 image = cv2.resize(image, None, fx=scale_factor, fy=scale_factor, interpolation=cv2.INTER_AREA)
             
             # グレースケール変換
@@ -1298,7 +2085,7 @@ class TumblrImageCollector:
                 contrast_score = np.std(contrast_enhanced) / 255.0
                 
                 # エッジ検出
-                edges = cv2.Canny(gray, 100, 200)
+                edges = cv2.Canny(gray, CANNY_LOWER_THRESHOLD, CANNY_UPPER_THRESHOLD)
                 edge_density = np.sum(edges) / (edges.shape[0] * edges.shape[1])
                 
                 return {
@@ -1309,7 +2096,7 @@ class TumblrImageCollector:
                     'contrast': contrast_score,
                     'edge_density': edge_density,
                     'original_size': original_shape[:2],
-                    'resized': fast_mode and original_shape[0] > 300
+                    'resized': fast_mode and original_shape[0] > RESIZE_THRESHOLD
                 }
             
             return quality_score
@@ -1317,7 +2104,7 @@ class TumblrImageCollector:
             logger.error(f"画像品質評価中にエラー: {e}")
             return 0.0
     
-    def _robust_image_processing(self, image_path, processing_func, max_retries=3, timeout=10):
+    def _robust_image_processing(self, image_path, processing_func, max_retries=DEFAULT_RETRY_ATTEMPTS, timeout=10):
         """
         復復力とタイムアウトを考慮した画像処理
         
@@ -1372,7 +2159,7 @@ class TumblrImageCollector:
         logger.error(f"Failed to process {image_path} after {max_retries} attempts")
         return None
     
-    def _image_cache_manager(self, cache_dir=None, max_cache_size_mb=500, cleanup_threshold=0.8):
+    def _image_cache_manager(self, cache_dir=None, max_cache_size_mb=DEFAULT_CACHE_SIZE_MB, cleanup_threshold=CLEANUP_THRESHOLD):
         """
         画像キャッシュ管理システム
         
@@ -1399,7 +2186,7 @@ class TumblrImageCollector:
                 os.path.getsize(os.path.join(cache_dir, f)) 
                 for f in os.listdir(cache_dir) 
                 if os.path.isfile(os.path.join(cache_dir, f))
-            ) / (1024 * 1024)  # MB単位
+            ) / BYTES_TO_MB_DIVISOR  # MB単位
             
             # キャッシュクリーンアップ
             if total_size > max_cache_size_mb * cleanup_threshold:
@@ -1412,7 +2199,7 @@ class TumblrImageCollector:
                 while total_size > max_cache_size_mb * cleanup_threshold and files:
                     oldest_file, _ = files.pop(0)
                     file_path = os.path.join(cache_dir, oldest_file)
-                    file_size = os.path.getsize(file_path) / (1024 * 1024)
+                    file_size = os.path.getsize(file_path) / BYTES_TO_MB_DIVISOR
                     os.remove(file_path)
                     total_size -= file_size
             
@@ -1427,128 +2214,33 @@ class TumblrImageCollector:
             logger.error(f"Cache management error: {e}")
             return None
     
-    def _memory_efficient_image_processing(self, image_path, processing_func, chunk_size=1024*1024):
+    def _memory_efficient_image_processing(self, image_path, processing_func, chunk_size=MEMORY_CHUNK_SIZE):
         """
         メモリ効率の高い画像処理方法
-        
-     def process_posts(self, posts, blog_name):
-        """
-        Tumblrの投稿を処理し、画像をダウンロード
-        
+
         Args:
-            posts (list): 処理する投稿のリスト
-            blog_name (str): ブログ名
-        
+            image_path (str): 画像ファイルパス
+            processing_func (callable): 処理関数
+            chunk_size (int): メモリチャンクサイズ
+
         Returns:
-            dict: ダウンロード統計
+            Any: 処理結果
         """
-        import concurrent.futures
-        import os
-        import random
-        
-        # ダウンロード統計の初期化
-        download_stats = {
-            'total_posts': len(posts),
-            'downloaded_images': 0,
-            'skipped_images': 0,
-            'error_images': 0,
-            'tags_count': {},
-            'tag_image_limits': 10  # 1タグあたりの目標画像数
-        }
-        
-        # タグごとの画像数を追跡するディクショナリ
-        tag_image_counts = {}
-        
-        # シャッフルして偏りを減らす
-        random.shuffle(posts)
-        
-        def should_download_image(post_tags):
-            """
-            タグごとの画像数を管理し、バランスを取る
-            
-            Args:
-                post_tags (list): 投稿のタグリスト
-            
-            Returns:
-                bool: 画像をダウンロードするかどうか
-            """
-            # タグの優先順位を決定
-            tag_priority = {}
-            for tag in post_tags:
-                tag_lower = tag.lower()
-                if tag_lower not in tag_image_counts:
-                    tag_image_counts[tag_lower] = 0
-                tag_priority[tag_lower] = tag_image_counts[tag_lower]
-            
-            # 最も少ないタグを選択
-            min_tag = min(tag_priority, key=tag_priority.get)
-            
-            # 選択されたタグの画像数をインクリメント
-            if tag_image_counts[min_tag] < download_stats['tag_image_limits']:
-                tag_image_counts[min_tag] += 1
-                return True
-            
-            return False
-        
-        def get_balanced_tags(post_tags):
-            """
-            バランスの取れたタグを選択
-            
-            Args:
-                post_tags (list): 投稿のタグリスト
-            
-            Returns:
-                list: バランスの取れたタグリスト
-            """
-            tag_counts = {tag.lower(): tag_image_counts.get(tag.lower(), 0) for tag in post_tags}
-            min_count = min(tag_counts.values(), default=0)
-            balanced_tags = [tag for tag, count in tag_counts.items() if count == min_count]
-            
-            return balanced_tags
-        
         try:
-            # 画像ファイルのダウンロード
-            image_paths = []
-            for post in posts:
-                if 'photos' in post:
-                    for photo in post['photos']:
-                        image_url = photo['original_size']['url']
-                        image_path = os.path.join(os.path.expanduser('~'), '.tumblr_image_collector', 'images', os.path.basename(image_url))
-                        image_paths.append(image_path)
-            
-            # ダウンロード処理
-            def download_image(image_path):
-                try:
-                    # 画像のダウンロード
-                    image_url = os.path.basename(image_path)
-                    response = requests.get(image_url, stream=True)
-                    if response.status_code == 200:
-                        with open(image_path, 'wb') as f:
-                            for chunk in response.iter_content(chunk_size):
-                                f.write(chunk)
-                        return True
-                    else:
-                        logger.error(f"Failed to download {image_url}")
-                        return False
-                except Exception as e:
-                    logger.error(f"Error downloading {image_url}: {e}")
-                    return False
-            
-            # 并列処理
-            with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-                # 各画像に対して処理関数を実行
-                results = list(executor.map(download_image, image_paths))
-            
-            # ダウンロード統計の更新
-            download_stats['downloaded_images'] = sum(results)
-            download_stats['skipped_images'] = len(posts) - download_stats['downloaded_images']
-            
-            return download_stats
-        
+            with Image.open(image_path) as img:
+                # 画像サイズが大きい場合はリサイズして処理
+                max_dimension = 2048
+                if max(img.size) > max_dimension:
+                    ratio = max_dimension / max(img.size)
+                    new_size = (int(img.size[0] * ratio), int(img.size[1] * ratio))
+                    img = img.resize(new_size, Image.Resampling.LANCZOS)
+
+                # 処理関数を実行
+                return processing_func(img)
         except Exception as e:
-            logger.error(f"Error processing posts: {e}")
-            return {}
-    
+            logger.error(f"メモリ効率的画像処理中にエラー: {e}")
+            return None
+
     def organize_images_with_metadata(self, source_folder, destination_folder=None):
         """
         タグ情報とメタデータに基づく画像管理
@@ -1622,13 +2314,13 @@ class TumblrImageCollector:
             dict: 顔の方向性情報
         """
         try:
-            import cv2
-            import numpy as np
+            if not _CV2_AVAILABLE or not _NUMPY_AVAILABLE:
+                return {}
             
             if orientation_method == 'gradient':
                 # 勾配ベースの方向性推定
-                gx = cv2.Sobel(face_image, cv2.CV_64F, 1, 0, ksize=3)
-                gy = cv2.Sobel(face_image, cv2.CV_64F, 0, 1, ksize=3)
+                gx = cv2.Sobel(face_image, cv2.CV_64F, 1, 0, ksize=SOBEL_KERNEL_SIZE)
+                gy = cv2.Sobel(face_image, cv2.CV_64F, 0, 1, ksize=SOBEL_KERNEL_SIZE)
                 
                 # 勾配の大きさと角度
                 mag, angle = cv2.cartToPolar(gx, gy)
@@ -1658,8 +2350,8 @@ class TumblrImageCollector:
             dict: 構図分析結果
         """
         try:
-            import cv2
-            import numpy as np
+            if not _CV2_AVAILABLE or not _NUMPY_AVAILABLE:
+                return {}
             
             height, width = image.shape[:2]
             
@@ -1700,12 +2392,13 @@ class TumblrImageCollector:
     def _analyze_color_distribution(self, image):
         """画像のカラー分布を分析"""
         try:
-            import numpy as np
+            if not _NUMPY_AVAILABLE:
+                return np.array([])
             from PIL import ImageStat, ImageColor
 
             # RGBヒストグラムを計算
             img_array = np.array(image)
-            r_hist, g_hist, b_hist = [np.histogram(img_array[:,:,i], bins=256)[0] for i in range(3)]
+            r_hist, g_hist, b_hist = [np.histogram(img_array[:,:,i], bins=HISTOGRAM_BINS)[0] for i in range(3)]
 
             # 主色を検出
             dominant_color = self._get_dominant_color(img_array)
@@ -1725,7 +2418,8 @@ class TumblrImageCollector:
     def _get_dominant_color(self, img_array):
         """画像の主色を検出"""
         try:
-            import numpy as np
+            if not _NUMPY_AVAILABLE:
+                return np.array([])
 
             # ピクセルをグルーピング
             pixels = img_array.reshape(-1, 3)
@@ -1744,10 +2438,11 @@ class TumblrImageCollector:
     def _calculate_color_entropy(self, img_array):
         """カラーエントロピーを計算"""
         try:
-            import numpy as np
+            if not _NUMPY_AVAILABLE:
+                return np.array([])
 
             # RGB値のヒストグラムを計算
-            hist, _ = np.histogramdd(img_array.reshape(-1, 3), bins=(16, 16, 16))
+            hist, _ = np.histogramdd(img_array.reshape(-1, 3), bins=(COLOR_HISTOGRAM_BINS, COLOR_HISTOGRAM_BINS, COLOR_HISTOGRAM_BINS))
             hist = hist / hist.sum()
             entropy = -np.sum(hist * np.log2(hist + 1e-10))
 
@@ -1756,62 +2451,55 @@ class TumblrImageCollector:
             logger.error(f"Error calculating color entropy: {e}")
             return None
 
-    def _calculate_image_quality(self, image):
-        """画像品質のメトリックを計算"""
-        try:
-            import cv2
-            import numpy as np
-
-            # OpenCVに変換
-            cv_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2GRAY)
-
-            # シープネスとコントラストを評価
-            laplacian_var = cv2.Laplacian(cv_image, cv2.CV_64F).var()
-            sobel_x = cv2.Sobel(cv_image, cv2.CV_64F, 1, 0, ksize=3)
-            sobel_y = cv2.Sobel(cv_image, cv2.CV_64F, 0, 1, ksize=3)
-            edge_density = np.mean(np.sqrt(sobel_x**2 + sobel_y**2))
-
-            return {
-                'sharpness': float(laplacian_var),
-                'edge_density': float(edge_density),
-                'dynamic_range': float(np.max(cv_image) - np.min(cv_image))
-            }
-        except Exception as e:
-            logger.error(f"Error calculating image quality metrics: {e}")
-            return {}
 
     def _setup_credentials(self):
         """APIキーとOAuthトークンを設定ファイルから読み込むか、ユーザーに要求する"""
-        # Prioritize config file values
-        self.consumer_key = self.config.get("consumer_key")
-        self.consumer_secret = self.config.get("consumer_secret")
+        env_consumer_key = os.environ.get("TUMBLR_CONSUMER_KEY")
+        env_consumer_secret = os.environ.get("TUMBLR_CONSUMER_SECRET")
 
-        if not (self.consumer_key and self.consumer_secret):
-            logger.info("API keys not found in config. Please enter them:")
-            # Use input only if keys are missing
-            self.consumer_key = input("Enter your Tumblr Consumer Key: ").strip()
-            self.consumer_secret = input("Enter your Tumblr Consumer Secret: ").strip()
+        if env_consumer_key and env_consumer_secret:
+            self.consumer_key = env_consumer_key.strip()
+            self.consumer_secret = env_consumer_secret.strip()
+            logger.info("Using Tumblr consumer credentials from environment variables.")
+        else:
+            # Prioritize config file values when environment is not fully provided
+            self.consumer_key = self.config.get("consumer_key")
+            self.consumer_secret = self.config.get("consumer_secret")
+
             if not (self.consumer_key and self.consumer_secret):
-                logger.error("Consumer Key and Secret are required.")
-                raise ValueError("Missing API credentials") # Raise exception
-            self.config["consumer_key"] = self.consumer_key
-            self.config["consumer_secret"] = self.consumer_secret
-            self._save_config() # Save immediately after getting them
-            logger.info("API keys saved to config.")
+                logger.info("Tumblr API keys not found. Please enter them:")
+                # Use input only if keys are missing
+                self.consumer_key = input("Enter your Tumblr Consumer Key: ").strip()
+                self.consumer_secret = input("Enter your Tumblr Consumer Secret: ").strip()
+                if not (self.consumer_key and self.consumer_secret):
+                    logger.error("Consumer Key and Secret are required.")
+                    raise ValueError("Missing API credentials")  # Raise exception
+                self.config["consumer_key"] = self.consumer_key
+                self.config["consumer_secret"] = self.consumer_secret
+                self._save_config()  # Save immediately after getting them
+                logger.info("API keys saved to config.")
 
-        self.token = self.config.get("token")
-        self.token_secret = self.config.get("token_secret")
+        env_token = os.environ.get("TUMBLR_OAUTH_TOKEN")
+        env_token_secret = os.environ.get("TUMBLR_OAUTH_TOKEN_SECRET")
 
-        if not (self.token and self.token_secret):
-            logger.info("OAuth tokens not found in config. Attempting to obtain them...")
-            self.token, self.token_secret = self._get_oauth_token()
+        if env_token and env_token_secret:
+            self.token = env_token.strip()
+            self.token_secret = env_token_secret.strip()
+            logger.info("Using Tumblr OAuth tokens from environment variables.")
+        else:
+            self.token = self.config.get("token")
+            self.token_secret = self.config.get("token_secret")
+
             if not (self.token and self.token_secret):
-                logger.error("Failed to get OAuth token.")
-                raise ValueError("Missing OAuth credentials") # Raise exception
-            self.config["token"] = self.token
-            self.config["token_secret"] = self.token_secret
-            self._save_config() # Save immediately
-            logger.info("OAuth tokens saved to config.")
+                logger.info("OAuth tokens not found in config. Attempting to obtain them...")
+                self.token, self.token_secret = self._get_oauth_token()
+                if not (self.token and self.token_secret):
+                    logger.error("Failed to get OAuth token.")
+                    raise ValueError("Missing OAuth credentials")  # Raise exception
+                self.config["token"] = self.token
+                self.config["token_secret"] = self.token_secret
+                self._save_config()  # Save immediately
+                logger.info("OAuth tokens saved to config.")
 
     def _initialize_client(self):
         """Tumblr APIクライアントを初期化する"""
@@ -1835,12 +2523,19 @@ class TumblrImageCollector:
             raise ConnectionError("Failed to initialize Tumblr client") from e
 
     def get_blog_posts(self, blog_name, limit=20, offset=0):
-        """Tumblrブログの投稿を取得する"""
+        """Tumblrブログの投稿を取得する（レート制限対応）"""
+        # レート制限チェック
+        if not self._check_rate_limit():
+            return None
+
         try:
-            if not self.client:
-                logger.error("Tumblr client not initialized.")
-                return [] # Return empty list, not None
-            posts_data = self.client.posts(blog_name, limit=limit, offset=offset)
+            # 入力検証
+            if not self._validate_input(blog_name, 'text', max_length=100):
+                logger.error(f"無効なブログ名: {blog_name}")
+                return None
+
+            normalized_limit = max(1, min(int(limit or 1), self.max_download_limit))
+            posts_data = self.client.posts(blog_name, limit=normalized_limit, offset=offset)
             # Check for API errors in the response if possible
             # meta = posts_data.get('meta', {})
             # if meta.get('status') != 200:
@@ -1862,7 +2557,7 @@ class TumblrImageCollector:
         """画像が指定された条件を満たすかチェックする"""
         try:
             # ファイルサイズのチェック
-            file_size_mb = len(image.getvalue()) / (1024 * 1024)
+            file_size_mb = len(image.getvalue()) / BYTES_TO_MB_DIVISOR
             if file_size_mb > self.IMAGE_FILTERS['max_file_size_mb']:
                 logger.debug(f"Image exceeds max file size: {file_size_mb:.2f} MB")
                 return False
@@ -1931,8 +2626,8 @@ class TumblrImageCollector:
 
     def _calculate_blur_score(self, image):
         """画像のぼかし度を計算"""
-        import cv2
-        import numpy as np
+        if not _CV2_AVAILABLE or not _NUMPY_AVAILABLE:
+            return {}
 
         # OpenCVに変換
         cv_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2GRAY)
@@ -1943,40 +2638,161 @@ class TumblrImageCollector:
 
     def _is_nsfw_content(self, image):
         """NSFWコンテンツを検出"""
-        # TODO: 外部のNSFW検出APIや機械学習モデルを統合
-        # 例: Google Cloud Vision API, Azure Content Moderator, 自作のML分類器など
-        # 現時点では常にFalseを返す
-        return False
+        if not _CV2_AVAILABLE or not _NUMPY_AVAILABLE:
+            logger.debug("NSFW検出に必要なOpenCV/Numpyが利用できないため、検出をスキップします。")
+            return False
+
+        image_np = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+        nsfw_score = self._estimate_nsfw_content(image_np)
+        return nsfw_score >= self.nsfw_threshold
 
     def _is_image_duplicate(self, image):
-        """画像の重複をハッシュを使ってチェックする"""
-        for existing_file in self.output_folder.glob('*'):
-            if existing_file.is_file():
+        """画像の重複をハッシュを使ってチェックする（最適化版）"""
+        try:
+            # 新しい画像のハッシュを計算
+            current_hash = imagehash.phash(image)
+            current_hash_str = str(current_hash)
+
+            # メモリ内ハッシュセットをチェック（高速）
+            if current_hash_str in self.downloaded_hashes:
+                logger.debug(f"Duplicate detected via hash cache")
+                return True
+
+            # ファイルシステムをチェック（低速、フォールバック）
+            # パフォーマンス向上: 最大チェック数を制限
+            max_files_to_check = 1000
+            checked_count = 0
+
+            for existing_file in self.output_folder.glob('*'):
+                if not existing_file.is_file():
+                    continue
+
+                # 画像ファイルのみチェック
+                if existing_file.suffix.lower() not in {'.jpg', '.jpeg', '.png', '.gif', '.webp'}:
+                    continue
+
+                checked_count += 1
+                if checked_count > max_files_to_check:
+                    logger.warning(f"Duplicate check limit reached ({max_files_to_check} files)")
+                    break
+
                 try:
-                    existing_image = Image.open(existing_file)
-                    existing_hash = imagehash.phash(existing_image)
-                    current_hash = imagehash.phash(image)
-                    hash_diff = bin(existing_hash - current_hash).count('1')
+                    with Image.open(existing_file) as existing_image:
+                        existing_hash = imagehash.phash(existing_image)
+                        hash_diff = abs(existing_hash - current_hash)
 
-                    if hash_diff <= self.IMAGE_HASH_THRESHOLD:
-                        logger.debug(f"Similar image found: {existing_file.name}")
-                        return True
+                        if hash_diff <= self.IMAGE_HASH_THRESHOLD:
+                            logger.debug(f"Similar image found: {existing_file.name} (diff: {hash_diff})")
+                            # キャッシュに追加
+                            self.downloaded_hashes.add(str(existing_hash))
+                            return True
+                except (IOError, OSError) as io_err:
+                    logger.debug(f"Failed to check {existing_file.name}: {io_err}")
                 except Exception as e:
-                    logger.warning(f"Error checking image hash: {e}")
-        return False
+                    logger.warning(f"Error checking image hash for {existing_file.name}: {e}")
 
-    def _create_requests_session(self, retries=3, backoff_factor=0.3):
-        """値下げと再試行機能付きのRequestsセッションを作成"""
+            return False
+
+        except Exception as e:
+            logger.error(f"Duplicate detection failed: {e}")
+            return False
+
+    def _create_requests_session(self, retries=DEFAULT_RETRY_ATTEMPTS, backoff_factor=DEFAULT_BACKOFF_FACTOR):
+        """再試行付きのRequestsセッションを作成（接続プーリング最適化）"""
         session = requests.Session()
-        retry_strategy = Retry(
-            total=retries,
-            status_forcelist=[429, 500, 502, 503, 504],
-            method_whitelist=["HEAD", "GET", "OPTIONS"],
-            backoff_factor=backoff_factor
-        )
-        adapter = HTTPAdapter(max_retries=retry_strategy)
 
-    def download_image(self, image_url, post_data=None, max_retries=3):
+        # リトライ戦略の設定
+        retry_strategy = Retry(
+            total=max(0, min(retries, 10)),  # 0-10の範囲に制限
+            status_forcelist=[429, 500, 502, 503, 504],
+            allowed_methods=["HEAD", "GET", "OPTIONS"],
+            backoff_factor=max(0.1, min(backoff_factor, 5.0)),  # 0.1-5.0の範囲に制限
+            raise_on_status=False,
+            respect_retry_after_header=True,  # Retry-Afterヘッダーを尊重
+        )
+
+        # 接続プーリングの最適化
+        adapter = HTTPAdapter(
+            max_retries=retry_strategy,
+            pool_connections=10,  # 接続プールサイズ
+            pool_maxsize=20,      # プール内の最大接続数
+            pool_block=False      # プールが満杯でもブロックしない
+        )
+
+        # タイムアウト設定のデフォルト値
+        session.headers.update({
+            "User-Agent": "TumblrImageCollector/2.0",
+            "Accept": "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
+            "Accept-Encoding": "gzip, deflate",
+            "Connection": "keep-alive"
+        })
+
+        session.mount("http://", adapter)
+        session.mount("https://", adapter)
+
+        # タイムアウトのデフォルト設定
+        session.timeout = (10, 30)  # (接続タイムアウト, 読み取りタイムアウト)
+
+        return session
+
+    def _record_classification_stats(self, classification_result):
+        """AI分類結果をダウンロード統計に反映する"""
+        if not classification_result:
+            return
+
+        stats = self._download_stats['ai_classification_stats']
+
+        if classification_result.get('is_valid'):
+            stats['valid_images'] += 1
+        else:
+            stats['invalid_images'] += 1
+
+        if classification_result.get('is_high_resolution'):
+            stats['high_resolution_images'] += 1
+        else:
+            stats['low_resolution_images'] += 1
+
+        if classification_result.get('is_potentially_nsfw'):
+            stats['potentially_nsfw_images'] += 1
+
+        for prediction in classification_result.get('top_predictions', []):
+            label = prediction.get('label')
+            confidence = float(prediction.get('confidence', 0.0))
+            if not label:
+                continue
+            distribution = stats['image_type_distribution'].setdefault(
+                label,
+                {'count': 0, 'total_confidence': 0.0}
+            )
+            distribution['count'] += 1
+            distribution['total_confidence'] += confidence
+
+        metrics_summary = stats.setdefault('metrics_summary', {})
+        for metric_name, value in classification_result.get('metrics', {}).items():
+            if not isinstance(value, (int, float)):
+                continue
+            metric_entry = metrics_summary.setdefault(
+                metric_name,
+                {'count': 0, 'sum': 0.0, 'min': value, 'max': value}
+            )
+            metric_entry['count'] += 1
+            metric_entry['sum'] += value
+            metric_entry['min'] = min(metric_entry['min'], value)
+            metric_entry['max'] = max(metric_entry['max'], value)
+
+    def _update_download_stats(self, outcome: str) -> None:
+        """ダウンロード結果に応じて統計情報を更新"""
+        if outcome == 'success':
+            self._download_stats['total_images_processed'] += 1
+            self._download_stats['successful_downloads'] += 1
+        elif outcome == 'failure':
+            self._download_stats['total_images_processed'] += 1
+            self._download_stats['failed_downloads'] += 1
+        elif outcome == 'duplicate':
+            self._download_stats['total_images_processed'] += 1
+            self._download_stats['skipped_duplicates'] += 1
+
+    def download_image(self, image_url, post_data=None, max_retries=DEFAULT_RETRY_ATTEMPTS):
         """高度な再試行メカニズムとキャッシュ管理を使用した画像ダウンロード
         
         Args:
@@ -1987,6 +2803,12 @@ class TumblrImageCollector:
         Returns:
             bool: ダウンロードの成功/失敗
         """
+        # 許可ドメインチェック
+        if not self._validate_image_domain(image_url):
+            logger.warning(f"許可されていないドメインからの画像をブロックしました: {image_url}")
+            self._update_download_stats('failure')
+            return False
+
         # ダウンロード統計を更新
         self._download_stats['total_attempts'] += 1
 
@@ -1998,20 +2820,15 @@ class TumblrImageCollector:
                 filename = self._generate_filename_from_path(cached_file)
                 filepath = self.output_folder / filename
                 shutil.copy2(cached_file, filepath)
-                self._download_stats['cache_hits'] += 1
                 return True
             except Exception as e:
                 logger.error(f"キャッシュファイルのコピー中にエラー: {e}")
 
         def exponential_backoff(retry_count):
-            """エクスポネンシャルバックオフ戦略
-            
-            Args:
-                retry_count (int): 現在の再試行回数
-            """
-            base_delay = 1  # 基本の待機時間
-            max_delay = 30  # 最大待機時間
-            jitter = random.uniform(0, 0.5)  # ランダム性を追加
+            """エクスポネンシャルバックオフ戦略"""
+            base_delay = max(0.5, self.backoff_factor)
+            max_delay = max(1, self.max_backoff_seconds)
+            jitter = random.uniform(0, 0.5)
             delay = min(max_delay, base_delay * (2 ** retry_count) + jitter)
             logger.info(f"再試行 {retry_count + 1}: {delay}秒待機")
             time.sleep(delay)
@@ -2036,91 +2853,334 @@ class TumblrImageCollector:
         last_exception = None
         for retry_count in range(max_retries):
             try:
-                # プロキシとタイムアウトを考慮
-                response = requests.get(
-                    image_url, 
-                    stream=True, 
-                    proxies=self.proxies, 
-                    timeout=self.download_timeout,
-                    headers={
-                        'User-Agent': 'TumblrImageCollector/1.0',
-                        'Accept': 'image/*'
-                    }
-                )
-                response.raise_for_status()
-
-                # 画像を一時ファイルに保存
-                with tempfile.NamedTemporaryFile(delete=False, suffix=self._get_file_extension(image_url)) as temp_file:
-                    for chunk in response.iter_content(chunk_size=8192):
-                        temp_file.write(chunk)
-
-                # 画像をロード
-                with Image.open(temp_file.name) as img:
-                    # 画像の有効性をチェック
-                    if not self._is_image_valid(img):
-                        os.unlink(temp_file.name)
-                        logger.warning(f"無効な画像: {image_url}")
-                        return False
-
-                    # 画像メタデータを抽出
-                    metadata = self._extract_image_metadata(img, image_url, post_data)
-
-                    # ファイル名を生成
-                    filename = self._generate_filename(img, metadata)
-                    filepath = self.output_folder / filename
-
-                    # 重複ファイルをチェック
-                    if filepath.exists():
-                        self._download_stats['skipped_duplicates'] += 1
-                        os.unlink(temp_file.name)
-                        logger.info(f"重複画像をスキップ: {filename}")
-                        return False
-
-                    # 一時ファイルを最終ファイルに移動
-                    shutil.move(temp_file.name, filepath)
-
-                    # キャッシュに保存
-                    self._save_to_cache(filepath, image_url)
-
-                    # ダウンロード絅計を更新
-                    self._download_stats['successful_downloads'] += 1
-                    logger.info(f"画像ダウンロード成功: {filename}")
-
-                return True
-
+                result = self._download_and_store_image(image_url, post_data)
+                if result:
+                    return True
+                # result False implies duplicate or invalid image; do not retry.
+                return False
             except requests.RequestException as e:
                 last_exception = e
                 logger.warning(f"ダウンロード試行 {retry_count + 1} 失敗: {e}")
-                
-                # ネットワークエラーの場合のみ再試行
+
                 if is_network_error(e):
                     if retry_count < max_retries - 1:
                         exponential_backoff(retry_count)
                     else:
                         logger.error(f"{image_url}のダウンロードに{max_retries}回失敗")
-                        self._download_stats['failed_downloads'] += 1
                         self._update_download_stats('failure')
                         return False
                 else:
-                    # 回復不能なエラーは即座に失敗
                     logger.error(f"回復不能なエラー: {e}")
-                    self._download_stats['failed_downloads'] += 1
                     self._update_download_stats('failure')
                     return False
-
             except IOError as e:
                 logger.error(f"ファイル処理エラー: {e}")
-                self._download_stats['failed_downloads'] += 1
                 self._update_download_stats('failure')
                 return False
 
-        # 最終的な例外を記録
         if last_exception:
-            self._log_download_failure(image_url, last_exception)
+            self._log_download_failure(image_url, post_data, last_exception)
 
         return False
 
-    def _log_download_failure(self, image_url, exception):
+    def _download_and_store_image(self, image_url, post_data=None, allow_duplicate_skip=True):
+        """画像をダウンロードして保存する共通処理"""
+        request_started = time.monotonic()
+        with self.session.get(
+            image_url,
+            stream=True,
+            proxies=self.proxies,
+            timeout=self.download_timeout,
+            headers={
+                'User-Agent': self.session.headers.get('User-Agent', 'TumblrImageCollector/1.0'),
+                'Accept': self.session.headers.get('Accept', 'image/*')
+            }
+        ) as response:
+            response.raise_for_status()
+
+            final_url = response.url or image_url
+            parsed_final = urlparse(final_url)
+            final_host = (parsed_final.hostname or "").lower()
+
+            if parsed_final.scheme.lower() != 'https':
+                logger.warning(
+                    "HTTPS以外のスキームを検出したためダウンロードを中止しました: %s", final_url
+                )
+                self._update_download_stats('failure')
+                return False
+
+            if not self._is_allowed_domain(final_host):
+                logger.warning(
+                    f"許可されていないドメインからの応答をブロックしました: {final_host}. 元URL: {image_url}"
+                )
+                self._update_download_stats('failure')
+                return False
+
+            content_type = (response.headers.get('Content-Type') or '').lower()
+            if content_type and not content_type.startswith('image/'):
+                logger.warning(
+                    "画像以外のContent-Typeを検出したためダウンロードを中止しました: %s (%s)",
+                    image_url,
+                    content_type
+                )
+                self._update_download_stats('failure')
+                return False
+
+            max_size_mb = self.IMAGE_FILTERS.get('max_file_size_mb', MAX_FILE_SIZE_MB)
+            max_download_bytes = max_size_mb * 1024 * 1024
+            content_length = response.headers.get('Content-Length')
+            if content_length:
+                try:
+                    if int(content_length) > max_download_bytes:
+                        logger.warning(
+                            "コンテンツサイズが上限を超えたためダウンロードを中止しました: %s", image_url
+                        )
+                        self._update_download_stats('failure')
+                        return False
+                except ValueError:
+                    logger.debug("Content-Lengthヘッダーを解析できませんでした: %s", content_length)
+
+            temp_path = None
+            temp_file = None
+            downloaded_bytes = 0
+            try:
+                temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=self._get_file_extension(image_url))
+                for chunk in response.iter_content(chunk_size=DEFAULT_CHUNK_SIZE):
+                    downloaded_bytes += len(chunk)
+                    if downloaded_bytes > max_download_bytes:
+                        logger.warning(
+                            "ダウンロードサイズが上限を超えたため処理を中断しました: %s", image_url
+                        )
+                        temp_file.close()
+                        os.unlink(temp_file.name)
+                        self._update_download_stats('failure')
+                        return False
+                    temp_file.write(chunk)
+                temp_path = temp_file.name
+            finally:
+                if temp_file is not None:
+                    temp_file.close()
+
+        try:
+            with Image.open(temp_path) as img:
+                if not self._is_image_valid(img):
+                    os.unlink(temp_path)
+                    logger.warning(f"無効な画像: {image_url}")
+                    self._update_download_stats('failure')
+                    return False
+
+                image_hash = self._compute_image_hash(img)
+                if image_hash and image_hash in self.downloaded_hashes and allow_duplicate_skip:
+                    os.unlink(temp_path)
+                    self._update_download_stats('duplicate')
+                    logger.info("ハッシュ重複のため画像をスキップ: %s", image_url)
+                    return False
+
+            metadata = self._extract_image_metadata(temp_path) or {}
+            if not self._is_metadata_size_safe(metadata):
+                logger.warning("メタデータサイズが上限を超えたため破棄します")
+                metadata = {}
+            filename = self._generate_output_filename(
+                temp_path,
+                metadata,
+                image_url=image_url,
+                post_data=post_data
+            )
+            filepath = self.output_folder / filename
+
+            if filepath.exists() and allow_duplicate_skip:
+                os.unlink(temp_path)
+                self._update_download_stats('duplicate')
+                logger.info(f"重複画像をスキップ: {filename}")
+                return False
+
+            shutil.move(temp_path, filepath)
+            if self.cache_enabled:
+                self._save_to_cache(filepath, image_url)
+            self._record_classification_stats(metadata.get('ai_classification', {}))
+            self._update_download_stats('success')
+            logger.info(f"画像ダウンロード成功: {filename}")
+
+            if 'image_hash' not in metadata and image_hash:
+                metadata['image_hash'] = image_hash
+
+            metadata_file = filepath.with_suffix('.json')
+            try:
+                with open(metadata_file, 'w', encoding='utf-8') as f:
+                    json.dump(metadata, f, ensure_ascii=False, indent=2)
+            except (OSError, json.JSONDecodeError) as metadata_err:
+                logger.error(f"メタデータの保存に失敗しました: {metadata_err}")
+                if metadata_file.exists():
+                    metadata_file.unlink(missing_ok=True)
+
+            self.downloaded_files.add(filename)
+            if image_hash:
+                self.downloaded_hashes.add(image_hash)
+
+            elapsed = time.monotonic() - request_started
+            if elapsed > self.slow_response_threshold:
+                logger.info(
+                    f"ダウンロードに時間を要しました: {elapsed:.1f} 秒 ({image_url})"
+                )
+            return filepath
+        except Exception:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+            raise
+
+    def _validate_image_domain(self, image_url: str) -> bool:
+        """画像URLのホストが許可ドメインに含まれるか確認する"""
+        try:
+            hostname = urlparse(image_url).hostname or ""
+            return self._is_allowed_domain(hostname.lower())
+        except Exception:
+            return False
+
+    def _is_allowed_domain(self, hostname: str) -> bool:
+        if not hostname:
+            return False
+        return any(hostname == domain or hostname.endswith(f".{domain}") for domain in self.allowed_domains)
+
+    def _load_allowed_domains(self, values: Optional[Iterable[str]]) -> set:
+        default_domains = {
+            "tumblr.com",
+            "media.tumblr.com",
+            "data.tumblr.com",
+        }
+        if not values:
+            return default_domains
+        if isinstance(values, str):
+            candidates = [part.strip() for part in values.split(',') if part.strip()]
+        else:
+            candidates = [str(item).strip() for item in values if str(item).strip()]
+        normalized = {candidate.lower() for candidate in candidates if candidate}
+        return normalized or default_domains
+
+    @staticmethod
+    def _build_requests_proxies(proxy_config: Optional[Dict[str, Any]]) -> Optional[Dict[str, str]]:
+        """Requests用のプロキシ辞書を生成"""
+        if not proxy_config or not proxy_config.get('type'):
+            return None
+
+        proxy_type = proxy_config.get('type')
+        if proxy_type not in {'http', 'https', 'socks4', 'socks5'}:
+            return None
+
+        host = proxy_config.get('host')
+        port = proxy_config.get('port')
+        if not host or not port:
+            return None
+
+        auth = ''
+        username = proxy_config.get('username')
+        password = proxy_config.get('password')
+        if username and password:
+            auth = f"{username}:{password}@"
+        elif username:
+            auth = f"{username}@"
+
+        proxy_url = f"{proxy_type}://{auth}{host}:{port}"
+        if proxy_type.startswith('socks'):
+            return {
+                'http': proxy_url,
+                'https': proxy_url
+            }
+
+        return {
+            'http': proxy_url,
+            'https': proxy_url
+        }
+
+    @staticmethod
+    def _compute_image_hash(image: Image.Image) -> Optional[str]:
+        """画像の知覚ハッシュを計算し、文字列表現として返す"""
+        try:
+            return str(imagehash.phash(image))
+        except Exception as exc:
+            logger.debug(f"画像ハッシュ計算に失敗: {exc}")
+            return None
+
+    def _setup_signal_handlers(self):
+        """シグナルハンドラーを設定してグレースフルシャットダウンを実装"""
+        def signal_handler(signum, frame):
+            signal_name = signal.Signals(signum).name
+            logger.info(f"シグナル {signal_name} を受信しました。グレースフルシャットダウンを開始します...")
+
+            # 統計を保存
+            self._save_statistics()
+
+            # キャッシュインデックスを保存
+            if self.cache_enabled:
+                self._persist_cache_index()
+
+            # リソースクリーンアップ
+            self._cleanup_resources()
+
+            logger.info("グレースフルシャットダウン完了")
+            sys.exit(0)
+
+        # SIGINT (Ctrl+C) と SIGTERM を処理
+        signal.signal(signal.SIGINT, signal_handler)
+        signal.signal(signal.SIGTERM, signal_handler)
+
+        # Windowsでは SIGBREAK も処理
+        if hasattr(signal, 'SIGBREAK'):
+            signal.signal(signal.SIGBREAK, signal_handler)
+
+    def _validate_configuration(self):
+        """起動時に設定を検証し、問題があれば警告またはエラーを出力"""
+        validation_errors = []
+        validation_warnings = []
+
+        # 必須設定の検証
+        if not self.consumer_key or not self.consumer_secret:
+            validation_errors.append("Tumblr API credentials (consumer_key/consumer_secret) are missing")
+
+        if not self.token or not self.token_secret:
+            validation_errors.append("OAuth tokens (token/token_secret) are missing")
+
+        # 数値範囲の検証
+        if self.max_workers <= 0 or self.max_workers > 50:
+            validation_warnings.append(f"max_workers ({self.max_workers}) is out of recommended range (1-50)")
+
+        if self.download_timeout <= 0 or self.download_timeout > 300:
+            validation_warnings.append(f"download_timeout ({self.download_timeout}) is out of recommended range (1-300)")
+
+        if self.max_retries < 0 or self.max_retries > 10:
+            validation_warnings.append(f"max_retries ({self.max_retries}) is out of recommended range (0-10)")
+
+        if self.nsfw_threshold < 0.0 or self.nsfw_threshold > 1.0:
+            validation_warnings.append(f"nsfw_threshold ({self.nsfw_threshold}) must be between 0.0 and 1.0")
+
+        # キャッシュ設定の検証
+        if self.cache_enabled:
+            if self.cache_ttl_seconds <= 0:
+                validation_warnings.append(f"cache_ttl_seconds ({self.cache_ttl_seconds}) should be positive")
+
+            if self.cache_max_entries <= 0:
+                validation_warnings.append(f"cache_max_entries ({self.cache_max_entries}) should be positive")
+
+        # 出力ディレクトリの検証
+        if not self.output_folder.exists():
+            try:
+                self.output_folder.mkdir(parents=True, exist_ok=True)
+            except Exception as e:
+                validation_errors.append(f"Cannot create output directory {self.output_folder}: {e}")
+
+        # エラーがあれば例外を発生
+        if validation_errors:
+            error_message = "Configuration validation failed:\n" + "\n".join(f"  - {err}" for err in validation_errors)
+            logger.error(error_message)
+            raise ValueError(error_message)
+
+        # 警告があればログ出力
+        if validation_warnings:
+            for warning in validation_warnings:
+                logger.warning(f"Configuration warning: {warning}")
+
+        logger.info("Configuration validation passed")
+
+    def _log_download_failure(self, image_url, post_data, exception):
         """
         ダウンロード失敗の詳細をログに記録
         
@@ -2130,77 +3190,26 @@ class TumblrImageCollector:
         """
         failure_log_path = self.output_folder / 'download_failures.log'
         with open(failure_log_path, 'a', encoding='utf-8') as log_file:
-            log_file.write(f"""
-時刻: {datetime.datetime.now()}
-URL: {image_url}
-エラータイプ: {type(exception).__name__}
-エラー詳細: {str(exception)}
----
-""")
-
-        for retry_count in range(max_retries):
-            try:
-                # プロキシとタイムアウトを考慮
-                response = requests.get(
-                    image_url, 
-                    stream=True, 
-                    proxies=self.proxies, 
-                    timeout=self.download_timeout
+            log_file.write(
+                "時刻: {ts}\nURL: {url}\nエラータイプ: {etype}\nエラー詳細: {detail}\n---\n".format(
+                    ts=datetime.datetime.now().isoformat(),
+                    url=image_url,
+                    etype=type(exception).__name__,
+                    detail=str(exception)
                 )
-                response.raise_for_status()
+            )
 
-                # 画像を一時ファイルに保存
-                with tempfile.NamedTemporaryFile(delete=False, suffix=self._get_file_extension(image_url)) as temp_file:
-                    for chunk in response.iter_content(chunk_size=8192):
-                        temp_file.write(chunk)
-
-                # 画像をロード
-                with Image.open(temp_file.name) as img:
-                    # 画像の有効性をチェック
-                    if not self._is_image_valid(img):
-                        os.unlink(temp_file.name)
-                        return False
-
-                    # 画像メタデータを抽出
-                    metadata = self._extract_image_metadata(img, image_url, post_data)
-
-                    # ファイル名を生成
-                    filename = self._generate_filename(img, metadata)
-                    filepath = self.output_folder / filename
-
-                    # 重複ファイルをチェック
-                    if filepath.exists():
-                        self._download_stats['skipped_duplicates'] += 1
-                        os.unlink(temp_file.name)
-                        return False
-    metadata = self._extract_image_metadata(image, image_url, post_data)
-    metadata_file = filepath.with_suffix('.json')
-    with open(metadata_file, 'w', encoding='utf-8') as f:
-        json.dump(metadata, f, ensure_ascii=False, indent=2)
-
-    # ダウンロード統計を更新
-    self.downloaded_files.add(filename)
-    self._download_stats['successful_downloads'] += 1
-            metadata = self._extract_image_metadata(image, image_url, post_data)
-            metadata_file = filepath.with_suffix('.json')
-            with open(metadata_file, 'w', encoding='utf-8') as f:
-                json.dump(metadata, f, ensure_ascii=False, indent=2)
-
-            # ダウンロード統計を更新
-            self.downloaded_files.add(filename)
-            self._download_stats['successful_downloads'] += 1
-
-            logger.info(f"Downloaded: {filename}")
-            return filepath
-
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Network error downloading {image_url}: {e}")
+        try:
+            result = self._download_and_store_image(image_url, post_data=post_data, allow_duplicate_skip=False)
+            if result:
+                return result
+        except Exception as retry_exc:
+            logger.error(f"Failed during failure-handling download: {retry_exc}")
             self._download_stats['failed_downloads'] += 1
             return None
-        except Exception as e:
-            logger.error(f"Unexpected error processing {image_url}: {e}")
-            self._download_stats['failed_downloads'] += 1
-            return None
+
+        self._download_stats['failed_downloads'] += 1
+        return None
 
     def print_download_stats(self):
         """ダウンロード統計を表示"""
@@ -2213,7 +3222,27 @@ URL: {image_url}
         logger.info(f"成功ダウンロード数: {stats['successful_downloads']}")
         logger.info(f"失敗ダウンロード数: {stats['failed_downloads']}")
         logger.info(f"重複スキップ数: {stats['skipped_duplicates']}")
+        logger.info(f"キャッシュヒット数: {stats.get('cache_hits', 0)}")
+        logger.info(f"キャッシュミス数: {stats.get('cache_misses', 0)}")
         logger.info(f"成功率: {success_rate:.2f}%")
+
+        ai_stats = stats.get('ai_classification_stats', {})
+        if ai_stats:
+            logger.info("\n--- AI分類統計 ---")
+            logger.info(f"有効な画像数: {ai_stats.get('valid_images', 0)}")
+            logger.info(f"無効な画像数: {ai_stats.get('invalid_images', 0)}")
+            logger.info(f"潜在的にNSFWな画像数: {ai_stats.get('potentially_nsfw_images', 0)}")
+
+            metrics_summary = ai_stats.get('metrics_summary', {})
+            if metrics_summary:
+                logger.info("\nメトリクスサマリー:")
+                for metric_name, metric_data in metrics_summary.items():
+                    count = metric_data.get('count', 0)
+                    average = (metric_data['sum'] / count) if count else 0.0
+                    logger.info(
+                        f"{metric_name}: 件数 = {count}, 平均 = {average:.4f}, "
+                        f"最小 = {metric_data['min']:.4f}, 最大 = {metric_data['max']:.4f}"
+                    )
 
     def _log_final_stats(self):
         """最終的なダウンロード統計をログに記録する"""
@@ -2221,6 +3250,8 @@ URL: {image_url}
         logger.info(f"総ダウンロード試行回数: {self._download_stats['total_attempts']}")
         logger.info(f"成功したダウンロード数: {self._download_stats['successful_downloads']}")
         logger.info(f"失敗したダウンロード数: {self._download_stats['failed_downloads']}")
+        logger.info(f"キャッシュヒット数: {self._download_stats.get('cache_hits', 0)}")
+        logger.info(f"キャッシュミス数: {self._download_stats.get('cache_misses', 0)}")
 
         # AI画像分類統計
         logger.info("\n--- AI画像分類統計 ---")
@@ -2237,9 +3268,20 @@ URL: {image_url}
             avg_confidence = (type_data['total_confidence'] / type_data['count']) if type_data['count'] > 0 else 0
             logger.info(f"{type_name}: 数 = {type_data['count']}, 平均信頼度 = {avg_confidence:.2f}")
 
+        metrics_summary = ai_stats.get('metrics_summary', {})
+        if metrics_summary:
+            logger.info("\nメトリクスサマリー:")
+            for metric_name, metric_data in metrics_summary.items():
+                count = metric_data.get('count', 0)
+                average = (metric_data['sum'] / count) if count else 0.0
+                logger.info(
+                    f"{metric_name}: 件数 = {count}, 平均 = {average:.4f}, "
+                    f"最小 = {metric_data['min']:.4f}, 最大 = {metric_data['max']:.4f}"
+                )
+
         return self._download_stats
 
-    def generate_image_thumbnail(self, image_path, size=(200, 200), quality=85):
+    def generate_image_thumbnail(self, image_path, size=DEFAULT_THUMBNAIL_SIZE, quality=DEFAULT_QUALITY):
         """
         画像のサムネイルを自動生成
 
@@ -2293,7 +3335,8 @@ URL: {image_url}
             dict: 画像品質評価結果
         """
         from PIL import Image
-        import numpy as np
+        if not _NUMPY_AVAILABLE:
+            return []
         import math
 
         try:
@@ -2474,7 +3517,7 @@ URL: {image_url}
             logger.error(f"プロキシ接続エラー: {e}")
             return default_proxy
 
-    def advanced_connection_settings(self, timeout=30, max_retries=3, backoff_factor=0.3):
+    def advanced_connection_settings(self, timeout=DEFAULT_TIMEOUT_SECONDS, max_retries=DEFAULT_RETRY_ATTEMPTS, backoff_factor=DEFAULT_BACKOFF_FACTOR):
         """
         高度な接続設定とエラーハンドリング
 
@@ -2504,113 +3547,121 @@ URL: {image_url}
         return adapter
 
     def multi_blog_search(self, blogs=None, tags=None, search_params=None):
-        """
-        複数のブログとタグを横断した高度な画像検索
-
-        Args:
-            blogs (list): 検索対象のブログリスト
-            tags (list): 検索対象のタグリスト
-            search_params (dict): 追加の検索パラメータ
-                {
-                    'min_likes': 最小いいね数,
-                    'min_notes': 最小ノート数,
-                    'date_range': {'start': 開始日, 'end': 終了日},
-                    'content_type': ['photo', 'gif', 'illustration'],
-                    'nsfw_filter': ブール値
-                }
-
-        Returns:
-            list: 検索結果の画像ウエブリ
-        """
-        import tumblr
+        """複数ブログ/タグを横断し、条件に合致した画像URLリストを取得"""
         from datetime import datetime, timedelta
 
-        # デフォルトパラメータ
         default_params = {
             'min_likes': 0,
             'min_notes': 0,
             'date_range': {
-                'start': datetime.now() - timedelta(days=30),
+                'start': datetime.now() - timedelta(days=DEFAULT_DAYS_BACK),
                 'end': datetime.now()
             },
             'content_type': ['photo'],
-            'nsfw_filter': True
+            'nsfw_filter': True,
+            'limit': DEFAULT_PAGE_LIMIT,
+            'max_pages': 10
         }
 
-        # パラメータのマージ
         if search_params:
             default_params.update(search_params)
 
-        # 検索結果の保存リスト
-        search_results = []
-
-        # ブログとタグのデフォルト値
         blogs = blogs or [self.tumblr_blog]
         tags = tags or []
+        results = []
+        seen_urls = set()
+
+        def process_posts(posts, params):
+            nonlocal results, seen_urls
+            for post in posts:
+                post_date = post.get('timestamp')
+                if post_date is None:
+                    continue
+
+                post_datetime = datetime.fromtimestamp(post_date)
+                if not (params['date_range']['start'] <= post_datetime <= params['date_range']['end']):
+                    continue
+
+                note_count = post.get('note_count', 0)
+                if note_count < params['min_notes']:
+                    continue
+
+                like_metric = post.get('likes', note_count)
+                if like_metric < params['min_likes']:
+                    continue
+
+                if params['nsfw_filter'] and post.get('is_nsfw', False):
+                    continue
+
+                for photo in post.get('photos', []):
+                    url = photo.get('original_size', {}).get('url')
+                    if url and url not in seen_urls:
+                        seen_urls.add(url)
+                        results.append(url)
 
         try:
-            # Tumblr APIクライアントの初期化
-            client = tumblr.TumblrRestClient(
-                self.consumer_key, 
-                self.consumer_secret, 
-                self.oauth_token, 
+            client = pytumblr.TumblrRestClient(
+                self.consumer_key,
+                self.consumer_secret,
+                self.oauth_token,
                 self.oauth_token_secret
             )
 
-            # 各ブログを横断して検索
-            for blog in blogs:
-                offset = 0
-                limit = 50  # ページごとの取得数
+            content_types = default_params['content_type'] or ['photo']
 
-                while True:
-                    # タグ付き投稿を検索
-                    if tags:
+            if tags:
+                for tag in tags:
+                    before_timestamp = int(default_params['date_range']['end'].timestamp())
+
+                    for _ in range(default_params['max_pages']):
                         posts = client.tagged(
-                            tag='|'.join(tags),  # タグの論理OR検索
-                            before=default_params['date_range']['end'],
-                            limit=limit,
-                            offset=offset
+                            tag=tag,
+                            before=before_timestamp,
+                            limit=default_params['limit']
                         )
-                    else:
-                        # ブログの投稿を検索
+
+                        if not posts:
+                            break
+
+                        filtered_posts = [
+                            post for post in posts
+                            if post.get('type', 'photo') in content_types
+                        ]
+
+                        process_posts(filtered_posts, default_params)
+
+                        earliest_post = min(posts, key=lambda p: p.get('timestamp', before_timestamp))
+                        before_timestamp = earliest_post.get('timestamp', before_timestamp)
+                        if before_timestamp:
+                            before_timestamp -= 1
+                        else:
+                            break
+            else:
+                for blog in blogs:
+                    for page in range(default_params['max_pages']):
                         posts = client.posts(
-                            blog,
+                            blogname=blog,
                             type='photo',
-                            limit=limit,
-                            offset=offset
+                            limit=default_params['limit'],
+                            offset=page * default_params['limit']
                         )
+                        posts = posts.get('posts', []) if isinstance(posts, dict) else posts
 
-                    # 検索結果がない場合は終了
-                    if not posts:
-                        break
+                        if not posts:
+                            break
 
-                    # 投稿をフィルタリング
-                    for post in posts:
-                        # 日付範囲チェック
-                        post_date = datetime.strptime(post['date'], '%Y-%m-%d %H:%M:%S %Z')
-                        if not (default_params['date_range']['start'] <= post_date <= default_params['date_range']['end']):
-                            continue
+                        filtered_posts = [
+                            post for post in posts
+                            if post.get('type', 'photo') in content_types
+                        ]
 
-                        # いいね数とノート数のフィルタリング
-                        if (post.get('note_count', 0) < default_params['min_notes'] or 
-                            post.get('likes', 0) < default_params['min_likes']):
-                            continue
+                        process_posts(filtered_posts, default_params)
 
-                        # NSFWフィルタ
-                        if default_params['nsfw_filter'] and post.get('is_nsfw', False):
-                            continue
+            logger.info(f"検索結果: {len(results)}件の画像を発見")
+            return results
 
-                        # 画像URL抽出
-                        for photo in post.get('photos', []):
-                            search_results.append(photo['original_size']['url'])
-
-                    offset += limit
-
-            logger.info(f"検索結果: {len(search_results)}件の画像を発見")
-            return search_results
-
-        except Exception as e:
-            logger.error(f"マルチブログ検索エラー: {e}")
+        except Exception as exc:  # pragma: no cover - network dependent
+            logger.error(f"マルチブログ検索エラー: {exc}")
             return []
 
     def advanced_image_search(self, query, search_type='semantic', max_results=100):
@@ -2626,7 +3677,8 @@ URL: {image_url}
             list: 検索結果の画像ウエブリ
         """
         from PIL import Image
-        import numpy as np
+        if not _NUMPY_AVAILABLE:
+            return []
         import torch
         from transformers import CLIPProcessor, CLIPModel
 
@@ -2727,7 +3779,8 @@ URL: {image_url}
             object: 学習済みスタイル分類モデル
         """
         import tensorflow as tf
-        import numpy as np
+        if not _NUMPY_AVAILABLE:
+            return []
         from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2, preprocess_input
         from tensorflow.keras.models import Model
         from tensorflow.keras.layers import Dense, GlobalAveragePooling2D
@@ -2740,10 +3793,10 @@ URL: {image_url}
                 Args:
                     num_classes (int): スタイルカテゴリの数
                 """
-                base_model = MobileNetV2(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
+                base_model = MobileNetV2(weights='imagenet', include_top=False, input_shape=(DEFAULT_MODEL_INPUT_SIZE, DEFAULT_MODEL_INPUT_SIZE, 3))
                 x = base_model.output
                 x = GlobalAveragePooling2D()(x)
-                x = Dense(1024, activation='relu')(x)
+                x = Dense(DEFAULT_DENSE_LAYER_SIZE, activation='relu')(x)
                 output = Dense(num_classes, activation='softmax', name='style_output')(x)
                 
                 self.model = Model(inputs=base_model.input, outputs=output)
@@ -2772,10 +3825,11 @@ URL: {image_url}
                     numpy.ndarray: 前処理された画像データ
                 """
                 from PIL import Image
-                import numpy as np
+                if not _NUMPY_AVAILABLE:
+                    return np.array([])
 
                 img = Image.open(image_path).convert('RGB')
-                img = img.resize((224, 224))
+                img = img.resize((DEFAULT_MODEL_INPUT_SIZE, DEFAULT_MODEL_INPUT_SIZE))
                 img_array = np.array(img)
                 img_array = preprocess_input(img_array)
                 return np.expand_dims(img_array, axis=0)
@@ -2831,17 +3885,17 @@ URL: {image_url}
             'download_settings': {
                 'output_directory': os.path.join(os.getcwd(), 'downloads'),
                 'max_concurrent_downloads': 5,
-                'retry_attempts': 3,
+                'retry_attempts': DEFAULT_RETRY_ATTEMPTS,
                 'download_timeout': 60,
                 'file_naming_pattern': '{blog}_{timestamp}_{index}'
             },
             'image_processing': {
                 'generate_thumbnails': True,
-                'thumbnail_size': (200, 200),
+                'thumbnail_size': DEFAULT_THUMBNAIL_SIZE,
                 'quality_threshold': {
                     'min_resolution': (800, 600),
                     'min_entropy': 2.0,
-                    'max_blur': 50
+                    'max_blur': BLUR_THRESHOLD
                 },
                 'duplicate_detection': {
                     'method': 'perceptual_hash',
@@ -2857,8 +3911,8 @@ URL: {image_url}
                     'username': None,
                     'password': None
                 },
-                'connection_timeout': 30,
-                'max_retries': 3
+                'connection_timeout': DEFAULT_TIMEOUT_SECONDS,
+                'max_retries': DEFAULT_RETRY_ATTEMPTS
             },
             'logging': {
                 'level': 'INFO',
@@ -2876,23 +3930,23 @@ URL: {image_url}
             return credentials
 
         def prompt_download_settings() -> Dict[str, Any]:
-            print("\n📥 ダウンロード設定")
+            print("\nダウンロード設定")
             settings = {}
             settings['output_directory'] = input(f"出力ディレクトリ (デフォルト: {default_config['download_settings']['output_directory']}): ") or default_config['download_settings']['output_directory']
-            settings['max_concurrent_downloads'] = int(input(f"最大同時ダウンロード数 (デフォルト: {default_config['download_settings']['max_concurrent_downloads']}): ） or default_config['download_settings']['max_concurrent_downloads'])
+            settings['max_concurrent_downloads'] = int(input(f"最大同時ダウンロード数 (デフォルト: {default_config['download_settings']['max_concurrent_downloads']}): ") or default_config['download_settings']['max_concurrent_downloads'])
             settings['retry_attempts'] = int(input(f"ダウンロード再試行回数 (デフォルト: {default_config['download_settings']['retry_attempts']}): ") or default_config['download_settings']['retry_attempts'])
             return settings
 
         def prompt_image_processing() -> Dict[str, Any]:
-            print("\n🖼️ 画像処理設定")
+            print("\n画像処理設定")
             settings = {}
             settings['generate_thumbnails'] = input("サムネイル生成を有効にしますか？ (y/N): ").lower() == 'y'
             if settings['generate_thumbnails']:
-                settings['thumbnail_size'] = tuple(map(int, input("サムネイルサイズ (幅,高さ) (デフォルト: 200,200): ").split(',') or (200, 200)))
+                settings['thumbnail_size'] = tuple(map(int, input("サムネイルサイズ (幅,高さ) (デフォルト: 200,200): ").split(',') or DEFAULT_THUMBNAIL_SIZE))
             return settings
 
         def prompt_network_settings() -> Dict[str, Any]:
-            print("\n🌐 ネットワーク設定")
+            print("\nネットワーク設定")
             settings = {}
             settings['use_proxy'] = input("プロキシを使用しますか？ (y/N): ").lower() == 'y'
             if settings['use_proxy']:
@@ -3043,9 +4097,9 @@ URL: {image_url}
             'max_images': 100,
             'min_resolution': (800, 600),
             'min_likes': 5,
-            'min_notes': 3,
+            'min_notes': DEFAULT_COLOR_CLUSTERS,
             'date_range': {
-                'start': datetime.datetime.now() - datetime.timedelta(days=30),
+                'start': datetime.datetime.now() - datetime.timedelta(days=DEFAULT_DAYS_BACK),
                 'end': datetime.datetime.now()
             },
             'content_type': ['photo'],
@@ -3114,10 +4168,11 @@ URL: {image_url}
                             return None
 
                     # ダウンロードと保存
-                    filename = self._generate_filename(
-                        image_url, 
-                        default_params['download_options']['naming_pattern'],
-                        default_params['download_options']['output_directory']
+                    filename = self._generate_output_filename(
+                        temp_path,
+                        metadata,
+                        image_url=image_url,
+                        post_data={'blog_name': default_params['blog_name']}
                     )
 
                     if not default_params['download_options']['overwrite'] and os.path.exists(filename):
@@ -3128,7 +4183,7 @@ URL: {image_url}
                     downloaded_path = self.download_image(
                         image_url, 
                         filename, 
-                        timeout=30
+                        timeout=DEFAULT_TIMEOUT_SECONDS
                     )
 
                     collection_results['downloaded_images'].append(downloaded_path)
@@ -3165,7 +4220,8 @@ URL: {image_url}
         import requests
         from PIL import Image
         import io
-        import numpy as np
+        if not _NUMPY_AVAILABLE:
+            return []
 
         try:
             response = requests.get(image_url, timeout=10)
@@ -3246,7 +4302,8 @@ URL: {image_url}
 
     def _calculate_image_entropy(self, image_path):
         from PIL import Image
-        import numpy as np
+        if not _NUMPY_AVAILABLE:
+            return []
         from scipy.stats import entropy
 
         img = Image.open(image_path)
@@ -3265,7 +4322,8 @@ URL: {image_url}
 
     def _extract_dominant_color(self, image_path):
         from PIL import Image
-        import numpy as np
+        if not _NUMPY_AVAILABLE:
+            return []
         from sklearn.cluster import KMeans
 
         img = Image.open(image_path)
@@ -3280,8 +4338,9 @@ URL: {image_url}
         
         return tuple(map(int, kmeans.cluster_centers_[0]))
 
-    def _color_matches_palette(self, color, palette, tolerance=30):
-        import numpy as np
+    def _color_matches_palette(self, color, palette, tolerance=COLOR_TOLERANCE):
+        if not _NUMPY_AVAILABLE:
+            return []
 
         for palette_color in palette:
             distance = np.sqrt(np.sum((np.array(color) - np.array(palette_color))**2))
@@ -3310,7 +4369,7 @@ URL: {image_url}
             'resume_from_last_collection': True,
             'skip_downloaded_images': True,
             'extend_date_range': True,
-            'max_retry_count': 3,
+            'max_retry_count': DEFAULT_RETRY_ATTEMPTS,
             'retry_delay': 60  # 秒
         }
 
@@ -3320,20 +4379,61 @@ URL: {image_url}
 
         # 前回の収集結果がない場合は新規収集を実行
         if not previous_collection_results:
-            previous_collection_results = self._load_last_collection_state()
+            last_state = self._load_last_collection_state()
+            if last_state:
+                previous_collection_results = last_state
+                self._restore_cli_filters(last_state.get('cli_filters'))
+                self._restore_resume_offsets(last_state.get('offsets'))
 
         if not previous_collection_results:
             logger.warning("前回の収集結果が見つかりません。新規収集を開始します。")
             return self.auto_image_collection()
 
+        # CLIフィルタを復元
+        self._restore_cli_filters(previous_collection_results.get('cli_filters'))
+
         # 収集パラメータを復元
-        collection_params = previous_collection_results.get('collection_params', {})
+        raw_collection_params = previous_collection_results.get('collection_params', {}) or {}
+        collection_params = dict(raw_collection_params)
+
+        if 'date_range' in raw_collection_params and raw_collection_params['date_range']:
+            collection_params['date_range'] = dict(raw_collection_params['date_range'])
+
+        stored_tags = collection_params.get('tags') or []
+        if stored_tags:
+            collection_params['tags'] = [str(tag).lower() for tag in stored_tags]
+        elif self._cli_tags:
+            collection_params['tags'] = list(self._cli_tags)
+
+        date_range = collection_params.get('date_range')
+        if date_range:
+            start_value = date_range.get('start')
+            end_value = date_range.get('end')
+
+            if isinstance(start_value, str):
+                try:
+                    date_range['start'] = datetime.datetime.fromisoformat(start_value)
+                except ValueError:
+                    date_range['start'] = self._cli_start_date
+            if isinstance(end_value, str):
+                try:
+                    date_range['end'] = datetime.datetime.fromisoformat(end_value) if end_value else None
+                except ValueError:
+                    date_range['end'] = self._cli_end_date
+        elif self._cli_start_date or self._cli_end_date:
+            collection_params['date_range'] = {
+                'start': self._cli_start_date,
+                'end': self._cli_end_date
+            }
+
+        if 'include_likes' not in collection_params:
+            collection_params['include_likes'] = self._include_likes
 
         # 日付範囲を拡張
         if resume_params['extend_date_range']:
             collection_params['date_range'] = {
                 'start': previous_collection_results.get('end_date', 
-                    datetime.now() - timedelta(days=30)),
+                    datetime.now() - timedelta(days=DEFAULT_DAYS_BACK)),
                 'end': datetime.now()
             }
 
@@ -3459,6 +4559,17 @@ URL: {image_url}
         # 最新の収集パラメータで更新
         merged_results['collection_params'].update(new_results.get('collection_params', {}))
 
+        merged_results['cli_filters'] = (
+            new_results.get('cli_filters')
+            if new_results.get('cli_filters') is not None
+            else previous_results.get('cli_filters')
+        )
+
+        merged_results['offsets'] = {
+            **(previous_results.get('offsets') or {}),
+            **(new_results.get('offsets') or {})
+        }
+
         return merged_results
 
     def export_metadata(self, output_format='json'):
@@ -3542,133 +4653,110 @@ URL: {image_url}
                 json.dump(metadata_list, f, ensure_ascii=False, indent=4)
             return output_file
 
-        metadata_dir = self.output_folder / 'metadata'
-        metadata_dir.mkdir(exist_ok=True)
-
-        # メタデータファイル名を生成
-        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-        metadata_filename = f'tumblr_metadata_{timestamp}'
-
-        # メタデータリストを作成
-        metadata_list = []
-        for filepath in self.output_folder.glob('*.*'):
-            if filepath.is_file() and filepath.suffix.lower() in ['.jpg', '.jpeg', '.png', '.gif', '.webp']:
-                try:
-                    with Image.open(filepath) as img:
-                        metadata = self._extract_image_metadata(str(filepath))
-                        if metadata:
-                            metadata['local_path'] = str(filepath)
-                            metadata['file_size'] = filepath.stat().st_size
-                            metadata['last_modified'] = filepath.stat().st_mtime
-                            metadata_list.append(metadata)
-                except Exception as e:
-                    logger.error(f"メタデータ抽出エラー: {filepath} - {e}")
-
-        # エクスポート形式を選択
-        if output_format == 'json':
-            output_file = metadata_dir / f'{metadata_filename}.json'
-            with open(output_file, 'w', encoding='utf-8') as f:
-                json.dump(metadata_list, f, ensure_ascii=False, indent=4)
-            logger.info(f"メタデータをJSONファイルにエクスポート: {output_file}")
-            return output_file
-
-        elif output_format == 'csv':
-            output_file = metadata_dir / f'{metadata_filename}.csv'
-            # CSVに出力可能な形式に変換
-            if metadata_list:
-                keys = metadata_list[0].keys()
-                with open(output_file, 'w', newline='', encoding='utf-8') as f:
-                    writer = csv.DictWriter(f, fieldnames=keys)
-                    writer.writeheader()
-                    writer.writerows(metadata_list)
-            logger.info(f"メタデータをCSVファイルにエクスポート: {output_file}")
-            return output_file
-
-        else:
-            logger.warning(f"サポートされていないフォーマット: {output_format}. JSONにフォールバックします。")
-            output_file = metadata_dir / f'{metadata_filename}.json'
-            with open(output_file, 'w', encoding='utf-8') as f:
-                json.dump(metadata_list, f, ensure_ascii=False, indent=4)
-            return output_file
-                try:
-                    with Image.open(filepath) as img:
-                        metadata = self._extract_image_metadata(str(filepath))
-                        if metadata:
-                            metadata['local_path'] = str(filepath)
-                            metadata_list.append(metadata)
-                except Exception as e:
-                    logger.error(f"Error processing {filepath}: {e}")
-
-        # エクスポート形式を選択
-        if output_format == 'json':
-            output_file = metadata_dir / f'{metadata_filename}.json'
-            with open(output_file, 'w', encoding='utf-8') as f:
-                json.dump(metadata_list, f, indent=2, ensure_ascii=False)
-        elif output_format == 'csv':
-            output_file = metadata_dir / f'{metadata_filename}.csv'
-            if metadata_list:
-                with open(output_file, 'w', newline='', encoding='utf-8') as f:
-                    writer = csv.DictWriter(f, fieldnames=metadata_list[0].keys())
-                    writer.writeheader()
-                    writer.writerows(metadata_list)
-        else:
-            logger.error(f"Unsupported export format: {output_format}")
-            return None
-
-        logger.info(f"Metadata exported to {output_file}")
-        return output_file
-
-    def download_tagged_images(self, tag, count=3):
+    def download_tagged_images(self, tag, count=DEFAULT_COLOR_CLUSTERS):
         """指定されたタグの画像をダウンロードする (高度な並列ダウンロード)"""
         if not self.executor:
             self._setup_executor()
 
-        try:
-            # Tumblrから指定タグの投稿を取得
-            posts = self.client.tagged(tag, limit=count)
+        rate_limit_suspected = False
+        download_results = {
+            'total_images': 0,
+            'successful_downloads': 0,
+            'failed_downloads': 0
+        }
+        results_lock = threading.Lock()
 
-            # ダウンロードキューとスレッドの管理
+        try:
+            limit = min(max(1, int(count or 1)), self.max_download_limit)
+            posts = self.client.tagged(tag, limit=limit)
+
             download_queue = queue.Queue()
-            download_results = {
-                'total_images': 0,
-                'successful_downloads': 0,
-                'failed_downloads': 0
-            }
+            for post in posts:
+                download_queue.put(post)
+
+            if download_queue.empty():
+                logger.info(f"No posts found for tag '{tag}'.")
+                return True
 
             def download_worker():
-                while not download_queue.empty():
+                while True:
                     try:
-                        post = download_queue.get(block=False)
+                        post = download_queue.get_nowait()
+                    except queue.Empty:
+                        break
+
+                    try:
                         if post.get('type') == 'photo':
                             success = self.download_image(post['photos'][0]['original_size']['url'], post)
-                            with threading.Lock():
+                            with results_lock:
                                 download_results['total_images'] += 1
                                 if success:
                                     download_results['successful_downloads'] += 1
                                 else:
                                     download_results['failed_downloads'] += 1
-                    except queue.Empty:
-                        break
-                    except Exception as e:
-                        logger.error(f"Error in download worker: {e}")
+                    except Exception as worker_error:
+                        logger.error(f"Error in download worker: {worker_error}")
                     finally:
                         download_queue.task_done()
 
-            # キューにポストを追加
-            for post in posts:
-                download_queue.put(post)
+            workers = []
+            worker_count = min(self.max_workers, max(1, download_queue.qsize()))
+            for _ in range(worker_count):
+                thread = threading.Thread(target=download_worker, daemon=True)
+                thread.start()
+                workers.append(thread)
 
-            # Wait for completion (optional, mainly for debugging or sequential logic)
-            # concurrent.futures.wait(futures)
+            download_queue.join()
+            for thread in workers:
+                thread.join()
+
+            logger.info(
+                f"Tag '{tag}' download summary: total={download_results['total_images']}, "
+                f"success={download_results['successful_downloads']}, "
+                f"failed={download_results['failed_downloads']}"
+            )
 
         except Exception as e:
             logger.error(f"Error during tagged post fetch/submission for tag '{tag}': {e}")
             if "limit" in str(e).lower() or "429" in str(e) or "too many requests" in str(e).lower():
-                 logger.warning(f"Rate limit likely hit while fetching tagged posts for '{tag}'.")
-                 rate_limit_suspected = True
-                 for f in futures: f.cancel() # Attempt to cancel pending downloads for this tag
+                logger.warning(f"Rate limit likely hit while fetching tagged posts for '{tag}'.")
+                rate_limit_suspected = True
 
         return not rate_limit_suspected
+
+    def _apply_cli_post_filters(self, posts):
+        """CLIオプションに基づき投稿リストをフィルタリング"""
+        if not posts:
+            return []
+
+        filtered = []
+        for post in posts:
+            if self._post_matches_cli_filters(post):
+                filtered.append(post)
+        return filtered
+
+    def _post_matches_cli_filters(self, post):
+        """CLIフィルタ条件を満たすか判定"""
+        if not isinstance(post, dict):
+            return False
+
+        if self._cli_tags:
+            post_tags = [str(tag).lower() for tag in post.get('tags', [])]
+            if not any(tag in post_tags for tag in self._cli_tags):
+                return False
+
+        timestamp = post.get('timestamp')
+        if (self._cli_start_date or self._cli_end_date) and timestamp is not None:
+            post_datetime = datetime.datetime.fromtimestamp(timestamp)
+            if self._cli_start_date and post_datetime < self._cli_start_date:
+                return False
+            if self._cli_end_date and post_datetime > self._cli_end_date:
+                return False
+        elif (self._cli_start_date or self._cli_end_date) and timestamp is None:
+            # タイムスタンプが無い場合はフィルタに一致しないと見なす
+            return False
+
+        return True
 
     def process_posts(self, posts):
         """投稿から画像をダウンロードし、関連タグの画像もダウンロードする (並列ダウンロード)"""
@@ -3676,12 +4764,22 @@ URL: {image_url}
             logger.error("Executor not available for processing posts.")
             return True
 
+        if not posts:
+            logger.debug("No posts to process after applying filters.")
+            return True
+
         initial_image_futures = []
         rate_limit_hit = False
 
         # Submit initial image downloads
         submitted_count = 0
+        max_initial_downloads = min(len(posts), self.max_download_limit)
+
+        # Submit initial image downloads
         for post in posts:
+            if submitted_count >= max_initial_downloads:
+                logger.debug("Reached max_download_limit for this batch; skipping remaining posts.")
+                break
             if post.get('type') == 'photo':
                 for photo in post.get('photos', []):
                     image_url = photo.get('original_size', {}).get('url')
@@ -3722,6 +4820,53 @@ URL: {image_url}
         logger.debug(f"Finished processing results for {submitted_count} initial images.")
         return not rate_limit_hit
 
+    def _collect_liked_posts(self, batch_size=20):
+        """認証ユーザーのLike投稿を収集"""
+        if not hasattr(self.client, 'likes'):
+            logger.warning("Tumblr client does not support likes API. Skipping like collection.")
+            return
+
+        logger.info("Starting liked-post collection...")
+
+        offset = 0
+        batch_size = min(max(1, int(batch_size)), self.max_download_limit)
+
+        while True:
+            try:
+                response = self.client.likes(limit=batch_size, offset=offset)
+            except Exception as exc:
+                logger.error(f"Error fetching liked posts: {exc}")
+                break
+
+            liked_posts = []
+            if isinstance(response, dict):
+                liked_posts = response.get('liked_posts', []) or []
+            elif isinstance(response, (list, tuple)):
+                liked_posts = list(response)
+
+            if not liked_posts:
+                logger.info("No more liked posts to process.")
+                break
+
+            filtered_posts = self._apply_cli_post_filters(liked_posts)
+
+            if filtered_posts:
+                logger.info(f"Processing {len(filtered_posts)} liked posts (offset {offset}).")
+                if not self.process_posts(filtered_posts):
+                    self.wait_and_resume()
+                    continue
+            else:
+                logger.debug(f"All liked posts in batch {offset} skipped by filters.")
+
+            offset += len(liked_posts)
+
+            if len(liked_posts) < batch_size:
+                logger.info("Reached end of liked posts (last batch smaller than requested).")
+                break
+
+        logger.info("Finished liked-post collection.")
+        self._persist_runtime_state()
+
     def _process_related_tags(self, image_filename, tags):
         """関連タグの処理を分離したメソッド"""
         if not tags:
@@ -3730,38 +4875,29 @@ URL: {image_url}
 
         logger.debug(f"Processing {len(tags)} related tags for {image_filename}...")
 
-                    result = future.result(timeout=30)  # 30秒のタイムアウト
-                    if result:
-                        tag_processing_results['successful_tags'] += 1
-                        logger.debug(f"Successfully processed tag: {tag}")
-                    else:
-                        tag_processing_results['failed_tags'] += 1
-                        logger.warning(f"Failed to process tag: {tag}")
+        # 関連タグの画像をダウンロード
+        tag_processing_results = {'successful_tags': 0, 'failed_tags': 0}
 
-                except concurrent.futures.TimeoutError:
+        for tag in tags[:DEFAULT_COLOR_CLUSTERS]:  # 最大3個のタグを処理
+            try:
+                result = self.download_tagged_images(tag, count=DEFAULT_COLOR_CLUSTERS)
+                if result:
+                    tag_processing_results['successful_tags'] += 1
+                    logger.debug(f"Successfully processed tag: {tag}")
+                else:
                     tag_processing_results['failed_tags'] += 1
-                    logger.warning(f"Tag processing timed out: {tag}")
+                    logger.warning(f"Failed to process tag: {tag}")
 
-            # 処理結果のサマリーをログ出力
-            logger.info(
-                f"Tag Processing Summary: "
-                f"Successful: {tag_processing_results['successful_tags']}, "
-                f"Failed: {tag_processing_results['failed_tags']}"
-            )
+            except Exception as e:
+                tag_processing_results['failed_tags'] += 1
+                logger.warning(f"Error processing tag {tag}: {e}")
 
-            # レートリミットの可能性を検出
-            if tag_processing_results['failed_tags'] > len(top_tags) // 2:
-                logger.error("Potential rate limit detected: Too many tag processing failures")
-                return False
-
-        # ランダムタグの高度な選択
-        if top_tags:
-            random_tag = random.choice(top_tags)
-            logger.debug(f"Selected random tag with potential relevance: {random_tag}")
-            logger.debug(f"Processing random tag '{random_tag}' for {image_filename}")
-            if not self.download_tagged_images(random_tag, 3):
-                logger.warning(f"Rate limit suspected processing random tag '{random_tag}'.")
-                return False
+        # 処理結果のサマリーをログ出力
+        logger.info(
+            f"Tag Processing Summary: "
+            f"Successful: {tag_processing_results['successful_tags']}, "
+            f"Failed: {tag_processing_results['failed_tags']}"
+        )
 
         return True
 
@@ -3776,61 +4912,144 @@ URL: {image_url}
         # 待機中のプログレスバーとカウントダウン
         for remaining in range(sleep_time, 0, -1):
             logger.debug(f"Waiting... {remaining} seconds remaining.")
-            time.sleep(1)
+            logger.info(_("initialization_complete"))
+        logger.info(_("starting_download"))  # after rate limit wait
 
-        logger.info("Resuming download process after rate limit wait.")
-
-    def run(self, blog_name):
+    def run(self, blog_name=None, tags=None, date_range=None, include_likes=False):
         """メインの実行ループ"""
-        offset_key = f"offset_{blog_name}"
-        offset = self.config.get(offset_key, 0)
-        logger.info(f"Starting download for blog '{blog_name}' from offset {offset}.")
+        self._cli_tags = [str(tag).lower() for tag in (tags or [])]
+        self._cli_start_date = (date_range or {}).get('start')
+        self._cli_end_date = (date_range or {}).get('end')
+        self._include_likes = bool(include_likes)
+
+        offset_key = f"offset_{blog_name}" if blog_name else None
+        offset = self.config.get(offset_key, 0) if offset_key else 0
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as self.executor:
-            while True:
-                try:
-                    logger.info(f"Fetching posts for '{blog_name}' with offset {offset}...")
-                    posts = self.get_blog_posts(blog_name, limit=20, offset=offset)
+            if blog_name:
+                while True:
+                    try:
+                        logger.info(f"Fetching posts for '{blog_name}' with offset {offset}...")
+                        posts = self.get_blog_posts(blog_name, limit=20, offset=offset)
 
-                    if posts is None:  # Rate limit suspected
-                        self.wait_and_resume()
-                        continue
+                        if posts is None:  # Rate limit suspected
+                            self.wait_and_resume()
+                            continue
 
-                    if not posts:  # No more posts or non-rate-limit error
-                        logger.info("No more posts retrieved or error fetching posts.")
-                        self.config[offset_key] = offset  # Save current offset on clean exit
-                        self._save_config()
+                        if not posts:  # No more posts or non-rate-limit error
+                            logger.info("No more posts retrieved or error fetching posts.")
+                            if offset_key:
+                                self.config[offset_key] = offset  # Save current offset on clean exit
+                                self._save_config()
+                            break
+
+                        filtered_posts = self._apply_cli_post_filters(posts)
+
+                        # Process posts
+                        if not self.process_posts(filtered_posts):
+                            # Rate limit hit during processing
+                            self.wait_and_resume()
+                            continue  # Retry same offset
+
+                        # Success, advance offset
+                        processed_count = len(posts)
+                        offset += processed_count
+                        if offset_key:
+                            self.config[offset_key] = offset  # Save progress
+                            self._save_config()
+                        self._persist_runtime_state(blog_name=blog_name, offset=offset)
+                        logger.info(f"Successfully processed batch. New offset for '{blog_name}': {offset}")
+
+                        # Wait before fetching next batch
+                        logger.debug(f"Sleeping for {self.api_batch_sleep} seconds before next batch...")
+                        time.sleep(self.api_batch_sleep)
+
+                    except Exception as e:
+                        logger.error(f"Unexpected error in download process: {e}")
+                        self._generate_crash_report(type(e), e, sys.exc_info()[2])
+                        break
+                    except KeyboardInterrupt:
+                        logger.info("ユーザーによる中断を検出しました")
+                        if offset_key:
+                            self.config[offset_key] = offset  # 現在のオフセットを保存
+                            self._save_config()
                         break
 
-                    # Process posts
-                    if not self.process_posts(posts):
-                        # Rate limit hit during processing
-                        self.wait_and_resume()
-                        continue  # Retry same offset
+            if self._include_likes:
+                self._collect_liked_posts(batch_size=20)
+                self._persist_runtime_state(blog_name=blog_name, offset=offset)
 
-                    # Success, advance offset
-                    processed_count = len(posts)
-                    offset += processed_count
-                    self.config[offset_key] = offset  # Save progress
-                    self._save_config()
-                    logger.info(f"Successfully processed batch. New offset for '{blog_name}': {offset}")
+        self.executor = None
 
-                    # Wait before fetching next batch
-                    logger.debug(f"Sleeping for {self.api_batch_sleep} seconds before next batch...")
-                    time.sleep(self.api_batch_sleep)
+        # クリーンアップ
+        self._cleanup_resources()
+        if blog_name:
+            logger.info(f"Download process finished for blog '{blog_name}'.")
+        if self._include_likes and not blog_name:
+            logger.info("Download process finished for liked posts.")
 
-                except Exception as e:
-                    logger.error(f"Unexpected error in download process: {e}")
-                    self._generate_crash_report(type(e), e, None)
-                    break
+        # 最終統計情報を表示
+        self._display_final_statistics()
 
-        logger.info(f"Download process finished for blog '{blog_name}'.")
+    def _persist_runtime_state(self, blog_name=None, offset=None):
+        current_time_iso = datetime.datetime.now().isoformat()
+
+        collection_params = {
+            'blogs': [blog_name] if blog_name else [],
+            'tags': list(self._cli_tags),
+            'date_range': {
+                'start': self._cli_start_date.isoformat() if self._cli_start_date else None,
+                'end': self._cli_end_date.isoformat() if self._cli_end_date else None
+            },
+            'include_likes': self._include_likes
+        }
+
+        state_payload = {
+            'total_found': self._download_stats.get('total_images_processed', 0),
+            'downloaded_images': sorted(self.downloaded_files),
+            'skipped_images': [],
+            'errors': [],
+            'collection_params': collection_params,
+            'offsets': {blog_name: offset} if blog_name is not None else {},
+            'cli_filters': self._serialize_cli_filters(),
+            'end_date': current_time_iso
+        }
+
+        self._save_collection_state(state_payload)
+        if blog_name and offset is not None:
+            self.config[f"offset_{blog_name}"] = offset
+            self._save_config()
+
+    def _restore_resume_offsets(self, offsets):
+        if not offsets:
+            return
+        for blog_name, offset in offsets.items():
+            if blog_name:
+                self.config[f"offset_{blog_name}"] = offset
+
+    def _display_final_statistics(self):
+        """最終統計情報を表示"""
+        stats = self._download_stats
+        logger.info("-" * 60)
+        logger.info("ダウンロード統計:")
+        logger.info(f"  総処理画像数: {stats['total_images_processed']}")
+        logger.info(f"  成功ダウンロード数: {stats['successful_downloads']}")
+        logger.info(f"  スキップ数 (重複): {stats['skipped_duplicates']}")
+        logger.info(f"  失敗数: {stats['failed_downloads']}")
+
+        if self.image_classifier and stats.get('ai_classification_stats'):
+            ai_stats = stats['ai_classification_stats']
+            logger.info("画像分類統計:")
+            logger.info(f"  有効画像: {ai_stats['valid_images']}")
+            logger.info(f"  無効画像: {ai_stats['invalid_images']}")
+            logger.info(f"  高解像度画像: {ai_stats['high_resolution_images']}")
+        logger.info("-" * 60)
 
 
 def main():
     """Parses arguments, sets up logging, creates collector, and runs it."""
-    parser = argparse.ArgumentParser(description="Download images from a Tumblr blog and related tags.")
-    parser.add_argument("blog_name", help="The name of the Tumblr blog (e.g., staff)")
+    parser = argparse.ArgumentParser(description="Download images from Tumblr blogs, likes, tags, and date ranges.")
+    parser.add_argument("blog_name", nargs='?', help="The name of the Tumblr blog (e.g., staff)")
     parser.add_argument("-c", "--config", default=DEFAULT_CONFIG_FILE,
                         help=f"Path to the configuration file (default: {DEFAULT_CONFIG_FILE})")
     parser.add_argument("-o", "--output", default=None,
@@ -3842,6 +5061,16 @@ def main():
                         help="Set the logging level (default: INFO)")
     parser.add_argument("--log-file", default=DEFAULT_LOG_FILE,
                         help=f"Path to the log file (default: {DEFAULT_LOG_FILE})")
+    parser.add_argument("--interactive", action="store_true",
+                        help="Run in interactive mode")
+    parser.add_argument("--include-likes", action="store_true",
+                        help="Download liked posts for the authenticated user")
+    parser.add_argument("--tags", nargs='*',
+                        help="Filter downloads to posts containing the specified tags")
+    parser.add_argument("--start-date", type=str,
+                        help="ISO date (YYYY-MM-DD). Only posts created on or after this date will be considered")
+    parser.add_argument("--end-date", type=str,
+                        help="ISO date (YYYY-MM-DD). Only posts created on or before this date will be considered")
 
     args = parser.parse_args()
 
@@ -3861,6 +5090,49 @@ def main():
 
     logger.setLevel(log_level)
 
+    # --- Interactive Mode ---
+    if args.interactive:
+        cli = InteractiveCLI()
+        try:
+            collector = TumblrImageCollector(
+                config_file=args.config,
+                output_dir_override=args.output,
+                workers_override=args.workers
+            )
+            cli.run_interactive_mode(collector)
+        except KeyboardInterrupt:
+            logger.info("Process interrupted by user.")
+        except Exception as e:
+            logger.exception(f"An unexpected error occurred: {e}")
+        finally:
+            if 'collector' in locals() and hasattr(collector, 'config'):
+                logger.info("Saving final configuration state.")
+                collector._save_config()
+            logger.info("Exiting.")
+        return
+
+    # --- Normal Mode ---
+    if not args.blog_name and not args.include_likes:
+        logger.error("Blog name is required unless --include-likes is specified. Use --interactive for interactive mode.")
+        return
+
+    def _parse_date(date_text):
+        if not date_text:
+            return None
+        try:
+            return datetime.datetime.strptime(date_text, "%Y-%m-%d")
+        except ValueError:
+            logger.error(f"Invalid date format for '{date_text}'. Expected YYYY-MM-DD.")
+            return None
+
+    start_date = _parse_date(args.start_date)
+    end_date = _parse_date(args.end_date)
+    if start_date and end_date and start_date > end_date:
+        logger.warning("Start date is after end date. Swapping values.")
+        start_date, end_date = end_date, start_date
+
+    cli_tags = args.tags or []
+
     # --- Run Collector ---
     collector = None # Initialize to None for finally block
     try:
@@ -3869,7 +5141,17 @@ def main():
             output_dir_override=args.output,
             workers_override=args.workers
         )
-        collector.run(args.blog_name)
+
+        date_filter = None
+        if start_date or end_date:
+            date_filter = {'start': start_date, 'end': end_date}
+
+        collector.run(
+            blog_name=args.blog_name,
+            tags=cli_tags,
+            date_range=date_filter,
+            include_likes=args.include_likes
+        )
     except (ValueError, ConnectionError, IOError) as e:
          logger.error(f"Initialization or runtime error: {e}")
          # No need to save config if initialization failed badly
@@ -3884,106 +5166,6 @@ def main():
              collector._save_config()
         logger.info("Exiting.")
 
-
-import concurrent.futures
-import time
-import random
-from functools import partial
-from urllib.parse import urlparse
-
-def exponential_backoff(attempt, base_delay=1, max_delay=60):
-    """
-    エクスポネンシャルバックオフ戦略
-    
-    Args:
-        attempt (int): 現在の再試行回数
-        base_delay (float): 基本遅延時間
-        max_delay (float): 最大遅延時間
-    
-    Returns:
-        float: 計算された遅延時間
-    """
-    delay = min(base_delay * (2 ** attempt), max_delay)
-    jitter = random.uniform(0, 0.1 * delay)
-    return delay + jitter
-
-def download_with_retry(url, output_folder, max_retries=3, timeout=30):
-    """
-    高度な再試行メカニズムを持つダウンロード関数
-    
-    Args:
-        url (str): ダウンロードするURL
-        output_folder (Path): 出力フォルダ
-        max_retries (int): 最大再試行回数
-        timeout (int): タイムアウト時間（秒）
-    
-    Returns:
-        tuple: (ダウンロード成功フラグ, ファイルパス)
-    """
-    parsed_url = urlparse(url)
-    filename = os.path.basename(parsed_url.path)
-    output_path = output_folder / filename
-
-    for attempt in range(max_retries):
-        try:
-            response = requests.get(url, stream=True, timeout=timeout)
-            response.raise_for_status()
-
-            with open(output_path, 'wb') as f:
-                for chunk in response.iter_content(chunk_size=8192):
-                    f.write(chunk)
-
-            logger.info(f"ダウンロード成功: {url}")
-            return True, output_path
-
-        except (requests.RequestException, IOError) as e:
-            delay = exponential_backoff(attempt)
-            logger.warning(f"ダウンロード失敗 (試行 {attempt + 1}/{max_retries}): {url}")
-            logger.warning(f"エラー: {e}")
-            logger.info(f"次の再試行まで {delay:.2f}秒待機")
-            time.sleep(delay)
-
-    logger.error(f"最大再試行回数に達しました: {url}")
-    return False, None
-
-def parallel_download(image_urls, output_folder, max_workers=5):
-    """
-    画像を並列でダウンロード
-    
-    Args:
-        image_urls (list): ダウンロードするURL一覧
-        output_folder (Path): 出力フォルダ
-        max_workers (int): 最大並列ワーカー数
-    
-    Returns:
-        list: ダウンロードされたファイルパス
-    """
-    downloaded_files = []
-    
-    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-        # 部分適用された関数を作成
-        download_func = partial(download_with_retry, output_folder=output_folder)
-        
-        # 並列ダウンロード
-        futures = {executor.submit(download_func, url): url for url in image_urls}
-        
-        for future in concurrent.futures.as_completed(futures):
-            url = futures[future]
-            try:
-                success, file_path = future.result()
-                if success:
-                    downloaded_files.append(file_path)
-            except Exception as e:
-                logger.error(f"ダウンロード中に予期せぬエラー: {url} - {e}")
-    
-    return downloaded_files
-
-def main():
-    # 既存のmain関数の処理...
-    
-    # 並列ダウンロードの例
-    image_urls = [...]  # 画像URLリスト
-    downloaded_images = parallel_download(image_urls, output_folder)
 
 if __name__ == "__main__":
     main()

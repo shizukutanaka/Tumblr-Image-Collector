@@ -1,17 +1,29 @@
 [flake8]
 max-line-length = 120
-exclude = 
+exclude =
     .git,
     __pycache__,
     venv,
     .venv,
+    env,
     build,
-    dist
-ignore = 
+    dist,
+    .eggs,
+    *.egg-info,
+    crash_reports,
+    tumblr_images
+ignore =
     E203,  # スペースの前後に関する警告を無視
     W503,  # 改行後の演算子に関する警告を無視
-    F401,  # 未使用のインポートに関する警告を無視
-max-complexity = 15
-per-file-ignores = 
+    E501,  # 行が長すぎる（max-line-lengthで制御）
+max-complexity = 12
+per-file-ignores =
     __init__.py:F401
-    test_*.py:S101  # アサーションに関する警告を無視
+    test_*.py:S101,E501
+    *_test.py:S101,E501
+# セキュリティチェックを有効化
+select = E,W,F,C,B,S
+# 追加のコード品質チェック
+doctests = True
+show-source = True
+statistics = True

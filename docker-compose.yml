@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  tumblr-collector:
+    build: .
+    container_name: tumblr-image-collector
+    volumes:
+      - ./output:/app/output
+      - ./logs:/app/logs
+      - ./crash_reports:/app/crash_reports
+      - ./config.json:/app/config.json
+    environment:
+      - TUMBLR_LOG_LEVEL=INFO
+      - PYTHONPATH=/app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "from tumblr_image_collector import TumblrImageCollector; print('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - tumblr-network
+
+  # オプション: ログ集約サービス
+  log-aggregator:
+    image: fluent/fluentd:latest
+    container_name: tumblr-log-aggregator
+    volumes:
+      - ./logs:/fluentd/log
+      - ./fluentd.conf:/fluentd/etc/fluent.conf
+    ports:
+      - "24224:24224"
+    depends_on:
+      - tumblr-collector
+    networks:
+      - tumblr-network
+
+  # オプション: 監視サービス
+  monitoring:
+    image: prom/prometheus:latest
+    container_name: tumblr-monitoring
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - tumblr-network
+
+networks:
+  tumblr-network:
+    driver: bridge
+
+volumes:
+  prometheus_data: {}
+  grafana_data: {}

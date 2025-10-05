@@ -1,0 +1,28 @@
+include README.md
+include INSTALLATION_GUIDE.md
+include API_REFERENCE.md
+include DEVELOPER_GUIDE.md
+include CONTRIBUTING.md
+include CHANGELOG.md
+include LICENSE
+include Dockerfile
+include docker-compose.yml
+include .github/workflows/ci_cd.yml
+
+recursive-include tumblr_image_collector/locales *.json
+recursive-include tests *.py
+recursive-include docs *.md
+recursive-include .github *.*
+
+global-exclude *.pyc
+global-exclude __pycache__
+global-exclude .git*
+global-exclude .pytest_cache
+global-exclude .coverage
+global-exclude htmlcov
+global-exclude .tox
+global-exclude .venv
+global-exclude venv
+global-exclude build
+global-exclude dist
+global-exclude *.egg-info
