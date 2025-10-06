@@ -17,8 +17,8 @@
 
 ```bash
 # 1. リポジトリのクローン
-git clone https://github.com/shizukutanaka/Tumblr-Image-Collector.git
-cd Tumblr-Image-Collector
+git clone <repository-url>
+cd "tumblr image collector"
 
 # 2. 仮想環境の作成
 python3 -m venv .venv

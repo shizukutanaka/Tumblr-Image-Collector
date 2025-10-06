@@ -530,9 +530,9 @@ duplicates_dir = Path("tumblr_images/duplicates")
 
 ## 📞 サポート
 
-- **GitHub Issues**: https://github.com/shizukutanaka/Tumblr-Image-Collector/issues
-- **GitHub Discussions**: https://github.com/shizukutanaka/Tumblr-Image-Collector/discussions
-- **ドキュメント**: https://github.com/shizukutanaka/Tumblr-Image-Collector#readme
+- ドキュメント: プロジェクトのREADMEとガイドを参照
+- Issues: バグ報告や機能リクエスト
+- Community: 議論や質問
 
 ---
 

@@ -32,10 +32,9 @@
 ## クイックインストール (Quick Installation)
 
 ### 1. リポジトリのクローン
-GitHub上の公式リポジトリから取得します。
 ```bash
-git clone https://github.com/shizukutanaka/Tumblr-Image-Collector.git
-cd Tumblr-Image-Collector
+git clone <repository-url>
+cd "tumblr image collector"
 ```
 
 ### 2. 仮想環境の作成と有効化
@@ -79,16 +78,8 @@ python --version
 Python 3.9以上がインストールされていることを確認してください。
 
 #### ステップ2: リポジトリの取得
-公式リポジトリを `git clone` コマンドで取得します。
 ```bash
-# HTTPS経由
-git clone https://github.com/shizukutanaka/Tumblr-Image-Collector.git
-
-# SSH経由（鍵認証済みの場合）
-git clone git@github.com:shizukutanaka/Tumblr-Image-Collector.git
-
-# ZIPダウンロードの場合
-# GitHubの"Code"ボタンから"Download ZIP"を選択し、解凍
+git clone <repository-url>
 ```
 
 #### ステップ3: ディレクトリの移動
@@ -414,13 +405,9 @@ rm -f tumblr_collector.log
 - [開発者ガイド](DEVELOPER_GUIDE.md)
 
 ### コミュニティ
-- [GitHub Issues](https://github.com/shizukutanaka/Tumblr-Image-Collector/issues)
-- [ディスカッションフォーラム](https://github.com/shizukutanaka/Tumblr-Image-Collector/discussions)
+- Issues: バグ報告や機能リクエスト
+- Community: 議論や質問
 - [コントリビューションガイド](CONTRIBUTING.md)
-
-### サポート
-- 技術サポート: support@example.com
-- 商用サポート: enterprise@example.com
 
 ---
 

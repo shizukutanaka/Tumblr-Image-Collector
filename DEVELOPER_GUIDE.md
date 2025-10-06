@@ -28,10 +28,9 @@
 - **Docker**: コンテナ化された開発環境（オプション）
 
 ### 1. リポジトリのクローン
-公式GitHubリポジトリから取得します。
 ```bash
-git clone https://github.com/shizukutanaka/Tumblr-Image-Collector.git
-cd Tumblr-Image-Collector
+git clone <repository-url>
+cd "tumblr image collector"
 ```
 
 ### 2. 仮想環境の作成
