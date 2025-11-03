@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Tumblr Image Collector'a Hoş Geldiniz",
+  "configuring_application": "Uygulama yapılandırılıyor...",
+  "initialization_complete": "Başlatma tamamlandı",
+  "starting_download": "İndirme işlemi başlatılıyor...",
+  "download_complete": "İndirme tamamlandı",
+  "error_occurred": "Bir hata oluştu",
+  "rate_limit_exceeded": "Hız sınırı aşıldı",
+  "waiting_for_resume": "Devam etmek için bekleniyor...",
+
+  "enter_consumer_key": "Tumblr Consumer Key'inizi girin",
+  "enter_consumer_secret": "Tumblr Consumer Secret'ınızı girin",
+  "enter_blog_name": "İndirilecek blog adını girin",
+  "select_output_directory": "Çıktı dizinini seçin",
+  "configuration_saved": "Yapılandırma başarıyla kaydedildi",
+
+  "invalid_input": "Geçersiz giriş",
+  "file_not_found": "Dosya bulunamadı",
+  "permission_denied": "İzin reddedildi",
+  "network_error": "Ağ hatası",
+  "api_error": "API hatası",
+
+  "download_statistics": "İndirme İstatistikleri",
+  "total_downloads": "Toplam İndirme",
+  "successful_downloads": "Başarılı İndirmeler",
+  "failed_downloads": "Başarısız İndirmeler",
+  "skipped_duplicates": "Atlanan Kopyalar",
+  "success_rate": "Başarı Oranı",
+
+  "press_enter_to_continue": "Devam etmek için Enter'a basın...",
+  "confirm_action": "Bu işlemi onaylayın",
+  "select_option": "Bir seçenek seçin",
+
+  "creating_directory": "Dizin oluşturuluyor",
+  "saving_file": "Dosya kaydediliyor",
+  "file_saved": "Dosya kaydedildi",
+  "exporting_metadata": "Meta veriler dışa aktarılıyor",
+
+  "processing_image": "Görüntü işleniyor",
+  "generating_thumbnail": "Küçük resim oluşturuluyor",
+  "analyzing_image": "Görüntü analiz ediliyor",
+  "duplicate_detected": "Kopya tespit edildi",
+
+  "connecting_to_api": "API'ye bağlanılıyor",
+  "request_timeout": "İstek zaman aşımı",
+  "retrying_request": "İstek yeniden deneniyor",
+  "connection_failed": "Bağlantı başarısız",
+
+  "memory_optimization": "Bellek optimizasyonu",
+  "security_hardening": "Güvenlik güçlendirmesi",
+  "internationalization": "Uluslararasılaştırma",
+  "performance_improvement": "Performans iyileştirmesi",
+
+  "initializing_system": "Sistem başlatılıyor",
+  "loading_configuration": "Yapılandırma yükleniyor",
+  "validating_credentials": "Kimlik bilgileri doğrulanıyor",
+  "preparing_download": "İndirme hazırlanıyor",
+
+  "image_quality_check": "Görüntü kalitesi kontrolü",
+  "duplicate_detection": "Kopya tespiti",
+  "metadata_extraction": "Meta veri çıkarma",
+  "batch_processing": "Toplu işleme",
+
+  "user_interface": "Kullanıcı Arayüzü",
+  "progress_display": "İlerleme Göstergesi",
+  "error_reporting": "Hata Raporlama",
+  "logging_system": "Günlükleme Sistemi",
+
+  "rate_limiting": "Hız Sınırlama",
+  "input_validation": "Giriş Doğrulama",
+  "secure_coding": "Güvenli Kodlama",
+  "data_protection": "Veri Koruma",
+
+  "commercial_grade": "Ticari Sınıf",
+  "enterprise_ready": "Kurumsal Hazır",
+  "production_quality": "Üretim Kalitesi",
+  "market_ready": "Pazar Hazır",
+
+  "advanced_features": "Gelişmiş Özellikler",
+  "ai_powered": "AI Destekli",
+  "cloud_ready": "Bulut Hazır",
+  "scalable_architecture": "Ölçeklenebilir Mimari",
+
+  "documentation": "Dokümantasyon",
+  "user_guide": "Kullanıcı Kılavuzu",
+  "api_reference": "API Referansı",
+  "installation_guide": "Kurulum Kılavuzu",
+
+  "testing_suite": "Test Paketi",
+  "unit_tests": "Birim Testleri",
+  "integration_tests": "Entegrasyon Testleri",
+  "end_to_end_tests": "Uçtan Uca Testler",
+
+  "deployment": "Dağıtım",
+  "packaging": "Paketleme",
+  "distribution": "Dağıtım",
+  "containerization": "Konteynerleştirme",
+
+  "support": "Destek",
+  "maintenance": "Bakım",
+  "updates": "Güncellemeler",
+  "bug_fixes": "Hata Düzeltmeleri"
+}

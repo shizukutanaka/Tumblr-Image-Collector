@@ -1,0 +1,103 @@
+{
+  "welcome_message": "مرحباً بك في Tumblr Image Collector",
+  "configuring_application": "جاري تهيئة التطبيق...",
+  "initialization_complete": "تم الانتهاء من التهيئة",
+  "starting_download": "بدء عملية التنزيل...",
+  "download_complete": "تم التنزيل",
+  "error_occurred": "حدث خطأ",
+  "rate_limit_exceeded": "تم تجاوز حد السرعة",
+  "waiting_for_resume": "في انتظار الاستئناف...",
+
+  "enter_consumer_key": "أدخل مفتاح المستهلك Tumblr الخاص بك",
+  "enter_consumer_secret": "أدخل سر المستهلك Tumblr الخاص بك",
+  "enter_blog_name": "أدخل اسم المدونة للتنزيل منها",
+  "select_output_directory": "اختر مجلد الإخراج",
+  "configuration_saved": "تم حفظ الإعدادات بنجاح",
+
+  "invalid_input": "إدخال غير صالح",
+  "file_not_found": "الملف غير موجود",
+  "permission_denied": "تم رفض الإذن",
+  "network_error": "خطأ في الشبكة",
+  "api_error": "خطأ في API",
+
+  "download_statistics": "إحصائيات التنزيل",
+  "total_downloads": "إجمالي التنزيلات",
+  "successful_downloads": "التنزيلات الناجحة",
+  "failed_downloads": "التنزيلات الفاشلة",
+  "skipped_duplicates": "التكرارات المتجاهلة",
+  "success_rate": "معدل النجاح",
+
+  "press_enter_to_continue": "اضغط Enter للمتابعة...",
+  "confirm_action": "أكد هذا الإجراء",
+  "select_option": "اختر خياراً",
+
+  "creating_directory": "إنشاء مجلد",
+  "saving_file": "حفظ الملف",
+  "file_saved": "تم حفظ الملف",
+  "exporting_metadata": "تصدير البيانات الوصفية",
+
+  "processing_image": "معالجة الصورة",
+  "generating_thumbnail": "إنشاء الصورة المصغرة",
+  "analyzing_image": "تحليل الصورة",
+  "duplicate_detected": "تم اكتشاف تكرار",
+
+  "connecting_to_api": "الاتصال بـ API",
+  "request_timeout": "انتهاء مهلة الطلب",
+  "retrying_request": "إعادة محاولة الطلب",
+  "connection_failed": "فشل الاتصال",
+
+  "memory_optimization": "تحسين الذاكرة",
+  "security_hardening": "تعزيز الأمان",
+  "internationalization": "التدويل",
+  "performance_improvement": "تحسين الأداء",
+
+  "initializing_system": "تهيئة النظام",
+  "loading_configuration": "تحميل الإعدادات",
+  "validating_credentials": "التحقق من بيانات الاعتماد",
+  "preparing_download": "تحضير التنزيل",
+
+  "image_quality_check": "فحص جودة الصورة",
+  "duplicate_detection": "كشف التكرارات",
+  "metadata_extraction": "استخراج البيانات الوصفية",
+  "batch_processing": "المعالجة الدفعية",
+
+  "user_interface": "واجهة المستخدم",
+  "progress_display": "عرض التقدم",
+  "error_reporting": "تقرير الأخطاء",
+  "logging_system": "نظام التسجيل",
+
+  "rate_limiting": "تحديد السرعة",
+  "input_validation": "التحقق من الإدخال",
+  "secure_coding": "الترميز الآمن",
+  "data_protection": "حماية البيانات",
+
+  "commercial_grade": "درجة تجارية",
+  "enterprise_ready": "جاهز للمؤسسات",
+  "production_quality": "جودة الإنتاج",
+  "market_ready": "جاهز للسوق",
+
+  "advanced_features": "ميزات متقدمة",
+  "ai_powered": "مدعوم بالذكاء الاصطناعي",
+  "cloud_ready": "جاهز للسحابة",
+  "scalable_architecture": "هيكلية قابلة للتطوير",
+
+  "documentation": "الوثائق",
+  "user_guide": "دليل المستخدم",
+  "api_reference": "مرجع API",
+  "installation_guide": "دليل التثبيت",
+
+  "testing_suite": "مجموعة الاختبارات",
+  "unit_tests": "اختبارات الوحدة",
+  "integration_tests": "اختبارات التكامل",
+  "end_to_end_tests": "اختبارات الطرف إلى الطرف",
+
+  "deployment": "النشر",
+  "packaging": "التعبئة",
+  "distribution": "التوزيع",
+  "containerization": "الحاوية",
+
+  "support": "الدعم",
+  "maintenance": "الصيانة",
+  "updates": "التحديثات",
+  "bug_fixes": "إصلاحات الأخطاء"
+}

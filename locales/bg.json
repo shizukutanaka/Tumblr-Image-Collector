@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Добре дошли в Tumblr Image Collector",
+  "configuring_application": "Конфигуриране на приложението...",
+  "initialization_complete": "Инициализацията завършена",
+  "starting_download": "Стартиране на процеса на изтегляне...",
+  "download_complete": "Изтеглянето завършено",
+  "error_occurred": "Възникна грешка",
+  "rate_limit_exceeded": "Надвишена скоростна граница",
+  "waiting_for_resume": "Изчакване за възобновяване...",
+
+  "enter_consumer_key": "Въведете вашия Tumblr Consumer Key",
+  "enter_consumer_secret": "Въведете вашия Tumblr Consumer Secret",
+  "enter_blog_name": "Въведете името на блога за изтегляне",
+  "select_output_directory": "Изберете изходна директория",
+  "configuration_saved": "Конфигурацията запазена успешно",
+
+  "invalid_input": "Невалиден вход",
+  "file_not_found": "Файлът не е намерен",
+  "permission_denied": "Разрешението отказано",
+  "network_error": "Мрежова грешка",
+  "api_error": "API грешка",
+
+  "download_statistics": "Статистика на Изтеглянията",
+  "total_downloads": "Общо Изтегляния",
+  "successful_downloads": "Успешни Изтегляния",
+  "failed_downloads": "Неуспешни Изтегляния",
+  "skipped_duplicates": "Пропуснати Дубликати",
+  "success_rate": "Степен на Успех",
+
+  "press_enter_to_continue": "Натиснете Enter за продължение...",
+  "confirm_action": "Потвърдете това действие",
+  "select_option": "Изберете опция",
+
+  "creating_directory": "Създаване на директория",
+  "saving_file": "Запазване на файла",
+  "file_saved": "Файлът запазен",
+  "exporting_metadata": "Експортиране на метаданни",
+
+  "processing_image": "Обработка на изображение",
+  "generating_thumbnail": "Генериране на миниатюра",
+  "analyzing_image": "Анализиране на изображение",
+  "duplicate_detected": "Дубликат открит",
+
+  "connecting_to_api": "Свързване с API",
+  "request_timeout": "Време за изчакване на заявката",
+  "retrying_request": "Повторна заявка",
+  "connection_failed": "Връзката неуспешна",
+
+  "memory_optimization": "Оптимизация на паметта",
+  "security_hardening": "Укрепване на сигурността",
+  "internationalization": "Интернационализация",
+  "performance_improvement": "Подобрение на производителността",
+
+  "initializing_system": "Инициализиране на системата",
+  "loading_configuration": "Зареждане на конфигурацията",
+  "validating_credentials": "Валидиране на идентификационните данни",
+  "preparing_download": "Подготовка на изтеглянето",
+
+  "image_quality_check": "Проверка на качеството на изображението",
+  "duplicate_detection": "Откриване на дубликати",
+  "metadata_extraction": "Извличане на метаданни",
+  "batch_processing": "Пакетна обработка",
+
+  "user_interface": "Потребителски Интерфейс",
+  "progress_display": "Показване на Напредъка",
+  "error_reporting": "Докладване на Грешки",
+  "logging_system": "Система за Журналиране",
+
+  "rate_limiting": "Ограничаване на Скоростта",
+  "input_validation": "Валидиране на Входа",
+  "secure_coding": "Сигурно Програмиране",
+  "data_protection": "Защита на Данните",
+
+  "commercial_grade": "Търговско Качество",
+  "enterprise_ready": "Готово за Предприятие",
+  "production_quality": "Производствено Качество",
+  "market_ready": "Готово за Пазар",
+
+  "advanced_features": "Разширени Функции",
+  "ai_powered": "Задвижвано от ИИ",
+  "cloud_ready": "Готово за Облак",
+  "scalable_architecture": "Мащабируема Архитектура",
+
+  "documentation": "Документация",
+  "user_guide": "Ръководство за Потребителя",
+  "api_reference": "API Референция",
+  "installation_guide": "Ръководство за Инсталиране",
+
+  "testing_suite": "Тестов Комплект",
+  "unit_tests": "Модулни Тестове",
+  "integration_tests": "Интеграционни Тестове",
+  "end_to_end_tests": "End-to-End Тестове",
+
+  "deployment": "Разполагане",
+  "packaging": "Опаковане",
+  "distribution": "Разпространение",
+  "containerization": "Контейнеризация",
+
+  "support": "Поддръжка",
+  "maintenance": "Поддръжка",
+  "updates": "Актуализации",
+  "bug_fixes": "Поправки на Грешки"
+}

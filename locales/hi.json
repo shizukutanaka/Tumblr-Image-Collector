@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Tumblr Image Collector में आपका स्वागत है",
+  "configuring_application": "एप्लिकेशन कॉन्फ़िगर किया जा रहा है...",
+  "initialization_complete": "आरंभीकरण पूर्ण",
+  "starting_download": "डाउनलोड प्रक्रिया शुरू की जा रही है...",
+  "download_complete": "डाउनलोड पूर्ण",
+  "error_occurred": "एक त्रुटि हुई",
+  "rate_limit_exceeded": "दर सीमा पार हो गई",
+  "waiting_for_resume": "फिर से शुरू करने की प्रतीक्षा...",
+
+  "enter_consumer_key": "अपनी Tumblr Consumer Key दर्ज करें",
+  "enter_consumer_secret": "अपना Tumblr Consumer Secret दर्ज करें",
+  "enter_blog_name": "डाउनलोड करने के लिए ब्लॉग नाम दर्ज करें",
+  "select_output_directory": "आउटपुट निर्देशिका चुनें",
+  "configuration_saved": "कॉन्फ़िगरेशन सफलतापूर्वक सहेजा गया",
+
+  "invalid_input": "अमान्य इनपुट",
+  "file_not_found": "फ़ाइल नहीं मिली",
+  "permission_denied": "अनुमति अस्वीकार की गई",
+  "network_error": "नेटवर्क त्रुटि",
+  "api_error": "API त्रुटि",
+
+  "download_statistics": "डाउनलोड आंकड़े",
+  "total_downloads": "कुल डाउनलोड",
+  "successful_downloads": "सफल डाउनलोड",
+  "failed_downloads": "असफल डाउनलोड",
+  "skipped_duplicates": "छोड़ी गई डुप्लिकेशन",
+  "success_rate": "सफलता दर",
+
+  "press_enter_to_continue": "जारी रखने के लिए Enter दबाएं...",
+  "confirm_action": "इस कार्रवाई की पुष्टि करें",
+  "select_option": "एक विकल्प चुनें",
+
+  "creating_directory": "निर्देशिका बनाई जा रही है",
+  "saving_file": "फ़ाइल सहेजी जा रही है",
+  "file_saved": "फ़ाइल सहेजी गई",
+  "exporting_metadata": "मेटाडेटा एक्सपोर्ट किया जा रहा है",
+
+  "processing_image": "छवि संसाधित की जा रही है",
+  "generating_thumbnail": "थंबनेल उत्पन्न किया जा रहा है",
+  "analyzing_image": "छवि का विश्लेषण किया जा रहा है",
+  "duplicate_detected": "डुप्लिकेशन का पता चला",
+
+  "connecting_to_api": "API से कनेक्ट किया जा रहा है",
+  "request_timeout": "अनुरोध समय समाप्त",
+  "retrying_request": "अनुरोध पुनः प्रयास किया जा रहा है",
+  "connection_failed": "कनेक्शन विफल",
+
+  "memory_optimization": "मेमोरी अनुकूलन",
+  "security_hardening": "सुरक्षा मजबूती",
+  "internationalization": "अंतर्राष्ट्रीयकरण",
+  "performance_improvement": "प्रदर्शन सुधार",
+
+  "initializing_system": "सिस्टम आरंभ किया जा रहा है",
+  "loading_configuration": "कॉन्फ़िगरेशन लोड किया जा रहा है",
+  "validating_credentials": "क्रेडेंशियल्स सत्यापित किए जा रहे हैं",
+  "preparing_download": "डाउनलोड तैयार किया जा रहा है",
+
+  "image_quality_check": "छवि गुणवत्ता जांच",
+  "duplicate_detection": "डुप्लिकेशन का पता लगाना",
+  "metadata_extraction": "मेटाडेटा निष्कर्षण",
+  "batch_processing": "बैच प्रसंस्करण",
+
+  "user_interface": "उपयोगकर्ता इंटरफेस",
+  "progress_display": "प्रगति प्रदर्शन",
+  "error_reporting": "त्रुटि रिपोर्टिंग",
+  "logging_system": "लॉगिंग सिस्टम",
+
+  "rate_limiting": "दर सीमित करना",
+  "input_validation": "इनपुट सत्यापन",
+  "secure_coding": "सुरक्षित कोडिंग",
+  "data_protection": "डेटा सुरक्षा",
+
+  "commercial_grade": "वाणिज्यिक ग्रेड",
+  "enterprise_ready": "एंटरप्राइज तैयार",
+  "production_quality": "उत्पादन गुणवत्ता",
+  "market_ready": "बाजार तैयार",
+
+  "advanced_features": "उन्नत सुविधाएं",
+  "ai_powered": "AI संचालित",
+  "cloud_ready": "क्लाउड तैयार",
+  "scalable_architecture": "स्केलेबल आर्किटेक्चर",
+
+  "documentation": "दस्तावेजीकरण",
+  "user_guide": "उपयोगकर्ता गाइड",
+  "api_reference": "API संदर्भ",
+  "installation_guide": "स्थापना गाइड",
+
+  "testing_suite": "टेस्टिंग सूट",
+  "unit_tests": "यूनिट टेस्ट",
+  "integration_tests": "एकीकरण टेस्ट",
+  "end_to_end_tests": "एंड-टू-एंड टेस्ट",
+
+  "deployment": "तैनाती",
+  "packaging": "पैकेजिंग",
+  "distribution": "वितरण",
+  "containerization": "कंटेनरीकरण",
+
+  "support": "समर्थन",
+  "maintenance": "रखरखाव",
+  "updates": "अपडेट",
+  "bug_fixes": "बग फिक्स"
+}

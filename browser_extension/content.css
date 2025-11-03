@@ -1,0 +1,225 @@
+/* Tumblr Image Collector Content Styles */
+/* These styles are injected into Tumblr pages */
+
+/* Highlight media elements when hovering */
+.tumblr-collector-highlight {
+    position: relative;
+    outline: 2px solid #007bff !important;
+    outline-offset: 2px !important;
+    cursor: pointer !important;
+}
+
+.tumblr-collector-highlight::after {
+    content: "📥";
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #007bff;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    z-index: 10000;
+    pointer-events: none;
+}
+
+/* Media info overlay */
+.tumblr-collector-info {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    z-index: 10000;
+    pointer-events: none;
+    max-width: 200px;
+    word-wrap: break-word;
+}
+
+/* Selected media indicator */
+.tumblr-collector-selected {
+    outline: 3px solid #28a745 !important;
+    outline-offset: 2px !important;
+}
+
+.tumblr-collector-selected::after {
+    content: "✅";
+    background: #28a745;
+}
+
+/* Media counter badge */
+.tumblr-collector-counter {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #007bff;
+    color: white;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    z-index: 10001;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    display: none;
+}
+
+.tumblr-collector-counter.show {
+    display: block;
+}
+
+.tumblr-collector-counter:hover {
+    background: #0056b3;
+    cursor: pointer;
+}
+
+/* Loading indicator */
+.tumblr-collector-loading {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    z-index: 10002;
+    display: none;
+}
+
+.tumblr-collector-loading.show {
+    display: block;
+}
+
+.tumblr-collector-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 10px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Notification styles */
+.tumblr-collector-notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #28a745;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    z-index: 10003;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.tumblr-collector-notification.show {
+    opacity: 1;
+}
+
+.tumblr-collector-notification.error {
+    background: #dc3545;
+}
+
+.tumblr-collector-notification.warning {
+    background: #ffc107;
+    color: #212529;
+}
+
+/* Context menu styles (for custom context menu if needed) */
+.tumblr-collector-context-menu {
+    position: fixed;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10004;
+    min-width: 200px;
+    display: none;
+}
+
+.tumblr-collector-context-menu.show {
+    display: block;
+}
+
+.tumblr-collector-context-menu-item {
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.tumblr-collector-context-menu-item:last-child {
+    border-bottom: none;
+}
+
+.tumblr-collector-context-menu-item:hover {
+    background: #f8f9fa;
+}
+
+/* Hide original Tumblr elements during scanning (optional) */
+.tumblr-collector-scanning .post {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.tumblr-collector-scanning .tumblr-collector-highlight {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .tumblr-collector-counter {
+        top: 10px;
+        right: 10px;
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .tumblr-collector-highlight::after {
+        width: 20px;
+        height: 20px;
+        font-size: 10px;
+    }
+
+    .tumblr-collector-info {
+        font-size: 10px;
+        padding: 2px 6px;
+        max-width: 150px;
+    }
+}
+
+/* Print styles - hide collector elements when printing */
+@media print {
+    .tumblr-collector-highlight,
+    .tumblr-collector-info,
+    .tumblr-collector-counter,
+    .tumblr-collector-loading,
+    .tumblr-collector-notification,
+    .tumblr-collector-context-menu {
+        display: none !important;
+    }
+}

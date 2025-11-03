@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Tumblr Image Collector కు స్వాగతం",
+  "configuring_application": "అప్లికేషన్‌ను కాన్ఫిగర్ చేస్తోంది...",
+  "initialization_complete": "ప్రారంభీకరణ పూర్తైంది",
+  "starting_download": "డౌన్‌లోడ్ ప్రక్రియను ప్రారంభిస్తోంది...",
+  "download_complete": "డౌన్‌లోడ్ పూర్తైంది",
+  "error_occurred": "లోపం సంభవించింది",
+  "rate_limit_exceeded": "వేగ పరిమితి దాటింది",
+  "waiting_for_resume": "కొనసాగించడానికి వేచి ఉంది...",
+
+  "enter_consumer_key": "మీ Tumblr Consumer Key నమోదు చేయండి",
+  "enter_consumer_secret": "మీ Tumblr Consumer Secret నమోదు చేయండి",
+  "enter_blog_name": "డౌన్‌లోడ్ చేయడానికి బ్లాగ్ పేరు నమోదు చేయండి",
+  "select_output_directory": "అవుట్‌పుట్ డైరెక్టరీని ఎంచుకోండి",
+  "configuration_saved": "కాన్ఫిగరేషన్ విజయవంతంగా సేవ్ చేయబడింది",
+
+  "invalid_input": "చెల్లని ఇన్‌పుట్",
+  "file_not_found": "ఫైల్ కనుగొనబడలేదు",
+  "permission_denied": "అనుమతి తిరస్కరించబడింది",
+  "network_error": "నెట్‌వర్క్ లోపం",
+  "api_error": "API లోపం",
+
+  "download_statistics": "డౌన్‌లోడ్ గణాంకాలు",
+  "total_downloads": "మొత్తం డౌన్‌లోడ్‌లు",
+  "successful_downloads": "విజయవంతమైన డౌన్‌లోడ్‌లు",
+  "failed_downloads": "విఫలమైన డౌన్‌లోడ్‌లు",
+  "skipped_duplicates": "ద్వితీయాలు దాటవేయబడ్డాయి",
+  "success_rate": "విజయవంత రేటు",
+
+  "press_enter_to_continue": "కొనసాగించడానికి Enter నొక్కండి...",
+  "confirm_action": "ఈ చర్యను నిర్ధారించండి",
+  "select_option": "ఒక ఎంపికను ఎంచుకోండి",
+
+  "creating_directory": "డైరెక్టరీని సృష్టిస్తోంది",
+  "saving_file": "ఫైల్‌ను సేవ్ చేస్తోంది",
+  "file_saved": "ఫైల్ సేవ్ చేయబడింది",
+  "exporting_metadata": "మెటాడేటాను ఎగుమతి చేస్తోంది",
+
+  "processing_image": "చిత్రాన్ని ప్రాసెస్ చేస్తోంది",
+  "generating_thumbnail": "థంబ్‌నెయిల్‌ను ఉత్పత్తి చేస్తోంది",
+  "analyzing_image": "చిత్రాన్ని విశ్లేషిస్తోంది",
+  "duplicate_detected": "ద్వితీయం గుర్తించబడింది",
+
+  "connecting_to_api": "APIకి కనెక్ట్ అవుతోంది",
+  "request_timeout": "అభ్యర్థన సమయం ముగిసింది",
+  "retrying_request": "అభ్యర్థనను మళ్లీ ప్రయత్నిస్తోంది",
+  "connection_failed": "కనెక్షన్ విఫలమైంది",
+
+  "memory_optimization": "మెమరీ ఆప్టిమైజేషన్",
+  "security_hardening": "సెక్యూరిటీ బలోపేతం",
+  "internationalization": "అంతర్జాతీయీకరణ",
+  "performance_improvement": "పెర్ఫార్మెన్స్ మెరుగుదల",
+
+  "initializing_system": "సిస్టమ్‌ను ప్రారంభిస్తోంది",
+  "loading_configuration": "కాన్ఫిగరేషన్‌ను లోడ్ చేస్తోంది",
+  "validating_credentials": "క్రెడెన్షియల్స్‌ను ధృవీకరిస్తోంది",
+  "preparing_download": "డౌన్‌లోడ్‌ను సిద్ధం చేస్తోంది",
+
+  "image_quality_check": "చిత్ర నాణ్యత తనిఖీ",
+  "duplicate_detection": "ద్వితీయ గుర్తింపు",
+  "metadata_extraction": "మెటాడేటా వెలికితీత",
+  "batch_processing": "బ్యాచ్ ప్రాసెసింగ్",
+
+  "user_interface": "వాడుకరి ఇంటర్‌ఫేస్",
+  "progress_display": "ప్రోగ్రెస్ డిస్‌ప్లే",
+  "error_reporting": "లోపం రిపోర్టింగ్",
+  "logging_system": "లాగింగ్ సిస్టమ్",
+
+  "rate_limiting": "రేట్ పరిమితి",
+  "input_validation": "ఇన్‌పుట్ ధృవీకరణ",
+  "secure_coding": "సురక్షిత కోడింగ్",
+  "data_protection": "డేటా రక్షణ",
+
+  "commercial_grade": "వాణిజ్య గ్రేడ్",
+  "enterprise_ready": "ఎంటర్‌ప్రైజ్ సిద్ధం",
+  "production_quality": "ఉత్పత్తి నాణ్యత",
+  "market_ready": "మార్కెట్ సిద్ధం",
+
+  "advanced_features": "అధునాతన లక్షణాలు",
+  "ai_powered": "AI శక్తితో",
+  "cloud_ready": "క్లౌడ్ సిద్ధం",
+  "scalable_architecture": "స్కేలబుల్ ఆర్కిటెక్చర్",
+
+  "documentation": "డాక్యుమెంటేషన్",
+  "user_guide": "వాడుకరి మార్గదర్శి",
+  "api_reference": "API సూచన",
+  "installation_guide": "ఇన్‌స్టలేషన్ మార్గదర్శి",
+
+  "testing_suite": "టెస్టింగ్ సూట్",
+  "unit_tests": "యూనిట్ టెస్టులు",
+  "integration_tests": "ఇంటిగ్రేషన్ టెస్టులు",
+  "end_to_end_tests": "ఎండ్-టు-ఎండ్ టెస్టులు",
+
+  "deployment": "డిప్లాయ్‌మెంట్",
+  "packaging": "ప్యాకేజింగ్",
+  "distribution": "వితరణ",
+  "containerization": "కంటైనరైజేషన్",
+
+  "support": "మద్దతు",
+  "maintenance": "నిర్వహణ",
+  "updates": "నవీకరణలు",
+  "bug_fixes": "బగ్ ఫిక్స్"
+}

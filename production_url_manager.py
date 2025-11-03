@@ -5,22 +5,24 @@ Handles URL validation, cleanup, verification, and lifecycle management
 Designed for nation-state level reliability and security
 """
 
-import re
-import requests
+import argparse
+import json
 import logging
 import sqlite3
-import hashlib
-import time
-from typing import Dict, List, Optional, Set, Tuple, Any
-from urllib.parse import urlparse, parse_qs, urlunparse
-from pathlib import Path
-import json
 import threading
-from datetime import datetime, timedelta
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
+from datetime import datetime, timedelta
 from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+from urllib.parse import urlparse
+
 import ipaddress
+import requests
+import re
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -668,24 +670,88 @@ def get_url_manager() -> ProductionURLManager:
     return _url_manager
 
 
-if __name__ == "__main__":
-    # Example usage
-    logging.basicConfig(level=logging.INFO)
+def _load_urls_from_file(input_path: Path) -> List[str]:
+    try:
+        raw_lines = input_path.read_text(encoding='utf-8').splitlines()
+    except OSError as exc:
+        raise RuntimeError(f"Failed to read input file: {exc}") from exc
 
-    manager = ProductionURLManager()
+    urls = []
+    seen = set()
+    for line in raw_lines:
+        stripped = line.strip()
+        if not stripped or stripped.startswith('#'):
+            continue
+        if stripped in seen:
+            continue
+        seen.add(stripped)
+        urls.append(stripped)
+    return urls
 
-    test_urls = [
-        "https://example.tumblr.com",
-        "https://64.media.tumblr.com/abc123/tumblr_xyz789_1280.jpg",
-        "https://malicious-site.com/fake",  # Should be blocked
-        "https://192.168.1.1/ssrf-attempt",  # Should be blocked
-    ]
 
-    results = manager.batch_process_urls(test_urls)
+def _write_urls_to_file(output_path: Path, urls: List[str]) -> None:
+    try:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text("\n".join(urls) + "\n", encoding='utf-8')
+    except OSError as exc:
+        raise RuntimeError(f"Failed to write output file: {exc}") from exc
 
-    for url, result in results.items():
-        print(f"{url}: {result}")
 
-    print("\nStatistics:", json.dumps(manager.get_statistics(), indent=2))
+def main(argv: Optional[List[str]] = None) -> int:
+    parser = argparse.ArgumentParser(
+        description="Validate and clean Tumblr URL lists using ProductionURLManager"
+    )
+    parser.add_argument("--input", required=True, help="Path to file containing URLs")
+    parser.add_argument("--output", help="Path to write cleaned valid URLs")
+    parser.add_argument("--force-verify", action="store_true", help="Force verification even if cached")
+    parser.add_argument("--max-workers", type=int, help="Maximum worker threads")
+    parser.add_argument("--db", default="url_database.db", help="SQLite database path")
+    parser.add_argument("--export", help="Export all currently valid URLs to specified file after processing")
+
+    args = parser.parse_args(argv)
+
+    input_path = Path(args.input).resolve()
+    if not input_path.exists():
+        raise RuntimeError(f"Input file not found: {input_path}")
+
+    manager = ProductionURLManager(db_path=args.db, max_workers=args.max_workers or 10)
+
+    urls = _load_urls_from_file(input_path)
+    if not urls:
+        logger.info("No URLs to process")
+        if args.output:
+            _write_urls_to_file(Path(args.output).resolve(), [])
+        return 0
+
+    logger.info("Processing %d URLs", len(urls))
+    results = manager.batch_process_urls(urls, force_verify=args.force_verify)
+
+    valid_urls = [url for url, data in results.items() if data.get('valid')]
+    invalid_urls = [url for url in urls if url not in valid_urls]
+
+    logger.info("Valid URLs: %d", len(valid_urls))
+    logger.info("Invalid URLs: %d", len(invalid_urls))
+
+    if args.output:
+        _write_urls_to_file(Path(args.output).resolve(), valid_urls)
+        logger.info("Wrote cleaned URL list to %s", Path(args.output).resolve())
+
+    if args.export:
+        export_path = Path(args.export).resolve()
+        manager.export_valid_urls(str(export_path))
+
+    stats = manager.get_statistics()
+    logger.info("Runtime stats: %s", stats['runtime_stats'])
 
     manager.close()
+
+    return 0
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    try:
+        sys.exit(main())
+    except Exception as exc:
+        logger.error("URL processing failed: %s", exc)
+        sys.exit(1)

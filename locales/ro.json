@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Bine ați venit la Tumblr Image Collector",
+  "configuring_application": "Configurarea aplicației...",
+  "initialization_complete": "Inițializarea finalizată",
+  "starting_download": "Pornirea procesului de descărcare...",
+  "download_complete": "Descărcare finalizată",
+  "error_occurred": "A apărut o eroare",
+  "rate_limit_exceeded": "Limită de viteză depășită",
+  "waiting_for_resume": "Se așteaptă reluarea...",
+
+  "enter_consumer_key": "Introduceți Tumblr Consumer Key",
+  "enter_consumer_secret": "Introduceți Tumblr Consumer Secret",
+  "enter_blog_name": "Introduceți numele blogului pentru descărcare",
+  "select_output_directory": "Selectați directorul de ieșire",
+  "configuration_saved": "Configurația salvată cu succes",
+
+  "invalid_input": "Intrare invalidă",
+  "file_not_found": "Fișierul nu a fost găsit",
+  "permission_denied": "Permisiune refuzată",
+  "network_error": "Eroare de rețea",
+  "api_error": "Eroare API",
+
+  "download_statistics": "Statistici Descărcare",
+  "total_downloads": "Total Descărcări",
+  "successful_downloads": "Descărcări Reușite",
+  "failed_downloads": "Descărcări Eșuate",
+  "skipped_duplicates": "Duplicate Omise",
+  "success_rate": "Rata de Succes",
+
+  "press_enter_to_continue": "Apăsați Enter pentru a continua...",
+  "confirm_action": "Confirmați această acțiune",
+  "select_option": "Selectați o opțiune",
+
+  "creating_directory": "Crearea directorului",
+  "saving_file": "Salvarea fișierului",
+  "file_saved": "Fișier salvat",
+  "exporting_metadata": "Exportarea metadatelor",
+
+  "processing_image": "Procesarea imaginii",
+  "generating_thumbnail": "Generarea miniaturii",
+  "analyzing_image": "Analizarea imaginii",
+  "duplicate_detected": "Duplicat detectat",
+
+  "connecting_to_api": "Conectarea la API",
+  "request_timeout": "Timeout cerere",
+  "retrying_request": "Reîncercarea cererii",
+  "connection_failed": "Conexiunea eșuată",
+
+  "memory_optimization": "Optimizarea memoriei",
+  "security_hardening": "Întărirea securității",
+  "internationalization": "Internaționalizare",
+  "performance_improvement": "Îmbunătățirea performanței",
+
+  "initializing_system": "Inițializarea sistemului",
+  "loading_configuration": "Încărcarea configurației",
+  "validating_credentials": "Validarea acreditărilor",
+  "preparing_download": "Pregătirea descărcării",
+
+  "image_quality_check": "Verificarea calității imaginii",
+  "duplicate_detection": "Detectarea duplicatelor",
+  "metadata_extraction": "Extracția metadatelor",
+  "batch_processing": "Procesarea în lot",
+
+  "user_interface": "Interfața Utilizator",
+  "progress_display": "Afișarea Progresului",
+  "error_reporting": "Raportarea Erorilor",
+  "logging_system": "Sistemul de Jurnal",
+
+  "rate_limiting": "Limitarea Vitezei",
+  "input_validation": "Validarea Intrării",
+  "secure_coding": "Codificare Sigură",
+  "data_protection": "Protecția Datelor",
+
+  "commercial_grade": "Grad Comercial",
+  "enterprise_ready": "Gata pentru Întreprindere",
+  "production_quality": "Calitate de Producție",
+  "market_ready": "Gata pentru Piață",
+
+  "advanced_features": "Caracteristici Avansate",
+  "ai_powered": "Alimentat de AI",
+  "cloud_ready": "Gata pentru Cloud",
+  "scalable_architecture": "Arhitectură Scalabilă",
+
+  "documentation": "Documentație",
+  "user_guide": "Ghidul Utilizatorului",
+  "api_reference": "Referința API",
+  "installation_guide": "Ghidul de Instalare",
+
+  "testing_suite": "Suită de Testare",
+  "unit_tests": "Teste Unitare",
+  "integration_tests": "Teste de Integrare",
+  "end_to_end_tests": "Teste End-to-End",
+
+  "deployment": "Implementare",
+  "packaging": "Împachetare",
+  "distribution": "Distribuție",
+  "containerization": "Containerizare",
+
+  "support": "Suport",
+  "maintenance": "Întreținere",
+  "updates": "Actualizări",
+  "bug_fixes": "Remedieri de Erori"
+}

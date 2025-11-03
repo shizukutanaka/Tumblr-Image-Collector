@@ -425,3 +425,223 @@ spec:
     matchLabels:
       app: image-collector
       component: backend
+
+---
+# Istio VirtualService for traffic management
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: image-collector-vs
+  namespace: image-collector
+spec:
+  hosts:
+  - image-collector.local
+  gateways:
+  - image-collector-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /api/
+    route:
+    - destination:
+        host: image-collector-service
+        port:
+          number: 80
+    retries:
+      attempts: 3
+      perTryTimeout: 2s
+    timeout: 10s
+  - match:
+    - uri:
+        prefix: /health
+    route:
+    - destination:
+        host: image-collector-service
+        port:
+          number: 80
+
+---
+# Istio DestinationRule for traffic policies
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: image-collector-dr
+  namespace: image-collector
+spec:
+  host: image-collector-service
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+
+---
+# PrometheusRule for custom alerts
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: image-collector-alerts
+  namespace: image-collector
+spec:
+  groups:
+  - name: image-collector
+    rules:
+    - alert: HighErrorRate
+      expr: rate(http_requests_total{job="image-collector", status!~"2.."}[5m]) / rate(http_requests_total{job="image-collector"}[5m]) > 0.1
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High error rate detected"
+        description: "Error rate is {{ $value }}% for the last 5 minutes"
+
+    - alert: HighLatency
+      expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="image-collector"}[5m])) > 5
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High latency detected"
+        description: "95th percentile latency is {{ $value }}s for the last 5 minutes"
+
+    - alert: ServiceDown
+      expr: up{job="image-collector"} == 0
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Service is down"
+        description: "Image collector service has been down for more than 2 minutes"
+
+---
+# HorizontalPodAutoscaler for automatic scaling
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: image-collector-hpa
+  namespace: image-collector
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: image-collector-deployment
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 20
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 120
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+
+---
+# NetworkPolicy for security
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: image-collector-netpol
+  namespace: image-collector
+spec:
+  podSelector:
+    matchLabels:
+      app: image-collector
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: istio-system
+    - podSelector:
+        matchLabels:
+          app: image-collector
+    ports:
+    - protocol: TCP
+      port: 80
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    - podSelector:
+        matchLabels:
+          app: postgres
+    - podSelector:
+        matchLabels:
+          app: redis
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 443
+
+---
+# PersistentVolumeClaim for data persistence
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: image-collector-pvc
+  namespace: image-collector
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: fast-ssd
+
+---
+# Job for periodic cleanup
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: image-collector-cleanup
+  namespace: image-collector
+spec:
+  schedule: "0 2 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: cleanup
+            image: tumblr-image-collector:latest
+            command:
+            - python
+            - -m
+            - tumblr_image_collector
+            - --cleanup
+            - --retention-days=30
+            env:
+            - name: TUMBLR_CONFIG_FILE
+              value: /app/config.json
+          restartPolicy: OnFailure
+          volumes:
+          - name: config-volume
+            configMap:
+              name: app-config

@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mv:*)",
+      "Bash(python -m pytest test_image_classifier.py -v)",
+      "Bash(python3:*)",
+      "Read(//mnt/c/Users/irosa/Desktop/claude/**)",
+      "Bash(grep:*)",
+      "Bash(cd:*)",
+      "Bash(touch:*)",
+      "Bash(python -m pytest --collect-only)",
+      "Bash(find:*)",
+      "Bash(python -m pytest test_production_systems.py -v --tb=short)",
+      "Bash(python:*)",
+      "Bash(for f in blockchain_audit.py distributed_blockchain_system.py edge_fog_computing.py istio_service_mesh.py nlp_voice_system.py quantum_computing_system.py vr_ar_immersive.py)",
+      "Bash(do [ -f \"$f\" ])",
+      "Bash(echo \"Deleted: $f\")",
+      "Bash(done)",
+      "Bash(git checkout:*)",
+      "Bash(rm:*)",
+      "Bash(git commit:*)",
+      "Bash(git config:*)",
+      "Bash(git add:*)",
+      "Bash(source:*)",
+      "Bash(pip --version)",
+      "Bash(.venv/Scripts/python.exe:*)",
+      "Bash(git push:*)",
+      "Bash(test:*)",
+      "Bash(.venv/bin/python:*)",
+      "Bash(git log:*)",
+      "Bash(awk:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

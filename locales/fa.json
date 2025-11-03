@@ -1,0 +1,103 @@
+{
+  "welcome_message": "به Tumblr Image Collector خوش آمدید",
+  "configuring_application": "در حال پیکربندی برنامه...",
+  "initialization_complete": "مقداردهی اولیه کامل شد",
+  "starting_download": "شروع فرآیند بارگیری...",
+  "download_complete": "بارگیری کامل شد",
+  "error_occurred": "خطایی رخ داد",
+  "rate_limit_exceeded": "از حد سرعت تجاوز کرد",
+  "waiting_for_resume": "در انتظار از سرگیری...",
+
+  "enter_consumer_key": "کلید مصرف‌کننده Tumblr خود را وارد کنید",
+  "enter_consumer_secret": "رمز مصرف‌کننده Tumblr خود را وارد کنید",
+  "enter_blog_name": "نام وبلاگ را برای بارگیری وارد کنید",
+  "select_output_directory": "پوشه خروجی را انتخاب کنید",
+  "configuration_saved": "پیکربندی با موفقیت ذخیره شد",
+
+  "invalid_input": "ورودی نامعتبر",
+  "file_not_found": "پرونده یافت نشد",
+  "permission_denied": "مجوز رد شد",
+  "network_error": "خطای شبکه",
+  "api_error": "خطای API",
+
+  "download_statistics": "آمار بارگیری",
+  "total_downloads": "مجموع بارگیری‌ها",
+  "successful_downloads": "بارگیری‌های موفق",
+  "failed_downloads": "بارگیری‌های ناموفق",
+  "skipped_duplicates": "تکراری‌های رد شده",
+  "success_rate": "نرخ موفقیت",
+
+  "press_enter_to_continue": "برای ادامه Enter را فشار دهید...",
+  "confirm_action": "این عمل را تأیید کنید",
+  "select_option": "یک گزینه انتخاب کنید",
+
+  "creating_directory": "ایجاد پوشه",
+  "saving_file": "ذخیره پرونده",
+  "file_saved": "پرونده ذخیره شد",
+  "exporting_metadata": "در حال صدور فراداده",
+
+  "processing_image": "در حال پردازش تصویر",
+  "generating_thumbnail": "ایجاد تصویر کوچک",
+  "analyzing_image": "تحلیل تصویر",
+  "duplicate_detected": "تکراری تشخیص داده شد",
+
+  "connecting_to_api": "اتصال به API",
+  "request_timeout": "انقضای درخواست",
+  "retrying_request": "تلاش مجدد درخواست",
+  "connection_failed": "اتصال ناموفق",
+
+  "memory_optimization": "بهینه‌سازی حافظه",
+  "security_hardening": "تقویت امنیت",
+  "internationalization": "بین‌المللی‌سازی",
+  "performance_improvement": "بهبود عملکرد",
+
+  "initializing_system": "مقداردهی اولیه سیستم",
+  "loading_configuration": "بارگذاری پیکربندی",
+  "validating_credentials": "اعتبارسنجی اعتبارنامه‌ها",
+  "preparing_download": "آماده‌سازی بارگیری",
+
+  "image_quality_check": "بررسی کیفیت تصویر",
+  "duplicate_detection": "تشخیص تکراری",
+  "metadata_extraction": "استخراج فراداده",
+  "batch_processing": "پردازش دسته‌ای",
+
+  "user_interface": "رابط کاربری",
+  "progress_display": "نمایش پیشرفت",
+  "error_reporting": "گزارش خطا",
+  "logging_system": "سیستم ثبت وقایع",
+
+  "rate_limiting": "محدودیت سرعت",
+  "input_validation": "اعتبارسنجی ورودی",
+  "secure_coding": "رمزنگاری امن",
+  "data_protection": "حفاظت از داده‌ها",
+
+  "commercial_grade": "درجه تجاری",
+  "enterprise_ready": "آماده سازمانی",
+  "production_quality": "کیفیت تولید",
+  "market_ready": "آماده بازار",
+
+  "advanced_features": "ویژگی‌های پیشرفته",
+  "ai_powered": "قدرت‌گرفته از AI",
+  "cloud_ready": "آماده ابر",
+  "scalable_architecture": "معماری مقیاس‌پذیر",
+
+  "documentation": "مستندات",
+  "user_guide": "راهنمای کاربر",
+  "api_reference": "مرجع API",
+  "installation_guide": "راهنمای نصب",
+
+  "testing_suite": "مجموعه تست",
+  "unit_tests": "تست‌های واحد",
+  "integration_tests": "تست‌های یکپارچگی",
+  "end_to_end_tests": "تست‌های سرتاسری",
+
+  "deployment": "استقرار",
+  "packaging": "بسته‌بندی",
+  "distribution": "توزیع",
+  "containerization": "کانتینری‌سازی",
+
+  "support": "پشتیبانی",
+  "maintenance": "نگهداری",
+  "updates": "به‌روزرسانی‌ها",
+  "bug_fixes": "رفع اشکالات"
+}

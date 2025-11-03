@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Üdvözöljük a Tumblr Image Collector programban",
+  "configuring_application": "Alkalmazás konfigurálása...",
+  "initialization_complete": "Inicializálás befejezve",
+  "starting_download": "Letöltési folyamat indítása...",
+  "download_complete": "Letöltés befejezve",
+  "error_occurred": "Hiba történt",
+  "rate_limit_exceeded": "Sebességhatár túllépve",
+  "waiting_for_resume": "Folytatásra várakozás...",
+
+  "enter_consumer_key": "Adja meg Tumblr Consumer Key-jét",
+  "enter_consumer_secret": "Adja meg Tumblr Consumer Secret-jét",
+  "enter_blog_name": "Adja meg a letöltendő blog nevét",
+  "select_output_directory": "Válassza ki a kimeneti könyvtárat",
+  "configuration_saved": "Konfiguráció sikeresen mentve",
+
+  "invalid_input": "Érvénytelen bemenet",
+  "file_not_found": "Fájl nem található",
+  "permission_denied": "Hozzáférés megtagadva",
+  "network_error": "Hálózati hiba",
+  "api_error": "API hiba",
+
+  "download_statistics": "Letöltési Statisztikák",
+  "total_downloads": "Összes Letöltés",
+  "successful_downloads": "Sikeres Letöltések",
+  "failed_downloads": "Sikertelen Letöltések",
+  "skipped_duplicates": "Kihagyott Duplikátumok",
+  "success_rate": "Sikerráta",
+
+  "press_enter_to_continue": "Nyomja meg az Enter-t a folytatáshoz...",
+  "confirm_action": "Erősítse meg ezt a műveletet",
+  "select_option": "Válasszon egy opciót",
+
+  "creating_directory": "Könyvtár létrehozása",
+  "saving_file": "Fájl mentése",
+  "file_saved": "Fájl mentve",
+  "exporting_metadata": "Metaadatok exportálása",
+
+  "processing_image": "Kép feldolgozása",
+  "generating_thumbnail": "Bélyegkép generálása",
+  "analyzing_image": "Kép elemzése",
+  "duplicate_detected": "Duplikátum észlelve",
+
+  "connecting_to_api": "API-hoz csatlakozás",
+  "request_timeout": "Kérés időtúllépés",
+  "retrying_request": "Kérés újrapróbálása",
+  "connection_failed": "Kapcsolat sikertelen",
+
+  "memory_optimization": "Memória optimalizálás",
+  "security_hardening": "Biztonság megerősítése",
+  "internationalization": "Nemzetköziesítés",
+  "performance_improvement": "Teljesítmény javítás",
+
+  "initializing_system": "Rendszer inicializálása",
+  "loading_configuration": "Konfiguráció betöltése",
+  "validating_credentials": "Hitelesítő adatok ellenőrzése",
+  "preparing_download": "Letöltés előkészítése",
+
+  "image_quality_check": "Képminőség ellenőrzés",
+  "duplicate_detection": "Duplikátum felismerés",
+  "metadata_extraction": "Metaadat kinyerés",
+  "batch_processing": "Kötegelt feldolgozás",
+
+  "user_interface": "Felhasználói Felület",
+  "progress_display": "Folyamat Jelző",
+  "error_reporting": "Hiba Jelentés",
+  "logging_system": "Naplózó Rendszer",
+
+  "rate_limiting": "Sebesség Korlátozás",
+  "input_validation": "Bemenet Ellenőrzés",
+  "secure_coding": "Biztonságos Kódolás",
+  "data_protection": "Adatvédelem",
+
+  "commercial_grade": "Kereskedelmi Minőség",
+  "enterprise_ready": "Vállalati Kész",
+  "production_quality": "Termelési Minőség",
+  "market_ready": "Piackész",
+
+  "advanced_features": "Haladó Funkciók",
+  "ai_powered": "AI Hajtotta",
+  "cloud_ready": "Felhő Kész",
+  "scalable_architecture": "Skálázható Architektúra",
+
+  "documentation": "Dokumentáció",
+  "user_guide": "Felhasználói Útmutató",
+  "api_reference": "API Referencia",
+  "installation_guide": "Telepítési Útmutató",
+
+  "testing_suite": "Teszt Csomag",
+  "unit_tests": "Egység Teszt",
+  "integration_tests": "Integrációs Teszt",
+  "end_to_end_tests": "Végtől Végig Teszt",
+
+  "deployment": "Telepítés",
+  "packaging": "Csomagolás",
+  "distribution": "Disztribúció",
+  "containerization": "Konténerezés",
+
+  "support": "Támogatás",
+  "maintenance": "Karbantartás",
+  "updates": "Frissítések",
+  "bug_fixes": "Hibajavítások"
+}

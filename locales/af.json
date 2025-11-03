@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Welkom by Tumblr Image Collector",
+  "configuring_application": "Besig om toepassing te konfigureer...",
+  "initialization_complete": "Initialisering voltooi",
+  "starting_download": "Begin aflaai proses...",
+  "download_complete": "Aflaai voltooi",
+  "error_occurred": "'n Fout het voorgekom",
+  "rate_limit_exceeded": "Spoedlimiet oorskry",
+  "waiting_for_resume": "Wag om te hervat...",
+
+  "enter_consumer_key": "Voer u Tumblr Consumer Key in",
+  "enter_consumer_secret": "Voer u Tumblr Consumer Secret in",
+  "enter_blog_name": "Voer blognaam in om af te laai",
+  "select_output_directory": "Kies uitsetgids",
+  "configuration_saved": "Konfigurasie suksesvol gestoor",
+
+  "invalid_input": "Ongeldige invoer",
+  "file_not_found": "Lêer nie gevind nie",
+  "permission_denied": "Toestemming geweier",
+  "network_error": "Netwerkfout",
+  "api_error": "API-fout",
+
+  "download_statistics": "Aflaai Statistieke",
+  "total_downloads": "Totale Aflaaie",
+  "successful_downloads": "Suksesvolle Aflaaie",
+  "failed_downloads": "Mislukte Aflaaie",
+  "skipped_duplicates": "Duplikate Oorgeslaan",
+  "success_rate": "Sukseskoers",
+
+  "press_enter_to_continue": "Druk Enter om voort te gaan...",
+  "confirm_action": "Bevestig hierdie aksie",
+  "select_option": "Kies 'n opsie",
+
+  "creating_directory": "Skepping van gids",
+  "saving_file": "Stoor van lêer",
+  "file_saved": "Lêer gestoor",
+  "exporting_metadata": "Uitvoer van metadata",
+
+  "processing_image": "Verwerking van beeld",
+  "generating_thumbnail": "Genereer duimnael",
+  "analyzing_image": "Analisering van beeld",
+  "duplicate_detected": "Duplikaat bespeur",
+
+  "connecting_to_api": "Koppel aan API",
+  "request_timeout": "Versoek tydverstreke",
+  "retrying_request": "Probeer versoek weer",
+  "connection_failed": "Verbinding misluk",
+
+  "memory_optimization": "Geheue optimalisering",
+  "security_hardening": "Sekuriteit versterking",
+  "internationalization": "Internasionalisering",
+  "performance_improvement": "Werkverrigting verbetering",
+
+  "initializing_system": "Initialisering van stelsel",
+  "loading_configuration": "Laai konfigurasie",
+  "validating_credentials": "Validering van geloofsbriewe",
+  "preparing_download": "Voorbereiding van aflaai",
+
+  "image_quality_check": "Beeldkwaliteit kontrole",
+  "duplicate_detection": "Duplikaat opsporing",
+  "metadata_extraction": "Metadata onttrekking",
+  "batch_processing": "Bondel verwerking",
+
+  "user_interface": "Gebruikerskoppelvlak",
+  "progress_display": "Vordering Vertoon",
+  "error_reporting": "Fout Verslagdoening",
+  "logging_system": "Stelsel van Logboeke",
+
+  "rate_limiting": "Spoed Beperking",
+  "input_validation": "Invoer Validasie",
+  "secure_coding": "Veilige Kodering",
+  "data_protection": "Databeskerming",
+
+  "commercial_grade": "Kommersiele Graad",
+  "enterprise_ready": "Onderneming Gereed",
+  "production_quality": "Produksie Kwaliteit",
+  "market_ready": "Mark Gereed",
+
+  "advanced_features": "Gevorderde Kenmerke",
+  "ai_powered": "AI-aangedrewe",
+  "cloud_ready": "Wolk Gereed",
+  "scalable_architecture": "Skaalbare Argitektuur",
+
+  "documentation": "Dokumentasie",
+  "user_guide": "Gebruikershandleiding",
+  "api_reference": "API Verwysing",
+  "installation_guide": "Installasiegids",
+
+  "testing_suite": "Toets Pakket",
+  "unit_tests": "Eenheid Toetse",
+  "integration_tests": "Integrasie Toetse",
+  "end_to_end_tests": "Einde-tot-Einde Toetse",
+
+  "deployment": "Ontplooiing",
+  "packaging": "Verpakking",
+  "distribution": "Verspreiding",
+  "containerization": "Houverisering",
+
+  "support": "Ondersteuning",
+  "maintenance": "Onderhoud",
+  "updates": "Opdaterings",
+  "bug_fixes": "Fout Regstellings"
+}

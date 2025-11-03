@@ -530,5 +530,156 @@ def test_security_hardening():
         assert not is_valid, f"Attack vector not blocked: {attack}"
 
 
+class TestProductionMonitoring:
+    """Test monitoring system components"""
+
+    def test_metrics_collection(self):
+        """Test comprehensive metrics collection"""
+        collector = MetricsCollector()
+
+        # Test counter metrics
+        collector.counter("downloads.success", 1)
+        collector.counter("downloads.failure", 1)
+
+        # Test gauge metrics
+        collector.gauge("memory.usage", 256.5)
+        collector.gauge("cpu.usage", 45.2)
+
+        # Test histogram metrics
+        collector.histogram("download.time", 1.2)
+        collector.histogram("download.time", 2.5)
+
+        # Verify metrics
+        metrics = collector.get_metrics()
+        assert "downloads.success" in metrics
+        assert "downloads.failure" in metrics
+        assert "memory.usage" in metrics
+        assert "cpu.usage" in metrics
+        assert "download.time" in metrics
+
+    def test_health_checking(self):
+        """Test health checking functionality"""
+        checker = HealthChecker()
+
+        # Add health checks
+        def mock_db_check():
+            return True, "Database OK"
+
+        def mock_api_check():
+            return False, "API Unavailable"
+
+        checker.add_check("database", mock_db_check, "Database connectivity")
+        checker.add_check("api", mock_api_check, "API availability")
+
+        # Run health checks
+        results = checker.run_checks()
+
+        assert "database" in results
+        assert "api" in results
+        assert results["database"]["status"] == "healthy"
+        assert results["api"]["status"] == "unhealthy"
+        assert "message" in results["database"]
+        assert "message" in results["api"]
+
+    def test_performance_monitoring(self):
+        """Test performance monitoring"""
+        monitor = PerformanceMonitor()
+
+        # Simulate performance metrics
+        monitor.record_metric("response_time", 150.5)
+        monitor.record_metric("memory_mb", 512.0)
+        monitor.record_metric("cpu_percent", 65.0)
+
+        # Get performance report
+        report = monitor.get_performance_report()
+
+        assert "response_time" in report
+        assert "memory_mb" in report
+        assert "cpu_percent" in report
+        assert len(report) > 0
+
+    def test_monitoring_dashboard_integration(self):
+        """Test monitoring dashboard integration"""
+        dashboard = MonitoringDashboard()
+        collector = MetricsCollector()
+
+        # Simulate dashboard operations
+        with patch.object(dashboard, 'metrics', collector):
+            dashboard.metrics.counter("requests.total", 100)
+            dashboard.metrics.gauge("active.users", 25)
+
+            # Test dashboard summary
+            summary = dashboard.get_dashboard_summary()
+
+            assert "metrics" in summary
+            assert summary["metrics"]["requests.total"] == 100
+            assert summary["metrics"]["active.users"] == 25
+
+
+class TestCircuitBreaker:
+    """Test circuit breaker functionality"""
+
+    def test_circuit_breaker_states(self):
+        """Test circuit breaker state transitions"""
+        breaker = CircuitBreaker(failure_threshold=3, recovery_timeout=1)
+
+        # Initially closed
+        assert breaker.state == "closed"
+
+        # Simulate failures
+        for _ in range(3):
+            assert not breaker.is_open()
+            breaker.record_failure()
+
+        # Should be open after threshold
+        assert breaker.state == "open"
+        assert breaker.is_open()
+
+        # Wait for recovery timeout
+        time.sleep(1.1)
+        assert breaker.state == "half-open"
+
+        # Successful call should close it
+        assert not breaker.is_open()
+        breaker.record_success()
+        assert breaker.state == "closed"
+
+
+class TestErrorRecovery:
+    """Test error recovery mechanisms"""
+
+    def test_retry_strategy(self):
+        """Test retry strategy implementation"""
+        strategy = RetryStrategy(max_retries=3, backoff_factor=2)
+
+        # Test retry delays
+        delays = [strategy.get_delay(i) for i in range(3)]
+        expected_delays = [1, 2, 4]  # 2^0, 2^1, 2^2
+
+        assert delays == expected_delays
+
+    def test_graceful_degradation(self):
+        """Test graceful degradation functionality"""
+        degradation = GracefulDegradation()
+
+        # Add degradation rules
+        degradation.add_rule(
+            condition="api_unavailable",
+            action="reduce_workers",
+            severity="high"
+        )
+
+        degradation.add_rule(
+            condition="memory_high",
+            action="disable_cache",
+            severity="medium"
+        )
+
+        # Test rule application
+        rules = degradation.get_applicable_rules({"api_unavailable": True})
+        assert len(rules) == 1
+        assert rules[0]["action"] == "reduce_workers"
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])

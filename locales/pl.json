@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Witamy w Tumblr Image Collector",
+  "configuring_application": "Konfigurowanie aplikacji...",
+  "initialization_complete": "Inicjalizacja zakończona",
+  "starting_download": "Rozpoczynanie procesu pobierania...",
+  "download_complete": "Pobieranie zakończone",
+  "error_occurred": "Wystąpił błąd",
+  "rate_limit_exceeded": "Przekroczono limit prędkości",
+  "waiting_for_resume": "Oczekiwanie na wznowienie...",
+
+  "enter_consumer_key": "Wprowadź swój Tumblr Consumer Key",
+  "enter_consumer_secret": "Wprowadź swój Tumblr Consumer Secret",
+  "enter_blog_name": "Wprowadź nazwę bloga do pobrania",
+  "select_output_directory": "Wybierz katalog wyjściowy",
+  "configuration_saved": "Konfiguracja została pomyślnie zapisana",
+
+  "invalid_input": "Nieprawidłowe dane wejściowe",
+  "file_not_found": "Plik nie został znaleziony",
+  "permission_denied": "Odmowa uprawnień",
+  "network_error": "Błąd sieci",
+  "api_error": "Błąd API",
+
+  "download_statistics": "Statystyki Pobierania",
+  "total_downloads": "Łączna Liczba Pobrań",
+  "successful_downloads": "Pomyślne Pobrania",
+  "failed_downloads": "Nieudane Pobrania",
+  "skipped_duplicates": "Pominięte Duplikaty",
+  "success_rate": "Wskaźnik Sukcesu",
+
+  "press_enter_to_continue": "Naciśnij Enter, aby kontynuować...",
+  "confirm_action": "Potwierdź tę akcję",
+  "select_option": "Wybierz opcję",
+
+  "creating_directory": "Tworzenie katalogu",
+  "saving_file": "Zapisywanie pliku",
+  "file_saved": "Plik został zapisany",
+  "exporting_metadata": "Eksportowanie metadanych",
+
+  "processing_image": "Przetwarzanie obrazu",
+  "generating_thumbnail": "Generowanie miniatury",
+  "analyzing_image": "Analizowanie obrazu",
+  "duplicate_detected": "Wykryto duplikat",
+
+  "connecting_to_api": "Łączenie z API",
+  "request_timeout": "Przekroczono limit czasu żądania",
+  "retrying_request": "Ponawianie próby żądania",
+  "connection_failed": "Połączenie nie powiodło się",
+
+  "memory_optimization": "Optymalizacja pamięci",
+  "security_hardening": "Wzmocnienie bezpieczeństwa",
+  "internationalization": "Internacjonalizacja",
+  "performance_improvement": "Poprawa wydajności",
+
+  "initializing_system": "Inicjalizacja systemu",
+  "loading_configuration": "Ładowanie konfiguracji",
+  "validating_credentials": "Weryfikacja poświadczeń",
+  "preparing_download": "Przygotowywanie pobierania",
+
+  "image_quality_check": "Sprawdzenie jakości obrazu",
+  "duplicate_detection": "Wykrywanie duplikatów",
+  "metadata_extraction": "Ekstrakcja metadanych",
+  "batch_processing": "Przetwarzanie wsadowe",
+
+  "user_interface": "Interfejs Użytkownika",
+  "progress_display": "Wyświetlanie Postępu",
+  "error_reporting": "Raportowanie Błędów",
+  "logging_system": "System Rejestrowania",
+
+  "rate_limiting": "Ograniczanie Prędkości",
+  "input_validation": "Walidacja Wejścia",
+  "secure_coding": "Bezpieczne Kodowanie",
+  "data_protection": "Ochrona Danych",
+
+  "commercial_grade": "Klasa Komercyjna",
+  "enterprise_ready": "Gotowy dla Przedsiębiorstw",
+  "production_quality": "Jakość Produkcyjna",
+  "market_ready": "Gotowy do Rynku",
+
+  "advanced_features": "Zaawansowane Funkcje",
+  "ai_powered": "Napędzane przez AI",
+  "cloud_ready": "Gotowy do Chmury",
+  "scalable_architecture": "Skalowalna Architektura",
+
+  "documentation": "Dokumentacja",
+  "user_guide": "Przewodnik Użytkownika",
+  "api_reference": "Dokumentacja API",
+  "installation_guide": "Przewodnik Instalacji",
+
+  "testing_suite": "Zestaw Testów",
+  "unit_tests": "Testy Jednostkowe",
+  "integration_tests": "Testy Integracyjne",
+  "end_to_end_tests": "Testy End-to-End",
+
+  "deployment": "Wdrożenie",
+  "packaging": "Pakowanie",
+  "distribution": "Dystrybucja",
+  "containerization": "Konteneryzacja",
+
+  "support": "Wsparcie",
+  "maintenance": "Konserwacja",
+  "updates": "Aktualizacje",
+  "bug_fixes": "Poprawki Błędów"
+}

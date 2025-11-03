@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Välkommen till Tumblr Image Collector",
+  "configuring_application": "Konfigurerar applikation...",
+  "initialization_complete": "Initialisering slutförd",
+  "starting_download": "Startar nedladdningsprocess...",
+  "download_complete": "Nedladdning slutförd",
+  "error_occurred": "Ett fel uppstod",
+  "rate_limit_exceeded": "Hastighetsgräns överskreds",
+  "waiting_for_resume": "Väntar på att återuppta...",
+
+  "enter_consumer_key": "Ange din Tumblr Consumer Key",
+  "enter_consumer_secret": "Ange din Tumblr Consumer Secret",
+  "enter_blog_name": "Ange bloggnamnet att ladda ner från",
+  "select_output_directory": "Välj utdatakatalog",
+  "configuration_saved": "Konfiguration sparad framgångsrikt",
+
+  "invalid_input": "Ogiltig inmatning",
+  "file_not_found": "Fil hittades inte",
+  "permission_denied": "Åtkomst nekad",
+  "network_error": "Nätverksfel",
+  "api_error": "API-fel",
+
+  "download_statistics": "Nedladdningsstatistik",
+  "total_downloads": "Totala Nedladdningar",
+  "successful_downloads": "Lyckade Nedladdningar",
+  "failed_downloads": "Misslyckade Nedladdningar",
+  "skipped_duplicates": "Hoppade över Dubbletter",
+  "success_rate": "Framgångsgrad",
+
+  "press_enter_to_continue": "Tryck Enter för att fortsätta...",
+  "confirm_action": "Bekräfta denna åtgärd",
+  "select_option": "Välj ett alternativ",
+
+  "creating_directory": "Skapar katalog",
+  "saving_file": "Sparar fil",
+  "file_saved": "Fil sparad",
+  "exporting_metadata": "Exporterar metadata",
+
+  "processing_image": "Bearbetar bild",
+  "generating_thumbnail": "Genererar miniatyrbild",
+  "analyzing_image": "Analyserar bild",
+  "duplicate_detected": "Dubblett upptäckt",
+
+  "connecting_to_api": "Ansluter till API",
+  "request_timeout": "Begäran timeout",
+  "retrying_request": "Försöker begäran igen",
+  "connection_failed": "Anslutning misslyckades",
+
+  "memory_optimization": "Minnesoptimering",
+  "security_hardening": "Säkerhetsförstärkning",
+  "internationalization": "Internationalisering",
+  "performance_improvement": "Prestandaförbättring",
+
+  "initializing_system": "Initialiserar system",
+  "loading_configuration": "Laddar konfiguration",
+  "validating_credentials": "Validerar autentiseringsuppgifter",
+  "preparing_download": "Förbereder nedladdning",
+
+  "image_quality_check": "Bildkvalitetskontroll",
+  "duplicate_detection": "Dubblettdetektion",
+  "metadata_extraction": "Metadata-extraktion",
+  "batch_processing": "Batch-bearbetning",
+
+  "user_interface": "Användargränssnitt",
+  "progress_display": "Framstegsvisning",
+  "error_reporting": "Felrapportering",
+  "logging_system": "Loggningssystem",
+
+  "rate_limiting": "Hastighetsbegränsning",
+  "input_validation": "Inmatningsvalidering",
+  "secure_coding": "Säker Kodning",
+  "data_protection": "Dataskydd",
+
+  "commercial_grade": "Kommersiell Kvalitet",
+  "enterprise_ready": "Företagsfärdig",
+  "production_quality": "Produktionskvalitet",
+  "market_ready": "Marknadsfärdig",
+
+  "advanced_features": "Avancerade Funktioner",
+  "ai_powered": "AI-driven",
+  "cloud_ready": "Moln-färdig",
+  "scalable_architecture": "Skalbar Arkitektur",
+
+  "documentation": "Dokumentation",
+  "user_guide": "Användarhandbok",
+  "api_reference": "API-referens",
+  "installation_guide": "Installationsguide",
+
+  "testing_suite": "Testsvit",
+  "unit_tests": "Enhetstester",
+  "integration_tests": "Integrationstester",
+  "end_to_end_tests": "End-to-End Tester",
+
+  "deployment": "Distribution",
+  "packaging": "Paketering",
+  "distribution": "Distribution",
+  "containerization": "Containerisering",
+
+  "support": "Support",
+  "maintenance": "Underhåll",
+  "updates": "Uppdateringar",
+  "bug_fixes": "Buggfixar"
+}

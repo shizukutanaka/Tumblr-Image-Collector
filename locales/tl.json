@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Maligayang Pagdating sa Tumblr Image Collector",
+  "configuring_application": "Isinasagawa ang configuration ng application...",
+  "initialization_complete": "Kumpletong initialization",
+  "starting_download": "Sinisimulan ang proseso ng pag-download...",
+  "download_complete": "Kumpletong pag-download",
+  "error_occurred": "May nangyaring error",
+  "rate_limit_exceeded": "Lumampas sa limitasyon ng bilis",
+  "waiting_for_resume": "Naghihintay na magpatuloy...",
+
+  "enter_consumer_key": "Ilagay ang iyong Tumblr Consumer Key",
+  "enter_consumer_secret": "Ilagay ang iyong Tumblr Consumer Secret",
+  "enter_blog_name": "Ilagay ang pangalan ng blog para i-download",
+  "select_output_directory": "Pumili ng output directory",
+  "configuration_saved": "Matagumpay na na-save ang configuration",
+
+  "invalid_input": "Invalid na input",
+  "file_not_found": "Hindi makita ang file",
+  "permission_denied": "Tinanggihan ang permiso",
+  "network_error": "Network error",
+  "api_error": "API error",
+
+  "download_statistics": "Istatistika ng Pag-download",
+  "total_downloads": "Kabuuang Pag-download",
+  "successful_downloads": "Matagumpay na Pag-download",
+  "failed_downloads": "Nabigong Pag-download",
+  "skipped_duplicates": "Nilaktawan ang mga Duplicate",
+  "success_rate": "Rate ng Tagumpay",
+
+  "press_enter_to_continue": "Pindutin ang Enter upang magpatuloy...",
+  "confirm_action": "Kumpirmahin ang aksyong ito",
+  "select_option": "Pumili ng opsyon",
+
+  "creating_directory": "Ginagawa ang directory",
+  "saving_file": "Sine-save ang file",
+  "file_saved": "Na-save ang file",
+  "exporting_metadata": "Ine-export ang metadata",
+
+  "processing_image": "Pinoproseso ang imahe",
+  "generating_thumbnail": "Gumagawa ng thumbnail",
+  "analyzing_image": "Sinusuri ang imahe",
+  "duplicate_detected": "Natukoy ang duplicate",
+
+  "connecting_to_api": "Kumukonekta sa API",
+  "request_timeout": "Timeout ng request",
+  "retrying_request": "Sinusubukang muli ang request",
+  "connection_failed": "Nabigo ang koneksyon",
+
+  "memory_optimization": "Pag-optimize ng memory",
+  "security_hardening": "Pagpapalakas ng seguridad",
+  "internationalization": "Pagpapalawig sa buong mundo",
+  "performance_improvement": "Pagpapabuti ng performance",
+
+  "initializing_system": "Ini-initialize ang system",
+  "loading_configuration": "Naglo-load ng configuration",
+  "validating_credentials": "Vinalideyt ang mga kredensyal",
+  "preparing_download": "Naghahanda ng pag-download",
+
+  "image_quality_check": "Pagsusuri ng kalidad ng imahe",
+  "duplicate_detection": "Pag-detect ng duplicate",
+  "metadata_extraction": "Pag-extract ng metadata",
+  "batch_processing": "Batch processing",
+
+  "user_interface": "User Interface",
+  "progress_display": "Display ng Progress",
+  "error_reporting": "Pag-report ng Error",
+  "logging_system": "Sistema ng Logging",
+
+  "rate_limiting": "Pag-limit ng Rate",
+  "input_validation": "Pag-validate ng Input",
+  "secure_coding": "Secure na Coding",
+  "data_protection": "Proteksyon ng Data",
+
+  "commercial_grade": "Commercial Grade",
+  "enterprise_ready": "Handa para sa Enterprise",
+  "production_quality": "Kalidad ng Produksyon",
+  "market_ready": "Handa para sa Market",
+
+  "advanced_features": "Mga Advanced na Feature",
+  "ai_powered": "Pinapagana ng AI",
+  "cloud_ready": "Handa para sa Cloud",
+  "scalable_architecture": "Scalable na Architecture",
+
+  "documentation": "Dokumentasyon",
+  "user_guide": "Gabay ng User",
+  "api_reference": "Sanggunian ng API",
+  "installation_guide": "Gabay sa Pag-install",
+
+  "testing_suite": "Testing Suite",
+  "unit_tests": "Unit Tests",
+  "integration_tests": "Integration Tests",
+  "end_to_end_tests": "End-to-End Tests",
+
+  "deployment": "Deployment",
+  "packaging": "Packaging",
+  "distribution": "Distribution",
+  "containerization": "Containerization",
+
+  "support": "Suporta",
+  "maintenance": "Maintenance",
+  "updates": "Updates",
+  "bug_fixes": "Pag-aayos ng Bugs"
+}

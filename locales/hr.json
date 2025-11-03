@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Dobrodošli u Tumblr Image Collector",
+  "configuring_application": "Konfiguriranje aplikacije...",
+  "initialization_complete": "Inicijalizacija završena",
+  "starting_download": "Pokretanje procesa preuzimanja...",
+  "download_complete": "Preuzimanje završeno",
+  "error_occurred": "Došlo je do pogreške",
+  "rate_limit_exceeded": "Prekoračeno ograničenje brzine",
+  "waiting_for_resume": "Čekanje na nastavak...",
+
+  "enter_consumer_key": "Unesite svoj Tumblr Consumer Key",
+  "enter_consumer_secret": "Unesite svoj Tumblr Consumer Secret",
+  "enter_blog_name": "Unesite ime bloga za preuzimanje",
+  "select_output_directory": "Odaberite izlaznu mapu",
+  "configuration_saved": "Konfiguracija uspješno spremljena",
+
+  "invalid_input": "Nevažeći unos",
+  "file_not_found": "Datoteka nije pronađena",
+  "permission_denied": "Dozvola odbijena",
+  "network_error": "Mrežna pogreška",
+  "api_error": "API pogreška",
+
+  "download_statistics": "Statistike Preuzimanja",
+  "total_downloads": "Ukupno Preuzimanja",
+  "successful_downloads": "Uspješna Preuzimanja",
+  "failed_downloads": "Neuspješna Preuzimanja",
+  "skipped_duplicates": "Preskočeni Duplikati",
+  "success_rate": "Stopa Uspjeha",
+
+  "press_enter_to_continue": "Pritisnite Enter za nastavak...",
+  "confirm_action": "Potvrdite ovu radnju",
+  "select_option": "Odaberite opciju",
+
+  "creating_directory": "Stvaranje mape",
+  "saving_file": "Spremanje datoteke",
+  "file_saved": "Datoteka spremljena",
+  "exporting_metadata": "Izvoz metapodataka",
+
+  "processing_image": "Obrada slike",
+  "generating_thumbnail": "Generiranje sličice",
+  "analyzing_image": "Analiza slike",
+  "duplicate_detected": "Duplikat otkriven",
+
+  "connecting_to_api": "Povezivanje s API-jem",
+  "request_timeout": "Isteklo vrijeme zahtjeva",
+  "retrying_request": "Ponovni pokušaj zahtjeva",
+  "connection_failed": "Povezivanje nije uspjelo",
+
+  "memory_optimization": "Optimizacija memorije",
+  "security_hardening": "Jačanje sigurnosti",
+  "internationalization": "Internacionalizacija",
+  "performance_improvement": "Poboljšanje performansi",
+
+  "initializing_system": "Inicijalizacija sustava",
+  "loading_configuration": "Učitavanje konfiguracije",
+  "validating_credentials": "Provjera vjerodajnica",
+  "preparing_download": "Priprema preuzimanja",
+
+  "image_quality_check": "Provjera kvalitete slike",
+  "duplicate_detection": "Otkrivanje duplikata",
+  "metadata_extraction": "Vađenje metapodataka",
+  "batch_processing": "Serijska obrada",
+
+  "user_interface": "Korisničko Sučelje",
+  "progress_display": "Prikaz Napretka",
+  "error_reporting": "Izvještavanje o Pogreškama",
+  "logging_system": "Sustav Evidentiranja",
+
+  "rate_limiting": "Ograničenje Brzine",
+  "input_validation": "Provjera Unosa",
+  "secure_coding": "Sigurno Kodiranje",
+  "data_protection": "Zaštita Podataka",
+
+  "commercial_grade": "Komercijalna Kvaliteta",
+  "enterprise_ready": "Spremno za Poduzeće",
+  "production_quality": "Proizvodna Kvaliteta",
+  "market_ready": "Spremno za Tržište",
+
+  "advanced_features": "Napredne Značajke",
+  "ai_powered": "Pokreće AI",
+  "cloud_ready": "Spremno za Oblak",
+  "scalable_architecture": "Skalabilna Arhitektura",
+
+  "documentation": "Dokumentacija",
+  "user_guide": "Korisnički Vodič",
+  "api_reference": "API Referenca",
+  "installation_guide": "Vodič za Instalaciju",
+
+  "testing_suite": "Testni Komplet",
+  "unit_tests": "Unit Testovi",
+  "integration_tests": "Integracijski Testovi",
+  "end_to_end_tests": "End-to-End Testovi",
+
+  "deployment": "Implementacija",
+  "packaging": "Pakiranje",
+  "distribution": "Distribucija",
+  "containerization": "Kontejnerizacija",
+
+  "support": "Podrška",
+  "maintenance": "Održavanje",
+  "updates": "Ažuriranja",
+  "bug_fixes": "Popravci Grešaka"
+}

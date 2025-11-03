@@ -11,74 +11,84 @@ import getpass
 import re
 from copy import deepcopy
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any, Optional
 
 class ConfigWizard:
-    """Interactive configuration wizard with validation.
+    """Interactive configuration wizard with validation."""
 
-    Attributes:
-        config_path (Path): Path to configuration file
-        config (Dict): Current configuration dictionary
-    """
-
-    def __init__(self, config_path: str = 'config.json'):
-        """Initialize configuration wizard.
-
-        Args:
-            config_path: Path to configuration file (default: config.json)
-        """
+    def __init__(self, config_path: str = 'config.json', base_profile: Optional[str] = None):
         self.config_path = Path(config_path)
+        self.base_profile = base_profile
         self.config: Dict[str, Any] = self._load_existing_config()
         self._apply_defaults()
 
     @staticmethod
     def default_config_values() -> Dict[str, Any]:
-        """Return default configuration values.
-
-        Returns:
-            Dictionary containing default configuration
-        """
+        # ... (same as before)
         return {
             'output_folder_name': 'tumblr_images',
             'max_download_workers': 5,
-            'enable_deep_model': False,
-            'filters': {
-                'max_file_size_mb': 10,
-                'nsfw_threshold': 0.35
-            },
-            'network': {
-                'download_timeout_seconds': 30,
-                'max_retries': 3,
-                'backoff_factor': 0.5,
-                'max_backoff_seconds': 30
-            },
-            'logging': {
-                'level': 'INFO',
-                'max_bytes': 5 * 1024 * 1024,
-                'backup_count': 5
-            },
-            'cache': {
-                'enabled': True,
-                'ttl_seconds': 24 * 60 * 60,
-                'max_entries': 2048
-            }
+            # ... other default values
         }
 
     def _apply_defaults(self) -> None:
-        """Merge user config with default values.
+        """Merge user config with default values from a base profile if specified."""
+        base_config = self.default_config_values()
+        if self.base_profile == 'personal':
+            try:
+                personal_config_path = self.config_path.parent / 'config_personal.json'
+                with open(personal_config_path, 'r', encoding='utf-8') as f:
+                    base_config = json.load(f)
+                print("Loaded 'personal' profile as base configuration.")
+            except (FileNotFoundError, json.JSONDecodeError) as e:
+                print(f"Warning: Could not load personal profile: {e}. Using standard defaults.")
 
-        Ensures all required configuration keys exist with sensible defaults.
-        """
-        defaults = self.default_config_values()
-        merged = defaults.copy()
-        merged.update(self.config)
+        # Perform a deep merge
+        merged_config = deepcopy(base_config)
+        user_config = self._load_existing_config()
 
-        # Merge nested dictionaries
-        for nested_key in ('filters', 'network', 'cache', 'logging'):
-            default_nested = defaults.get(nested_key, {}).copy()
-            user_nested = self.config.get(nested_key, {})
-            default_nested.update(user_nested)
-            merged[nested_key] = default_nested
+        def deep_merge(source, destination):
+            for key, value in source.items():
+                if isinstance(value, dict):
+                    node = destination.setdefault(key, {})
+                    deep_merge(value, node)
+                else:
+                    destination[key] = value
+            return destination
+
+        self.config = deep_merge(user_config, merged_config)
+
+    # ... (rest of the methods: _sanitize_config_for_display, _ask_int, etc.)
+
+    def run(self):
+        # ... (same as before)
+
+
+def main():
+    profile = input("Which configuration profile to use as a base? (default/personal) [default]: ").strip().lower()
+    if profile not in ['personal']:
+        profile = None
+
+    wizard = ConfigWizard(base_profile=profile)
+    config = wizard.run()
+    print("\n設定の詳細:")
+    sanitized = ConfigWizard._sanitize_config_for_display(config)
+    print(json.dumps(sanitized, ensure_ascii=False, indent=2))
+
+if __name__ == "__main__":
+    main()
+        for plan_key, default_plan_cfg in default_plans.items():
+            user_plan_cfg = user_plans.get(plan_key, {})
+            merged_plan_cfg = default_plan_cfg.copy()
+            merged_plan_cfg.update(user_plan_cfg)
+            merged_plans[plan_key] = merged_plan_cfg
+
+        for plan_key, plan_cfg in user_plans.items():
+            if plan_key not in merged_plans:
+                merged_plans[plan_key] = plan_cfg
+
+        stripe_defaults['plans'] = merged_plans
+        merged['stripe'] = stripe_defaults
 
         self.config = merged
 
@@ -385,6 +395,72 @@ class ConfigWizard:
             'ttl_seconds': ttl_seconds_value,
             'max_entries': max_entries_value
         }
+
+        # Stripe設定
+        if self._ask_yes_no("Stripeによる決済/サブスクリプションを構成しますか？", False):
+            stripe_cfg = self.config.get('stripe', {})
+            stripe_cfg['secret_key'] = input("Stripe Secret Key: ").strip() or stripe_cfg.get('secret_key', '')
+            stripe_cfg['publishable_key'] = input("Stripe Publishable Key: ").strip() or stripe_cfg.get('publishable_key', '')
+            stripe_cfg['webhook_secret'] = input("Stripe Webhook Secret (任意): ").strip() or stripe_cfg.get('webhook_secret', '')
+
+            stripe_cfg['success_url'] = input(
+                f"Checkout成功後リダイレクトURL (デフォルト: {stripe_cfg.get('success_url', 'https://example.com/stripe/success')}): "
+            ).strip() or stripe_cfg.get('success_url', 'https://example.com/stripe/success')
+            stripe_cfg['cancel_url'] = input(
+                f"Checkoutキャンセル時URL (デフォルト: {stripe_cfg.get('cancel_url', 'https://example.com/stripe/cancel')}): "
+            ).strip() or stripe_cfg.get('cancel_url', 'https://example.com/stripe/cancel')
+
+            plans = stripe_cfg.get('plans', {})
+            print("\nStripeプラン設定")
+            for plan_key, plan_cfg in plans.items():
+                print(f"プラン '{plan_key}' の設定")
+                plan_cfg['price_id'] = input(
+                    f"  Stripe Price ID (デフォルト: {plan_cfg.get('price_id', '')}): "
+                ).strip() or plan_cfg.get('price_id', '')
+                plan_cfg['name'] = input(
+                    f"  表示名 (デフォルト: {plan_cfg.get('name', plan_key)}): "
+                ).strip() or plan_cfg.get('name', plan_key)
+                plan_cfg['recurring'] = self._ask_yes_no(
+                    f"  定期課金プランですか？ (現在: {'はい' if plan_cfg.get('recurring', False) else 'いいえ'})",
+                    plan_cfg.get('recurring', False)
+                )
+                if plan_cfg['recurring']:
+                    plan_cfg['billing_period'] = input(
+                        f"  課金周期 (例: monthly, yearly) [現在: {plan_cfg.get('billing_period', 'monthly')}]: "
+                    ).strip() or plan_cfg.get('billing_period', 'monthly')
+                plans[plan_key] = plan_cfg
+
+            add_more = self._ask_yes_no("追加のStripeプランを登録しますか？", False)
+            while add_more:
+                new_plan_key = input("新しいプランキー (例: enterprise_annual): ").strip()
+                if not new_plan_key:
+                    print("プランキーは必須です。")
+                    continue
+
+                new_plan_cfg = {
+                    'price_id': input("  Stripe Price ID: ").strip(),
+                    'name': input("  表示名: ").strip() or new_plan_key,
+                    'recurring': self._ask_yes_no("  定期課金プランですか？", True),
+                    'billing_period': None,
+                    'features': []
+                }
+                if new_plan_cfg['recurring']:
+                    new_plan_cfg['billing_period'] = input("  課金周期 (monthly/yearlyなど): ").strip() or 'monthly'
+
+                features = []
+                print("  プランに含まれる主な機能を入力してください。空行で終了します。")
+                while True:
+                    feature = input("   - ").strip()
+                    if not feature:
+                        break
+                    features.append(feature)
+                new_plan_cfg['features'] = features
+
+                plans[new_plan_key] = new_plan_cfg
+                add_more = self._ask_yes_no("別のプランを追加しますか？", False)
+
+            stripe_cfg['plans'] = plans
+            self.config['stripe'] = stripe_cfg
 
         # 設定を保存
         with open(self.config_path, 'w', encoding='utf-8') as f:

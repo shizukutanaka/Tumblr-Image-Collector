@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Tervetuloa Tumblr Image Collectoriin",
+  "configuring_application": "Määritetään sovellusta...",
+  "initialization_complete": "Alustaminen valmis",
+  "starting_download": "Aloitetaan latausprosessi...",
+  "download_complete": "Lataus valmis",
+  "error_occurred": "Virhe tapahtui",
+  "rate_limit_exceeded": "Nopeusraja ylitetty",
+  "waiting_for_resume": "Odotetaan jatkoa...",
+
+  "enter_consumer_key": "Syötä Tumblr Consumer Key",
+  "enter_consumer_secret": "Syötä Tumblr Consumer Secret",
+  "enter_blog_name": "Syötä blogin nimi ladattavaksi",
+  "select_output_directory": "Valitse tuloshakemisto",
+  "configuration_saved": "Konfiguraatio tallennettu onnistuneesti",
+
+  "invalid_input": "Virheellinen syöte",
+  "file_not_found": "Tiedostoa ei löydy",
+  "permission_denied": "Käyttöoikeus evätty",
+  "network_error": "Verkkovirhe",
+  "api_error": "API-virhe",
+
+  "download_statistics": "Lataustilastot",
+  "total_downloads": "Latauksia Yhteensä",
+  "successful_downloads": "Onnistuneita Latauksia",
+  "failed_downloads": "Epäonnistuneita Latauksia",
+  "skipped_duplicates": "Ohitetut Kaksoiskappaleet",
+  "success_rate": "Menestysaste",
+
+  "press_enter_to_continue": "Paina Enter jatkaaksesi...",
+  "confirm_action": "Vahvista tämä toiminto",
+  "select_option": "Valitse vaihtoehto",
+
+  "creating_directory": "Luodaan hakemisto",
+  "saving_file": "Tallennetaan tiedosto",
+  "file_saved": "Tiedosto tallennettu",
+  "exporting_metadata": "Viedään metadata",
+
+  "processing_image": "Käsitellään kuvaa",
+  "generating_thumbnail": "Luodaan pikkukuva",
+  "analyzing_image": "Analysoidaan kuvaa",
+  "duplicate_detected": "Havaittu kaksoiskappale",
+
+  "connecting_to_api": "Yhdistetään API:hin",
+  "request_timeout": "Pyynnön aikakatkaisu",
+  "retrying_request": "Yritetään pyyntöä uudelleen",
+  "connection_failed": "Yhteys epäonnistui",
+
+  "memory_optimization": "Muistin optimointi",
+  "security_hardening": "Turvallisuuden vahvistaminen",
+  "internationalization": "Kansainvälistäminen",
+  "performance_improvement": "Suorituskyvyn parantaminen",
+
+  "initializing_system": "Alustetaan järjestelmää",
+  "loading_configuration": "Ladataan konfiguraatiota",
+  "validating_credentials": "Vahvistetaan kirjautumistiedot",
+  "preparing_download": "Valmistellaan latausta",
+
+  "image_quality_check": "Kuvan laadun tarkistus",
+  "duplicate_detection": "Kaksoiskappaleiden havaitseminen",
+  "metadata_extraction": "Metadatan purkaminen",
+  "batch_processing": "Eräkäsittely",
+
+  "user_interface": "Käyttöliittymä",
+  "progress_display": "Edistymisen Näyttö",
+  "error_reporting": "Virheraportointi",
+  "logging_system": "Kirjausjärjestelmä",
+
+  "rate_limiting": "Nopeudenrajoitus",
+  "input_validation": "Syötteen Vahvistus",
+  "secure_coding": "Turvallinen Ohjelmointi",
+  "data_protection": "Tietosuoja",
+
+  "commercial_grade": "Kaupallinen Laatu",
+  "enterprise_ready": "Yrityskelpoinen",
+  "production_quality": "Tuotantolaatu",
+  "market_ready": "Markkinakelpoinen",
+
+  "advanced_features": "Edistyneet Ominaisuudet",
+  "ai_powered": "AI-käyttöinen",
+  "cloud_ready": "Pilvikelpoinen",
+  "scalable_architecture": "Skaalautuva Arkkitehtuuri",
+
+  "documentation": "Dokumentaatio",
+  "user_guide": "Käyttöohje",
+  "api_reference": "API-viite",
+  "installation_guide": "Asennusohje",
+
+  "testing_suite": "Testipaketti",
+  "unit_tests": "Yksikkötestit",
+  "integration_tests": "Integraatiotestit",
+  "end_to_end_tests": "Päästä-päähän Testit",
+
+  "deployment": "Käyttöönotto",
+  "packaging": "Pakkaus",
+  "distribution": "Jakelu",
+  "containerization": "Kontitus",
+
+  "support": "Tuki",
+  "maintenance": "Huolto",
+  "updates": "Päivitykset",
+  "bug_fixes": "Vikakorjaukset"
+}

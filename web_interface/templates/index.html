@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tumblr Image Collector - Web Interface</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Page Layout -->
+    <div class="container">
+        <!-- Page Header -->
+        <header class="page-header">
+            <div class="page-header-content">
+                <h1 class="page-title">
+                    <i class="fas fa-images" aria-hidden="true"></i>
+                    Tumblr Image Collector
+                </h1>
+                <p class="page-description">Collect and download media from Tumblr blogs</p>
+            </div>
+            <div class="page-header-actions">
+                <button id="monitoringBtn" class="btn btn-secondary" aria-label="モニタリングを開く">
+                    <i class="fas fa-chart-line" aria-hidden="true"></i>
+                    Monitoring
+                </button>
+                <button id="settingsBtn" class="btn btn-secondary" aria-label="設定を開く">
+                    <i class="fas fa-cog" aria-hidden="true"></i>
+                    Settings
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Scan Section -->
+            <section class="card" aria-labelledby="scan-heading">
+                <div class="card-header">
+                    <h2 id="scan-heading" class="card-title">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                        Scan Tumblr Blog
+                    </h2>
+                </div>
+                <div class="card-content">
+                    <form id="scanForm" class="form" novalidate>
+                        <div class="form-group">
+                            <label for="blogName" class="form-label">Blog Name <span class="required" aria-label="必須">*</span></label>
+                            <input type="text" id="blogName" class="form-field" placeholder="e.g., staff, my-favorite-blog" required aria-describedby="blogName-help">
+                            <div id="blogName-help" class="form-help">Enter the Tumblr blog name (without .tumblr.com)</div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="tags" class="form-label">Tags <span class="optional">(optional)</span></label>
+                                <input type="text" id="tags" class="form-field" placeholder="art, photography, anime" aria-describedby="tags-help">
+                                <div id="tags-help" class="form-help">Comma-separated tags to filter posts</div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="includeLikes" class="checkbox-input">
+                                    <label for="includeLikes" class="checkbox-label">Include liked posts</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="startDate" class="form-label">Start Date</label>
+                                <input type="date" id="startDate" class="form-field">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="endDate" class="form-label">End Date</label>
+                                <input type="date" id="endDate" class="form-field">
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary" id="scanButton">
+                                <i class="fas fa-search" aria-hidden="true"></i>
+                                Start Scan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Active Jobs Section -->
+            <section class="card" aria-labelledby="jobs-heading">
+                <div class="card-header">
+                    <h2 id="jobs-heading" class="card-title">
+                        <i class="fas fa-tasks" aria-hidden="true"></i>
+                        Active Jobs
+                    </h2>
+                </div>
+                <div class="card-content">
+                    <div id="jobsList" class="jobs-list" role="list" aria-label="アクティブなジョブリスト">
+                        <!-- Jobs will be inserted here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="card" id="resultsSection" aria-labelledby="results-heading" style="display: none;">
+                <div class="card-header">
+                    <h2 id="results-heading" class="card-title">
+                        <i class="fas fa-list" aria-hidden="true"></i>
+                        Scan Results
+                    </h2>
+                </div>
+                <div class="card-content">
+                    <div class="results-header flex justify-between items-center gap-300">
+                        <div class="results-info">
+                            <span id="resultsCount">0</span> media items found
+                        </div>
+                        <div class="results-actions flex gap-200">
+                            <button id="selectAllBtn" class="btn btn-secondary" aria-label="すべてのアイテムを選択">
+                                <i class="fas fa-check-square" aria-hidden="true"></i>
+                                Select All
+                            </button>
+                            <button id="downloadBtn" class="btn btn-success" disabled aria-label="選択したアイテムをダウンロード">
+                                <i class="fas fa-download" aria-hidden="true"></i>
+                                Download Selected
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="download-options" id="downloadOptions" style="display: none;">
+                        <h3>Download Options</h3>
+                        <div class="option-group flex gap-300">
+                            <label class="radio-group">
+                                <input type="radio" name="downloadFormat" value="individual" checked>
+                                <span>Individual files</span>
+                            </label>
+                            <label class="radio-group">
+                                <input type="radio" name="downloadFormat" value="zip">
+                                <span>ZIP archive</span>
+                            </label>
+                        </div>
+                        <button id="confirmDownloadBtn" class="btn btn-primary">
+                            <i class="fas fa-download" aria-hidden="true"></i>
+                            Confirm Download
+                        </button>
+                    </div>
+
+                    <div id="mediaGrid" class="media-grid grid grid-cols-1 gap-200" role="grid" aria-label="メディアアイテムグリッド">
+                        <!-- Media items will be inserted here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Monitoring Section -->
+            <section class="card" id="monitoringSection" aria-labelledby="monitoring-heading" style="display: none;">
+                <div class="card-header">
+                    <h2 id="monitoring-heading" class="card-title">
+                        <i class="fas fa-chart-line" aria-hidden="true"></i>
+                        System Monitoring
+                    </h2>
+                </div>
+                <div class="card-content">
+                    <!-- System Health -->
+                    <div class="monitoring-section">
+                        <h3>System Health</h3>
+                        <div class="health-indicators grid grid-cols-2 gap-300">
+                            <div class="health-indicator" id="cpuHealth">
+                                <div class="health-label">CPU Usage</div>
+                                <div class="health-value" id="cpuValue">0%</div>
+                                <div class="health-bar">
+                                    <div class="health-bar-fill" id="cpuBar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="health-indicator" id="memoryHealth">
+                                <div class="health-label">Memory Usage</div>
+                                <div class="health-value" id="memoryValue">0%</div>
+                                <div class="health-bar">
+                                    <div class="health-bar-fill" id="memoryBar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="health-status" id="overallHealth">
+                            <span class="status-indicator status-healthy"></span>
+                            <span id="healthStatusText">Healthy</span>
+                        </div>
+                    </div>
+
+                    <!-- Active Jobs -->
+                    <div class="monitoring-section">
+                        <h3>Active Jobs</h3>
+                        <div class="jobs-summary">
+                            <div class="summary-item">
+                                <span class="summary-label">Active Jobs:</span>
+                                <span class="summary-value" id="activeJobsCount">0</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Total Jobs:</span>
+                                <span class="summary-value" id="totalJobsCount">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Info -->
+                    <div class="monitoring-section">
+                        <h3>System Information</h3>
+                        <div class="system-info grid grid-cols-2 gap-300">
+                            <div class="info-item">
+                                <span class="info-label">Platform:</span>
+                                <span class="info-value" id="platformInfo">Unknown</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Python Version:</span>
+                                <span class="info-value" id="pythonVersion">Unknown</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">CPU Count:</span>
+                                <span class="info-value" id="cpuCount">Unknown</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Total Memory:</span>
+                                <span class="info-value" id="totalMemory">Unknown</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts -->
+                    <div class="monitoring-section">
+                        <h3>Performance Charts</h3>
+                        <div class="charts-container">
+                            <div class="chart-item">
+                                <h4>CPU Usage (Last 60 seconds)</h4>
+                                <div id="cpuChart" class="chart-container">
+                                    <canvas width="400" height="200"></canvas>
+                                </div>
+                            </div>
+                            <div class="chart-item">
+                                <h4>Memory Usage</h4>
+                                <div id="memoryChart" class="chart-container">
+                                    <canvas width="400" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dependencies Status -->
+                    <div class="monitoring-section">
+                        <h3>Dependencies Status</h3>
+                        <div id="dependenciesStatus" class="dependencies-grid">
+                            <!-- Dependencies will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal-overlay" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="settings-title" class="modal-title">Settings</h3>
+                <button class="modal-close" aria-label="閉じる">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="settingsForm" class="form">
+                    <div class="form-section">
+                        <h4 class="form-section-title">Download Settings</h4>
+                        <div class="form-group">
+                            <label for="downloadPath" class="form-label">Download Path</label>
+                            <input type="text" id="downloadPath" class="form-field" value="downloads">
+                        </div>
+                        <div class="form-group">
+                            <label for="maxConcurrent" class="form-label">Max Concurrent Downloads</label>
+                            <input type="number" id="maxConcurrent" class="form-field" min="1" max="10" value="5">
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4 class="form-section-title">Default Filters</h4>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="filterImages" class="checkbox-input" checked>
+                            <label for="filterImages" class="checkbox-label">Images</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="filterVideos" class="checkbox-input" checked>
+                            <label for="filterVideos" class="checkbox-label">Videos</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="filterGifs" class="checkbox-input" checked>
+                            <label for="filterGifs" class="checkbox-label">GIFs</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer flex justify-end gap-100">
+                <button id="saveSettingsBtn" class="btn btn-primary">Save Settings</button>
+                <button class="btn btn-secondary modal-close">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;" role="status" aria-live="polite">
+        <div class="loading-content">
+            <div class="spinner" aria-hidden="true"></div>
+            <p id="loadingMessage">Processing...</p>
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    <div id="notifications" class="notifications" role="log" aria-live="polite" aria-label="通知">
+        <!-- Notifications will be inserted here -->
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

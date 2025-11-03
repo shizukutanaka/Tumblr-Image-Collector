@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Tumblr Image Collector-এ স্বাগতম",
+  "configuring_application": "অ্যাপ্লিকেশন কনফিগার করা হচ্ছে...",
+  "initialization_complete": "ইনিশিয়ালাইজেশন সম্পন্ন",
+  "starting_download": "ডাউনলোড প্রক্রিয়া শুরু করা হচ্ছে...",
+  "download_complete": "ডাউনলোড সম্পন্ন",
+  "error_occurred": "একটি ত্রুটি ঘটেছে",
+  "rate_limit_exceeded": "গতি সীমা অতিক্রম করেছে",
+  "waiting_for_resume": "পুনরায় শুরু করার জন্য অপেক্ষা করছে...",
+
+  "enter_consumer_key": "আপনার Tumblr Consumer Key লিখুন",
+  "enter_consumer_secret": "আপনার Tumblr Consumer Secret লিখুন",
+  "enter_blog_name": "ডাউনলোডের জন্য ব্লগের নাম লিখুন",
+  "select_output_directory": "আউটপুট ডিরেক্টরি নির্বাচন করুন",
+  "configuration_saved": "কনফিগারেশন সফলভাবে সংরক্ষিত",
+
+  "invalid_input": "অবৈধ ইনপুট",
+  "file_not_found": "ফাইল খুঁজে পাওয়া যায়নি",
+  "permission_denied": "অনুমতি অস্বীকৃত",
+  "network_error": "নেটওয়ার্ক ত্রুটি",
+  "api_error": "API ত্রুটি",
+
+  "download_statistics": "ডাউনলোড পরিসংখ্যান",
+  "total_downloads": "মোট ডাউনলোড",
+  "successful_downloads": "সফল ডাউনলোড",
+  "failed_downloads": "ব্যর্থ ডাউনলোড",
+  "skipped_duplicates": "ডুপ্লিকেট এড়িয়ে গেছে",
+  "success_rate": "সাফল্যের হার",
+
+  "press_enter_to_continue": "চালিয়ে যেতে Enter চাপুন...",
+  "confirm_action": "এই ক্রিয়াটি নিশ্চিত করুন",
+  "select_option": "একটি বিকল্প নির্বাচন করুন",
+
+  "creating_directory": "ডিরেক্টরি তৈরি করা হচ্ছে",
+  "saving_file": "ফাইল সংরক্ষণ করা হচ্ছে",
+  "file_saved": "ফাইল সংরক্ষিত",
+  "exporting_metadata": "মেটাডেটা রপ্তানি করা হচ্ছে",
+
+  "processing_image": "ছবি প্রক্রিয়াকরণ করা হচ্ছে",
+  "generating_thumbnail": "থাম্বনেইল তৈরি করা হচ্ছে",
+  "analyzing_image": "ছবি বিশ্লেষণ করা হচ্ছে",
+  "duplicate_detected": "ডুপ্লিকেট সনাক্ত করা হয়েছে",
+
+  "connecting_to_api": "API-এর সাথে সংযোগ করা হচ্ছে",
+  "request_timeout": "অনুরোধের সময় শেষ",
+  "retrying_request": "অনুরোধ পুনরায় চেষ্টা করা হচ্ছে",
+  "connection_failed": "সংযোগ ব্যর্থ",
+
+  "memory_optimization": "মেমরি অপ্টিমাইজেশন",
+  "security_hardening": "নিরাপত্তা শক্তিশালীকরণ",
+  "internationalization": "আন্তর্জাতিকীকরণ",
+  "performance_improvement": "কর্মক্ষমতা উন্নতি",
+
+  "initializing_system": "সিস্টেম শুরু করা হচ্ছে",
+  "loading_configuration": "কনফিগারেশন লোড করা হচ্ছে",
+  "validating_credentials": "প্রমাণপত্র যাচাই করা হচ্ছে",
+  "preparing_download": "ডাউনলোড প্রস্তুত করা হচ্ছে",
+
+  "image_quality_check": "ছবির গুণমান পরীক্ষা",
+  "duplicate_detection": "ডুপ্লিকেট সনাক্তকরণ",
+  "metadata_extraction": "মেটাডেটা নিষ্কাশন",
+  "batch_processing": "ব্যাচ প্রক্রিয়াকরণ",
+
+  "user_interface": "ব্যবহারকারী ইন্টারফেস",
+  "progress_display": "প্রগ্রেস প্রদর্শন",
+  "error_reporting": "ত্রুটি রিপোর্টিং",
+  "logging_system": "লগিং সিস্টেম",
+
+  "rate_limiting": "গতি সীমাবদ্ধতা",
+  "input_validation": "ইনপুট যাচাইকরণ",
+  "secure_coding": "নিরাপদ কোডিং",
+  "data_protection": "ডেটা সুরক্ষা",
+
+  "commercial_grade": "বাণিজ্যিক গ্রেড",
+  "enterprise_ready": "এন্টারপ্রাইজ প্রস্তুত",
+  "production_quality": "উৎপাদন গুণমান",
+  "market_ready": "মার্কেট প্রস্তুত",
+
+  "advanced_features": "উন্নত বৈশিষ্ট্যসমূহ",
+  "ai_powered": "AI চালিত",
+  "cloud_ready": "ক্লাউড প্রস্তুত",
+  "scalable_architecture": "স্কেলেবল আর্কিটেকচার",
+
+  "documentation": "ডকুমেন্টেশন",
+  "user_guide": "ব্যবহারকারী গাইড",
+  "api_reference": "API রেফারেন্স",
+  "installation_guide": "ইনস্টলেশন গাইড",
+
+  "testing_suite": "পরীক্ষা স্যুট",
+  "unit_tests": "ইউনিট পরীক্ষা",
+  "integration_tests": "ইন্টিগ্রেশন পরীক্ষা",
+  "end_to_end_tests": "শেষ থেকে শেষ পরীক্ষা",
+
+  "deployment": "ডিপ্লয়মেন্ট",
+  "packaging": "প্যাকেজিং",
+  "distribution": "বিতরণ",
+  "containerization": "কনটেইনারাইজেশন",
+
+  "support": "সমর্থন",
+  "maintenance": "রক্ষণাবেক্ষণ",
+  "updates": "আপডেট",
+  "bug_fixes": "বাগ ফিক্স"
+}

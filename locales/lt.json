@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Sveiki atvykę į Tumblr Image Collector",
+  "configuring_application": "Konfigūruojama programa...",
+  "initialization_complete": "Inicijavimas baigtas",
+  "starting_download": "Pradedamas atsisiuntimo procesas...",
+  "download_complete": "Atsisiuntimas baigtas",
+  "error_occurred": "Įvyko klaida",
+  "rate_limit_exceeded": "Viršytas greičio limitas",
+  "waiting_for_resume": "Laukiama pratęsimo...",
+
+  "enter_consumer_key": "Įveskite savo Tumblr Consumer Key",
+  "enter_consumer_secret": "Įveskite savo Tumblr Consumer Secret",
+  "enter_blog_name": "Įveskite tinklaraščio pavadinimą atsisiuntimui",
+  "select_output_directory": "Pasirinkite išvesties katalogą",
+  "configuration_saved": "Konfigūracija sėkmingai išsaugota",
+
+  "invalid_input": "Neteisinga įvestis",
+  "file_not_found": "Failas nerastas",
+  "permission_denied": "Leidimas atmestas",
+  "network_error": "Tinklo klaida",
+  "api_error": "API klaida",
+
+  "download_statistics": "Atsisiuntimo Statistikos",
+  "total_downloads": "Iš viso Atsisiuntimų",
+  "successful_downloads": "Sėkmingi Atsisiuntimai",
+  "failed_downloads": "Nesėkmingi Atsisiuntimai",
+  "skipped_duplicates": "Praleisti Dublikatai",
+  "success_rate": "Sėkmės Koeficientas",
+
+  "press_enter_to_continue": "Paspauskite Enter tęsti...",
+  "confirm_action": "Patvirtinkite šį veiksmą",
+  "select_option": "Pasirinkite parinktį",
+
+  "creating_directory": "Kuriamas katalogas",
+  "saving_file": "Išsaugomas failas",
+  "file_saved": "Failas išsaugotas",
+  "exporting_metadata": "Eksportuojami metaduomenys",
+
+  "processing_image": "Apdorojamas vaizdas",
+  "generating_thumbnail": "Generuojama miniatiūra",
+  "analyzing_image": "Analizuojamas vaizdas",
+  "duplicate_detected": "Aptiktas dublikatas",
+
+  "connecting_to_api": "Jungiamasi prie API",
+  "request_timeout": "Užklausos laikas baigėsi",
+  "retrying_request": "Kartojama užklausa",
+  "connection_failed": "Ryšys nepavyko",
+
+  "memory_optimization": "Atminties optimizavimas",
+  "security_hardening": "Saugumo stiprinimas",
+  "internationalization": "Tarptautinimas",
+  "performance_improvement": "Našumo gerinimas",
+
+  "initializing_system": "Inicializuojama sistema",
+  "loading_configuration": "Kraunama konfigūracija",
+  "validating_credentials": "Tikrinami prisijungimo duomenys",
+  "preparing_download": "Ruošiamasi atsisiuntimui",
+
+  "image_quality_check": "Vaizdo kokybės patikra",
+  "duplicate_detection": "Dublikatų aptikimas",
+  "metadata_extraction": "Metaduomenų išgavimas",
+  "batch_processing": "Paketinis apdorojimas",
+
+  "user_interface": "Vartotojo Sąsaja",
+  "progress_display": "Eigos Rodymas",
+  "error_reporting": "Klaidų Ataskaitos",
+  "logging_system": "Žurnalų Sistema",
+
+  "rate_limiting": "Grečio Ribojimas",
+  "input_validation": "Įvesties Patikra",
+  "secure_coding": "Saugus Kodavimas",
+  "data_protection": "Duomenų Apsauga",
+
+  "commercial_grade": "Komercinė Kokybė",
+  "enterprise_ready": "Paruošta Įmonei",
+  "production_quality": "Gamybos Kokybė",
+  "market_ready": "Paruošta Rinkai",
+
+  "advanced_features": "Pažangios Funkcijos",
+  "ai_powered": "Veikiama AI",
+  "cloud_ready": "Paruošta Debesijai",
+  "scalable_architecture": "Keičiamo Dydžio Architektūra",
+
+  "documentation": "Dokumentacija",
+  "user_guide": "Vartotojo Vadovas",
+  "api_reference": "API Nuoroda",
+  "installation_guide": "Diegimo Vadovas",
+
+  "testing_suite": "Testų Rinkinys",
+  "unit_tests": "Vieneto Testai",
+  "integration_tests": "Integracijos Testai",
+  "end_to_end_tests": "End-to-End Testai",
+
+  "deployment": "Diegtis",
+  "packaging": "Pakavimas",
+  "distribution": "Platinimas",
+  "containerization": "Konteinerizacija",
+
+  "support": "Parama",
+  "maintenance": "Priežiūra",
+  "updates": "Atnaujinimai",
+  "bug_fixes": "Klaidų Taisymai"
+}

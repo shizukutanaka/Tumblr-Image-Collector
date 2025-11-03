@@ -1,0 +1,27 @@
+{
+  "google_cloud_api_key": "",
+  "deepl_api_key": "",
+  "microsoft_translator_key": "",
+  "translation_settings": {
+    "cache_enabled": true,
+    "auto_save_translations": true,
+    "max_cache_size": 10000,
+    "rate_limit_delay": 0.1,
+    "supported_languages": [
+      "af", "sq", "am", "ar", "hy", "az", "eu", "be", "bn", "bs", "bg", "ca", "ceb", "ny", "zh", "zh-TW",
+      "co", "hr", "cs", "da", "nl", "en", "eo", "et", "tl", "fi", "fr", "fy", "gl", "ka", "de", "el",
+      "gu", "ht", "ha", "haw", "iw", "hi", "hmn", "hu", "is", "ig", "id", "ga", "it", "ja", "jw", "kn",
+      "kk", "km", "ko", "ku", "ky", "lo", "la", "lv", "lt", "lb", "mk", "mg", "ms", "ml", "mt", "mi", "mr",
+      "mn", "my", "ne", "no", "ps", "fa", "pl", "pt", "ma", "ro", "ru", "sm", "gd", "sr", "st", "sn", "sd",
+      "si", "sk", "sl", "so", "es", "su", "sw", "sv", "tg", "ta", "te", "th", "tr", "uk", "ur", "uz", "vi",
+      "cy", "xh", "yi", "yo", "zu"
+    ],
+    "quality_threshold": 0.8
+  },
+  "api_usage_stats": {
+    "google_cloud": 0,
+    "deep_translator": 0,
+    "googletrans": 0,
+    "total_calls": 0
+  }
+}

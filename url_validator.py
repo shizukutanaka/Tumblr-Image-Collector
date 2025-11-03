@@ -41,8 +41,9 @@ class TumblrURLValidator:
         'archive': re.compile(r'^https?://([a-z0-9-]{1,63})\.tumblr\.com/archive'),
     }
 
-    def __init__(self, cache_file: str = "url_cache.json"):
+    def __init__(self, cache_file: str = "url_cache.json", max_content_size_mb: int = 5):
         self.cache_file = Path(cache_file)
+        self.max_content_size_mb = max_content_size_mb
         self.url_cache: Dict[str, Dict] = self._load_cache()
         self.session = self._create_session()
         self._lock = threading.Lock()
@@ -241,16 +242,22 @@ class TumblrURLValidator:
         except Exception as e:
             return False, f"Validation failed: {str(e)}"
 
-    def get_image_urls_from_post(self, post_url: str) -> List[str]:
+    def get_image_urls_from_post(self, post_url: str, max_content_size_mb: Optional[int] = None) -> List[str]:
         """Extract image URLs from a Tumblr post"""
         try:
+            # Use configured value or default to 5MB for better security
+            if max_content_size_mb is not None:
+                content_size_limit = max_content_size_mb
+            else:
+                content_size_limit = self.max_content_size_mb
+
+            max_content_size = content_size_limit * 1024 * 1024  # Convert MB to bytes
+
             # コンテンツサイズ制限
             response = self.session.get(post_url, timeout=15, stream=True)
             if response.status_code != 200:
                 return []
 
-            # レスポンスサイズを制限（DoS対策）
-            max_content_size = 10 * 1024 * 1024  # 10MB
             content = b''
             for chunk in response.iter_content(chunk_size=8192):
                 content += chunk
@@ -355,6 +362,141 @@ class TumblrURLValidator:
 
         return valid_urls
 
+    def cleanup_inaccessible_urls(self, urls: List[str], timeout: int = 5) -> Tuple[List[str], List[str]]:
+        """Remove inaccessible URLs from a list and return both valid and invalid.
+
+        Args:
+            urls: List of URLs to check
+            timeout: Timeout for accessibility check (default: 5 seconds)
+
+        Returns:
+            Tuple of (accessible_urls, inaccessible_urls)
+        """
+        accessible = []
+        inaccessible = []
+
+        for url in urls:
+            # First validate format
+            is_valid, url_type, _ = self.validate_url_format(url)
+            if not is_valid:
+                inaccessible.append(url)
+                logger.info(f"Removed invalid URL: {url}")
+                continue
+
+            # Then check accessibility
+            is_accessible, status_code, message = self.check_url_accessibility(url, timeout)
+            if is_accessible:
+                accessible.append(url)
+            else:
+                inaccessible.append(url)
+                logger.info(f"Removed inaccessible URL: {url} (Status: {status_code}, Message: {message})")
+
+        return accessible, inaccessible
+
+    def cleanup_nonexistent_blogs(self, blog_names: List[str]) -> Tuple[List[str], List[str]]:
+        """Check which blog names exist and which don't.
+
+        Args:
+            blog_names: List of blog names to check
+
+        Returns:
+            Tuple of (existing_blogs, nonexistent_blogs)
+        """
+        existing = []
+        nonexistent = []
+
+        for blog_name in blog_names:
+            exists, message = self.validate_blog_exists(blog_name)
+            if exists:
+                existing.append(blog_name)
+            else:
+                nonexistent.append(blog_name)
+                logger.info(f"Blog does not exist or is private: {blog_name} ({message})")
+
+        return existing, nonexistent
+
+    def remove_duplicate_urls(self, urls: List[str]) -> List[str]:
+        """Remove duplicate URLs while preserving order.
+
+        Args:
+            urls: List of URLs
+
+        Returns:
+            List of unique URLs
+        """
+        seen = set()
+        unique_urls = []
+
+        for url in urls:
+            # Normalize URL for comparison
+            normalized = url.lower().strip().rstrip('/')
+
+            if normalized not in seen:
+                seen.add(normalized)
+                unique_urls.append(url)
+            else:
+                logger.debug(f"Removed duplicate URL: {url}")
+
+        return unique_urls
+
+    def deep_cleanup_urls(
+        self,
+        urls: List[str],
+        check_accessibility: bool = True,
+        remove_duplicates: bool = True,
+        timeout: int = 5
+    ) -> Dict[str, List[str]]:
+        """Perform comprehensive URL cleanup.
+
+        Args:
+            urls: List of URLs to clean
+            check_accessibility: Whether to check if URLs are accessible
+            remove_duplicates: Whether to remove duplicate URLs
+            timeout: Timeout for accessibility checks
+
+        Returns:
+            Dictionary with keys:
+                - 'valid': Valid and accessible URLs
+                - 'invalid_format': URLs with invalid format
+                - 'inaccessible': URLs that are valid but inaccessible
+                - 'duplicates': Duplicate URLs (if remove_duplicates=True)
+        """
+        result = {
+            'valid': [],
+            'invalid_format': [],
+            'inaccessible': [],
+            'duplicates': []
+        }
+
+        # Remove duplicates first
+        processed_urls = urls
+        if remove_duplicates:
+            original_count = len(urls)
+            processed_urls = self.remove_duplicate_urls(urls)
+            duplicates_count = original_count - len(processed_urls)
+            if duplicates_count > 0:
+                logger.info(f"Removed {duplicates_count} duplicate URLs")
+
+        # Validate format
+        format_valid = []
+        for url in processed_urls:
+            is_valid, url_type, message = self.validate_url_format(url)
+            if is_valid:
+                format_valid.append(url)
+            else:
+                result['invalid_format'].append(url)
+                logger.info(f"Invalid URL format: {url} ({message})")
+
+        # Check accessibility if requested
+        if check_accessibility and format_valid:
+            accessible, inaccessible = self.cleanup_inaccessible_urls(format_valid, timeout)
+            result['valid'] = accessible
+            result['inaccessible'] = inaccessible
+        else:
+            result['valid'] = format_valid
+
+        return result
+
     def get_validation_stats(self) -> Dict[str, int]:
         """Get statistics about URL validation cache"""
         stats = {
@@ -402,9 +544,9 @@ class TumblrURLValidator:
 # Global URL validator instance
 _url_validator = None
 
-def get_url_validator() -> TumblrURLValidator:
+def get_url_validator(max_content_size_mb: int = 5) -> TumblrURLValidator:
     """Get global URL validator instance"""
     global _url_validator
     if _url_validator is None:
-        _url_validator = TumblrURLValidator()
+        _url_validator = TumblrURLValidator(max_content_size_mb=max_content_size_mb)
     return _url_validator

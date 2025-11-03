@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Selamat Datang ke Tumblr Image Collector",
+  "configuring_application": "Mengkonfigurasi aplikasi...",
+  "initialization_complete": "Permulaan selesai",
+  "starting_download": "Memulakan proses muat turun...",
+  "download_complete": "Muat turun selesai",
+  "error_occurred": "Ralat berlaku",
+  "rate_limit_exceeded": "Had kelajuan melebihi",
+  "waiting_for_resume": "Menunggu untuk menyambung semula...",
+
+  "enter_consumer_key": "Masukkan Tumblr Consumer Key anda",
+  "enter_consumer_secret": "Masukkan Tumblr Consumer Secret anda",
+  "enter_blog_name": "Masukkan nama blog untuk dimuat turun",
+  "select_output_directory": "Pilih direktori output",
+  "configuration_saved": "Konfigurasi berjaya disimpan",
+
+  "invalid_input": "Input tidak sah",
+  "file_not_found": "Fail tidak dijumpai",
+  "permission_denied": "Kebenaran ditolak",
+  "network_error": "Ralat rangkaian",
+  "api_error": "Ralat API",
+
+  "download_statistics": "Statistik Muat Turun",
+  "total_downloads": "Jumlah Muat Turun",
+  "successful_downloads": "Muat Turun Berjaya",
+  "failed_downloads": "Muat Turun Gagal",
+  "skipped_duplicates": "Duplikat Dilangkau",
+  "success_rate": "Kadar Kejayaan",
+
+  "press_enter_to_continue": "Tekan Enter untuk meneruskan...",
+  "confirm_action": "Sahkan tindakan ini",
+  "select_option": "Pilih pilihan",
+
+  "creating_directory": "Mencipta direktori",
+  "saving_file": "Menyimpan fail",
+  "file_saved": "Fail disimpan",
+  "exporting_metadata": "Mengeksport metadata",
+
+  "processing_image": "Memproses imej",
+  "generating_thumbnail": "Menghasilkan lakaran kecil",
+  "analyzing_image": "Menganalisis imej",
+  "duplicate_detected": "Duplikat dikesan",
+
+  "connecting_to_api": "Menyambung ke API",
+  "request_timeout": "Tamat masa permintaan",
+  "retrying_request": "Mencuba semula permintaan",
+  "connection_failed": "Sambungan gagal",
+
+  "memory_optimization": "Pengoptimuman memori",
+  "security_hardening": "Pengukuhan keselamatan",
+  "internationalization": "Pengantarabangsaan",
+  "performance_improvement": "Penambahbaikan prestasi",
+
+  "initializing_system": "Memulakan sistem",
+  "loading_configuration": "Memuatkan konfigurasi",
+  "validating_credentials": "Mengesahkan kelayakan",
+  "preparing_download": "Menyediakan muat turun",
+
+  "image_quality_check": "Pemeriksaan kualiti imej",
+  "duplicate_detection": "Pengesanan duplikat",
+  "metadata_extraction": "Pengekstrakan metadata",
+  "batch_processing": "Pemprosesan kelompok",
+
+  "user_interface": "Antara Muka Pengguna",
+  "progress_display": "Paparan Kemajuan",
+  "error_reporting": "Pelaporan Ralat",
+  "logging_system": "Sistem Log",
+
+  "rate_limiting": "Had Kelajuan",
+  "input_validation": "Pengesahan Input",
+  "secure_coding": "Pengkodan Selamat",
+  "data_protection": "Perlindungan Data",
+
+  "commercial_grade": "Gred Komersial",
+  "enterprise_ready": "Sedia Perusahaan",
+  "production_quality": "Kualiti Pengeluaran",
+  "market_ready": "Sedia Pasaran",
+
+  "advanced_features": "Ciri-ciri Lanjutan",
+  "ai_powered": "Dikuasakan AI",
+  "cloud_ready": "Sedia Awan",
+  "scalable_architecture": "Arkitektur Boleh Skala",
+
+  "documentation": "Dokumentasi",
+  "user_guide": "Panduan Pengguna",
+  "api_reference": "Rujukan API",
+  "installation_guide": "Panduan Pemasangan",
+
+  "testing_suite": "Suite Ujian",
+  "unit_tests": "Ujian Unit",
+  "integration_tests": "Ujian Integrasi",
+  "end_to_end_tests": "Ujian Hujung ke Hujung",
+
+  "deployment": "Pelaksanaan",
+  "packaging": "Pembungkusan",
+  "distribution": "Pengedaran",
+  "containerization": "Pengkontenaan",
+
+  "support": "Sokongan",
+  "maintenance": "Penyelenggaraan",
+  "updates": "Kemas Kini",
+  "bug_fixes": "Pembetulan Pepijat"
+}

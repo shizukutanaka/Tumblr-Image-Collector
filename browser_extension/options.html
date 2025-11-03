@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tumblr Collector Options</title>
+    <link rel="stylesheet" href="options.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚙️ Tumblr Image Collector Settings</h1>
+            <p>Customize your media collection experience</p>
+        </header>
+
+        <form id="settingsForm">
+            <!-- General Settings -->
+            <section class="settings-section">
+                <h2>General Settings</h2>
+
+                <div class="setting-item">
+                    <label for="autoScan">
+                        <input type="checkbox" id="autoScan">
+                        <span class="setting-label">Auto-scan Tumblr pages</span>
+                        <span class="setting-description">Automatically scan for media when visiting Tumblr pages</span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <label for="showNotifications">
+                        <input type="checkbox" id="showNotifications" checked>
+                        <span class="setting-label">Show download notifications</span>
+                        <span class="setting-description">Display notifications for download progress and completion</span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <label for="downloadPath">
+                        <span class="setting-label">Download folder name</span>
+                        <input type="text" id="downloadPath" value="Tumblr_Collector" placeholder="Tumblr_Collector">
+                        <span class="setting-description">Base folder name for downloaded files</span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <label for="maxConcurrentDownloads">
+                        <span class="setting-label">Max concurrent downloads</span>
+                        <select id="maxConcurrentDownloads">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3" selected>3</option>
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                        </select>
+                        <span class="setting-description">Maximum number of simultaneous downloads</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Filter Settings -->
+            <section class="settings-section">
+                <h2>Default Filters</h2>
+
+                <div class="setting-item">
+                    <label for="defaultFilterImages">
+                        <input type="checkbox" id="defaultFilterImages" checked>
+                        <span class="setting-label">Scan for images</span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <label for="defaultFilterVideos">
+                        <input type="checkbox" id="defaultFilterVideos" checked>
+                        <span class="setting-label">Scan for videos</span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <label for="defaultFilterGifs">
+                        <input type="checkbox" id="defaultFilterGifs" checked>
+                        <span class="setting-label">Scan for GIFs</span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <label for="defaultMinWidth">
+                        <span class="setting-label">Minimum width (px)</span>
+                        <input type="number" id="defaultMinWidth" min="0" value="0">
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <label for="defaultMinHeight">
+                        <span class="setting-label">Minimum height (px)</span>
+                        <input type="number" id="defaultMinHeight" min="0" value="0">
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <label for="defaultSkipDuplicates">
+                        <input type="checkbox" id="defaultSkipDuplicates">
+                        <span class="setting-label">Skip duplicate URLs</span>
+                        <span class="setting-description">Don't scan the same URL multiple times</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Advanced Settings -->
+            <section class="settings-section">
+                <h2>Advanced Settings</h2>
+
+                <div class="setting-item">
+                    <label for="debugMode">
+                        <input type="checkbox" id="debugMode">
+                        <span class="setting-label">Debug mode</span>
+                        <span class="setting-description">Enable detailed logging for troubleshooting</span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <label for="contextMenu">
+                        <input type="checkbox" id="contextMenu" checked>
+                        <span class="setting-label">Enable context menu</span>
+                        <span class="setting-description">Show Tumblr Collector options in right-click menu</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Data Management -->
+            <section class="settings-section">
+                <h2>Data Management</h2>
+
+                <div class="setting-item">
+                    <button type="button" id="exportData" class="btn btn-secondary">
+                        📤 Export Settings & Data
+                    </button>
+                    <span class="setting-description">Download your settings and collected data</span>
+                </div>
+
+                <div class="setting-item">
+                    <button type="button" id="clearData" class="btn btn-danger">
+                        🗑️ Clear All Data
+                    </button>
+                    <span class="setting-description">Remove all stored settings and cached data</span>
+                </div>
+            </section>
+        </form>
+
+        <div class="actions">
+            <button type="button" id="saveSettings" class="btn btn-primary">
+                💾 Save Settings
+            </button>
+
+            <button type="button" id="resetSettings" class="btn btn-secondary">
+                🔄 Reset to Defaults
+            </button>
+        </div>
+
+        <div id="statusMessage" class="status-message" style="display: none;"></div>
+
+        <footer>
+            <p>Tumblr Image Collector v2.1 - <a href="#" id="openExtensionPage">View on Chrome Web Store</a></p>
+            <p class="version-info">Version: <span id="versionNumber"></span></p>
+        </footer>
+    </div>
+
+    <script src="options.js"></script>
+</body>
+</html>

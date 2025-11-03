@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Velkommen til Tumblr Image Collector",
+  "configuring_application": "Konfigurerer applikasjon...",
+  "initialization_complete": "Initialisering fullført",
+  "starting_download": "Starter nedlastingsprosess...",
+  "download_complete": "Nedlasting fullført",
+  "error_occurred": "En feil oppstod",
+  "rate_limit_exceeded": "Fartsgrense overskredet",
+  "waiting_for_resume": "Venter på å fortsette...",
+
+  "enter_consumer_key": "Skriv inn din Tumblr Consumer Key",
+  "enter_consumer_secret": "Skriv inn din Tumblr Consumer Secret",
+  "enter_blog_name": "Skriv inn bloggnavn for nedlasting",
+  "select_output_directory": "Velg utdatamappe",
+  "configuration_saved": "Konfigurasjon lagret vellykket",
+
+  "invalid_input": "Ugyldig inndata",
+  "file_not_found": "Fil ikke funnet",
+  "permission_denied": "Tilgang nektet",
+  "network_error": "Nettverksfeil",
+  "api_error": "API-feil",
+
+  "download_statistics": "Nedlastingsstatistikk",
+  "total_downloads": "Totale Nedlastinger",
+  "successful_downloads": "Vellykkede Nedlastinger",
+  "failed_downloads": "Mislykkede Nedlastinger",
+  "skipped_duplicates": "Hopp over Duplikater",
+  "success_rate": "Suksessrate",
+
+  "press_enter_to_continue": "Trykk Enter for å fortsette...",
+  "confirm_action": "Bekreft denne handlingen",
+  "select_option": "Velg et alternativ",
+
+  "creating_directory": "Oppretter mappe",
+  "saving_file": "Lagrer fil",
+  "file_saved": "Fil lagret",
+  "exporting_metadata": "Eksporterer metadata",
+
+  "processing_image": "Behandler bilde",
+  "generating_thumbnail": "Genererer miniatyrbilde",
+  "analyzing_image": "Analyserer bilde",
+  "duplicate_detected": "Duplikat oppdaget",
+
+  "connecting_to_api": "Kobler til API",
+  "request_timeout": "Forespørsel timeout",
+  "retrying_request": "Prøver forespørsel på nytt",
+  "connection_failed": "Tilkobling mislyktes",
+
+  "memory_optimization": "Minneoptimalisering",
+  "security_hardening": "Sikkerhetsforsterkning",
+  "internationalization": "Internasjonalisering",
+  "performance_improvement": "Ytelsesforbedring",
+
+  "initializing_system": "Initialiserer system",
+  "loading_configuration": "Laster konfigurasjon",
+  "validating_credentials": "Validerer legitimasjon",
+  "preparing_download": "Forbereder nedlasting",
+
+  "image_quality_check": "Bildekvalitetskontroll",
+  "duplicate_detection": "Duplikatdeteksjon",
+  "metadata_extraction": "Metadata-ekstraksjon",
+  "batch_processing": "Batch-behandling",
+
+  "user_interface": "Brukergrensesnitt",
+  "progress_display": "Fremdriftsvisning",
+  "error_reporting": "Feilrapportering",
+  "logging_system": "Loggningssystem",
+
+  "rate_limiting": "Fartsbegrensning",
+  "input_validation": "Inndatavalidering",
+  "secure_coding": "Sikker Koding",
+  "data_protection": "Databeskyttelse",
+
+  "commercial_grade": "Kommersiell Kvalitet",
+  "enterprise_ready": "Bedriftsklar",
+  "production_quality": "Produksjonskvalitet",
+  "market_ready": "Markedsklar",
+
+  "advanced_features": "Avanserte Funksjoner",
+  "ai_powered": "AI-drevet",
+  "cloud_ready": "Skyklar",
+  "scalable_architecture": "Skalerbar Arkitektur",
+
+  "documentation": "Dokumentasjon",
+  "user_guide": "Brukerhåndbok",
+  "api_reference": "API-referanse",
+  "installation_guide": "Installasjonsveiledning",
+
+  "testing_suite": "Testpakke",
+  "unit_tests": "Enhetstester",
+  "integration_tests": "Integrasjonstester",
+  "end_to_end_tests": "Ende-til-ende-tester",
+
+  "deployment": "Utrulling",
+  "packaging": "Pakking",
+  "distribution": "Distribusjon",
+  "containerization": "Containerisering",
+
+  "support": "Støtte",
+  "maintenance": "Vedlikehold",
+  "updates": "Oppdateringer",
+  "bug_fixes": "Feilrettinger"
+}

@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Tumblr Image Collector-க்கு வரவேற்கிறோம்",
+  "configuring_application": "செயலியை உள்ளமைக்கிறது...",
+  "initialization_complete": "துவக்கம் முடிந்தது",
+  "starting_download": "பதிவிறக்க செயல்முறையைத் தொடங்குகிறது...",
+  "download_complete": "பதிவிறக்கம் முடிந்தது",
+  "error_occurred": "ஒரு பிழை ஏற்பட்டது",
+  "rate_limit_exceeded": "வேக வரம்பு மீறப்பட்டது",
+  "waiting_for_resume": "தொடர்வதற்காக காத்திருக்கிறது...",
+
+  "enter_consumer_key": "உங்கள் Tumblr Consumer Key-ஐ உள்ளிடவும்",
+  "enter_consumer_secret": "உங்கள் Tumblr Consumer Secret-ஐ உள்ளிடவும்",
+  "enter_blog_name": "பதிவிறக்கம் செய்ய வலைப்பதிவு பெயரை உள்ளிடவும்",
+  "select_output_directory": "வெளியீடு கோப்புறையைத் தேர்ந்தெடுக்கவும்",
+  "configuration_saved": "உள்ளமைவு வெற்றிகரமாக சேமிக்கப்பட்டது",
+
+  "invalid_input": "செல்லாத உள்ளீடு",
+  "file_not_found": "கோப்பு கிடைக்கவில்லை",
+  "permission_denied": "அனுமதி மறுக்கப்பட்டது",
+  "network_error": "பிணைய பிழை",
+  "api_error": "API பிழை",
+
+  "download_statistics": "பதிவிறக்க புள்ளிவிவரம்",
+  "total_downloads": "மொத்த பதிவிறக்கங்கள்",
+  "successful_downloads": "வெற்றிகரமான பதிவிறக்கங்கள்",
+  "failed_downloads": "தோல்வியுற்ற பதிவிறக்கங்கள்",
+  "skipped_duplicates": "தவிர்க்கப்பட்ட நகல்கள்",
+  "success_rate": "வெற்றி விகிதம்",
+
+  "press_enter_to_continue": "தொடர Enter-ஐ அழுத்தவும்...",
+  "confirm_action": "இந்த செயலை உறுதிப்படுத்தவும்",
+  "select_option": "ஒரு விருப்பத்தைத் தேர்ந்தெடுக்கவும்",
+
+  "creating_directory": "கோப்புறை உருவாக்கப்படுகிறது",
+  "saving_file": "கோப்பு சேமிக்கப்படுகிறது",
+  "file_saved": "கோப்பு சேமிக்கப்பட்டது",
+  "exporting_metadata": "மெட்டாடேட்டா ஏற்றுமதி செய்யப்படுகிறது",
+
+  "processing_image": "படம் செயலாக்கப்படுகிறது",
+  "generating_thumbnail": "சிறுபடம் உருவாக்கப்படுகிறது",
+  "analyzing_image": "படம் பகுப்பாய்வு செய்யப்படுகிறது",
+  "duplicate_detected": "நகல் கண்டறியப்பட்டது",
+
+  "connecting_to_api": "API-யுடன் இணைக்கப்படுகிறது",
+  "request_timeout": "கோரிக்கை நேரம் முடிந்தது",
+  "retrying_request": "கோரிக்கையை மீண்டும் முயற்சிக்கிறது",
+  "connection_failed": "இணைப்பு தோல்வியுற்றது",
+
+  "memory_optimization": "நினைவக மேம்படுத்தல்",
+  "security_hardening": "பாதுகாப்பு வலுப்படுத்தல்",
+  "internationalization": "சர்வதேசமயமாக்கல்",
+  "performance_improvement": "செயல்திறன் மேம்பாடு",
+
+  "initializing_system": "சிஸ்டம் துவக்கப்படுகிறது",
+  "loading_configuration": "உள்ளமைவு ஏற்றப்படுகிறது",
+  "validating_credentials": "நற்சான்றிதழ்கள் சரிபார்க்கப்படுகின்றன",
+  "preparing_download": "பதிவிறக்கம் தயாரிக்கப்படுகிறது",
+
+  "image_quality_check": "படத்தின் தரம் சரிபார்ப்பு",
+  "duplicate_detection": "நகல் கண்டறிதல்",
+  "metadata_extraction": "மெட்டாடேட்டா பிரித்தெடுத்தல்",
+  "batch_processing": "தொகுதி செயலாக்கம்",
+
+  "user_interface": "பயனர் இடைமுகம்",
+  "progress_display": "முன்னேற்ற காட்சி",
+  "error_reporting": "பிழை அறிக்கை",
+  "logging_system": "பதிவு செய்யும் அமைப்பு",
+
+  "rate_limiting": "வேக வரம்பு",
+  "input_validation": "உள்ளீடு சரிபார்ப்பு",
+  "secure_coding": "பாதுகாப்பான குறியீடு",
+  "data_protection": "தரவு பாதுகாப்பு",
+
+  "commercial_grade": "வணிக தரம்",
+  "enterprise_ready": "நிறுவன தயார்",
+  "production_quality": "உற்பத்தி தரம்",
+  "market_ready": "சந்தை தயார்",
+
+  "advanced_features": "மேம்பட்ட அம்சங்கள்",
+  "ai_powered": "AI இயக்கப்படுகிறது",
+  "cloud_ready": "மேகம் தயார்",
+  "scalable_architecture": "அளவிடக்கூடிய கட்டிடக்கலை",
+
+  "documentation": "ஆவணம்",
+  "user_guide": "பயனர் வழிகாட்டி",
+  "api_reference": "API குறிப்பு",
+  "installation_guide": "நிறுவல் வழிகாட்டி",
+
+  "testing_suite": "சோதனை தொகுப்பு",
+  "unit_tests": "அலகு சோதனைகள்",
+  "integration_tests": "ஒருங்கிணைப்பு சோதனைகள்",
+  "end_to_end_tests": "முடிவு முதல் முடிவு சோதனைகள்",
+
+  "deployment": "வரிசைப்படுத்தல்",
+  "packaging": "பொதி செய்தல்",
+  "distribution": "விநியோகம்",
+  "containerization": "கொள்கலனாக்கம்",
+
+  "support": "ஆதரவு",
+  "maintenance": "பராமரிப்பு",
+  "updates": "புதுப்பிப்புகள்",
+  "bug_fixes": "பிழை திருத்தங்கள்"
+}

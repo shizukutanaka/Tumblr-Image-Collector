@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Ласкаво просимо до Tumblr Image Collector",
+  "configuring_application": "Налаштування додатка...",
+  "initialization_complete": "Ініціалізація завершена",
+  "starting_download": "Запуск процесу завантаження...",
+  "download_complete": "Завантаження завершено",
+  "error_occurred": "Сталася помилка",
+  "rate_limit_exceeded": "Перевищено ліміт швидкості",
+  "waiting_for_resume": "Очікування на продовження...",
+
+  "enter_consumer_key": "Введіть ваш Tumblr Consumer Key",
+  "enter_consumer_secret": "Введіть ваш Tumblr Consumer Secret",
+  "enter_blog_name": "Введіть назву блогу для завантаження",
+  "select_output_directory": "Оберіть вихідну директорію",
+  "configuration_saved": "Налаштування успішно збережено",
+
+  "invalid_input": "Неправильне введення",
+  "file_not_found": "Файл не знайдено",
+  "permission_denied": "Доступ заборонено",
+  "network_error": "Помилка мережі",
+  "api_error": "Помилка API",
+
+  "download_statistics": "Статистика Завантажень",
+  "total_downloads": "Загальна Кількість Завантажень",
+  "successful_downloads": "Успішні Завантаження",
+  "failed_downloads": "Невдалі Завантаження",
+  "skipped_duplicates": "Пропущені Дублікати",
+  "success_rate": "Рівень Успіху",
+
+  "press_enter_to_continue": "Натисніть Enter для продовження...",
+  "confirm_action": "Підтвердіть цю дію",
+  "select_option": "Оберіть опцію",
+
+  "creating_directory": "Створення директорії",
+  "saving_file": "Збереження файлу",
+  "file_saved": "Файл збережено",
+  "exporting_metadata": "Експорт метаданих",
+
+  "processing_image": "Обробка зображення",
+  "generating_thumbnail": "Створення мініатюри",
+  "analyzing_image": "Аналіз зображення",
+  "duplicate_detected": "Виявлено дублікат",
+
+  "connecting_to_api": "Підключення до API",
+  "request_timeout": "Час запиту вичерпано",
+  "retrying_request": "Повторна спроба запиту",
+  "connection_failed": "Підключення не вдалося",
+
+  "memory_optimization": "Оптимізація пам'яті",
+  "security_hardening": "Посилення безпеки",
+  "internationalization": "Інтернаціоналізація",
+  "performance_improvement": "Покращення продуктивності",
+
+  "initializing_system": "Ініціалізація системи",
+  "loading_configuration": "Завантаження конфігурації",
+  "validating_credentials": "Перевірка облікових даних",
+  "preparing_download": "Підготовка завантаження",
+
+  "image_quality_check": "Перевірка якості зображення",
+  "duplicate_detection": "Виявлення дублікатів",
+  "metadata_extraction": "Витяг метаданих",
+  "batch_processing": "Пакетна обробка",
+
+  "user_interface": "Інтерфейс Користувача",
+  "progress_display": "Відображення Прогресу",
+  "error_reporting": "Звіт про Помилки",
+  "logging_system": "Система Журналювання",
+
+  "rate_limiting": "Обмеження Швидкості",
+  "input_validation": "Перевірка Введення",
+  "secure_coding": "Безпечне Кодування",
+  "data_protection": "Захист Даних",
+
+  "commercial_grade": "Комерційний Рівень",
+  "enterprise_ready": "Готовий для Підприємства",
+  "production_quality": "Якість Виробництва",
+  "market_ready": "Готовий до Ринку",
+
+  "advanced_features": "Розширені Функції",
+  "ai_powered": "На базі ШІ",
+  "cloud_ready": "Готовий для Хмари",
+  "scalable_architecture": "Масштабована Архітектура",
+
+  "documentation": "Документація",
+  "user_guide": "Керівництво Користувача",
+  "api_reference": "Довідка API",
+  "installation_guide": "Посібник з Встановлення",
+
+  "testing_suite": "Набір Тестів",
+  "unit_tests": "Модульні Тести",
+  "integration_tests": "Інтеграційні Тести",
+  "end_to_end_tests": "Наскрізні Тести",
+
+  "deployment": "Розгортання",
+  "packaging": "Пакування",
+  "distribution": "Поширення",
+  "containerization": "Контейнеризація",
+
+  "support": "Підтримка",
+  "maintenance": "Обслуговування",
+  "updates": "Оновлення",
+  "bug_fixes": "Виправлення Помилок"
+}

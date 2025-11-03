@@ -1,0 +1,103 @@
+{
+  "welcome_message": "ยินดีต้อนรับสู่ Tumblr Image Collector",
+  "configuring_application": "กำลังกำหนดค่าแอปพลิเคชัน...",
+  "initialization_complete": "การเริ่มต้นเสร็จสมบูรณ์",
+  "starting_download": "เริ่มกระบวนการดาวน์โหลด...",
+  "download_complete": "ดาวน์โหลดเสร็จสิ้น",
+  "error_occurred": "เกิดข้อผิดพลาด",
+  "rate_limit_exceeded": "เกินขีดจำกัดอัตรา",
+  "waiting_for_resume": "กำลังรอเพื่อดำเนินการต่อ...",
+
+  "enter_consumer_key": "ป้อน Tumblr Consumer Key ของคุณ",
+  "enter_consumer_secret": "ป้อน Tumblr Consumer Secret ของคุณ",
+  "enter_blog_name": "ป้อนชื่อบล็อกเพื่อดาวน์โหลด",
+  "select_output_directory": "เลือกไดเรกทอรีเอาท์พุท",
+  "configuration_saved": "บันทึกการกำหนดค่าเรียบร้อยแล้ว",
+
+  "invalid_input": "อินพุตไม่ถูกต้อง",
+  "file_not_found": "ไม่พบไฟล์",
+  "permission_denied": "การอนุญาตถูกปฏิเสธ",
+  "network_error": "ข้อผิดพลาดเครือข่าย",
+  "api_error": "ข้อผิดพลาด API",
+
+  "download_statistics": "สถิติการดาวน์โหลด",
+  "total_downloads": "ดาวน์โหลดทั้งหมด",
+  "successful_downloads": "ดาวน์โหลดสำเร็จ",
+  "failed_downloads": "ดาวน์โหลดล้มเหลว",
+  "skipped_duplicates": "ข้ามรายการซ้ำ",
+  "success_rate": "อัตราความสำเร็จ",
+
+  "press_enter_to_continue": "กด Enter เพื่อดำเนินการต่อ...",
+  "confirm_action": "ยืนยันการดำเนินการนี้",
+  "select_option": "เลือกตัวเลือก",
+
+  "creating_directory": "กำลังสร้างไดเรกทอรี",
+  "saving_file": "กำลังบันทึกไฟล์",
+  "file_saved": "บันทึกไฟล์แล้ว",
+  "exporting_metadata": "กำลังส่งออกเมทาดาทา",
+
+  "processing_image": "กำลังประมวลผลรูปภาพ",
+  "generating_thumbnail": "กำลังสร้างรูปขนาดย่อ",
+  "analyzing_image": "กำลังวิเคราะห์รูปภาพ",
+  "duplicate_detected": "ตรวจพบรายการซ้ำ",
+
+  "connecting_to_api": "กำลังเชื่อมต่อกับ API",
+  "request_timeout": "หมดเวลาการร้องขอ",
+  "retrying_request": "กำลังลองร้องขอใหม่",
+  "connection_failed": "การเชื่อมต่อล้มเหลว",
+
+  "memory_optimization": "การเพิ่มประสิทธิภาพหน่วยความจำ",
+  "security_hardening": "การเสริมความแข็งแกร่งด้านความปลอดภัย",
+  "internationalization": "การปรับให้เป็นสากล",
+  "performance_improvement": "การปรับปรุงประสิทธิภาพ",
+
+  "initializing_system": "กำลังเริ่มต้นระบบ",
+  "loading_configuration": "กำลังโหลดการกำหนดค่า",
+  "validating_credentials": "กำลังตรวจสอบข้อมูลรับรอง",
+  "preparing_download": "กำลังเตรียมการดาวน์โหลด",
+
+  "image_quality_check": "การตรวจสอบคุณภาพรูปภาพ",
+  "duplicate_detection": "การตรวจจับรายการซ้ำ",
+  "metadata_extraction": "การดึงข้อมูลเมทาดาทา",
+  "batch_processing": "การประมวลผลเป็นชุด",
+
+  "user_interface": "อินเทอร์เฟซผู้ใช้",
+  "progress_display": "การแสดงความคืบหน้า",
+  "error_reporting": "การรายงานข้อผิดพลาด",
+  "logging_system": "ระบบการบันทึก",
+
+  "rate_limiting": "การจำกัดอัตรา",
+  "input_validation": "การตรวจสอบอินพุต",
+  "secure_coding": "การเข้ารหัสที่ปลอดภัย",
+  "data_protection": "การป้องกันข้อมูล",
+
+  "commercial_grade": "เกรดเชิงพาณิชย์",
+  "enterprise_ready": "พร้อมสำหรับองค์กร",
+  "production_quality": "คุณภาพการผลิต",
+  "market_ready": "พร้อมสำหรับตลาด",
+
+  "advanced_features": "คุณสมบัติขั้นสูง",
+  "ai_powered": "ขับเคลื่อนด้วย AI",
+  "cloud_ready": "พร้อมสำหรับคลาวด์",
+  "scalable_architecture": "สถาปัตยกรรมที่ปรับขนาดได้",
+
+  "documentation": "เอกสารประกอบ",
+  "user_guide": "คู่มือผู้ใช้",
+  "api_reference": "การอ้างอิง API",
+  "installation_guide": "คู่มือการติดตั้ง",
+
+  "testing_suite": "ชุดการทดสอบ",
+  "unit_tests": "การทดสอบหน่วย",
+  "integration_tests": "การทดสอบการรวม",
+  "end_to_end_tests": "การทดสอบจากต้นจนจบ",
+
+  "deployment": "การปรับใช้",
+  "packaging": "การบรรจุหีบห่อ",
+  "distribution": "การแจกจ่าย",
+  "containerization": "การทำคอนเทนเนอร์",
+
+  "support": "การสนับสนุน",
+  "maintenance": "การบำรุงรักษา",
+  "updates": "การอัปเดต",
+  "bug_fixes": "การแก้ไขข้อบกพร่อง"
+}

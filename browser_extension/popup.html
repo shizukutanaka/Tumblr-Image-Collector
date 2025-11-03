@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tumblr Image Collector</title>
+    <link rel="stylesheet" href="popup.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Atlassian Design System - Popup Container -->
+    <div class="popup-container">
+        <!-- Header Section -->
+        <div class="popup-header">
+            <div class="header-content">
+                <h1 class="header-title">
+                    <i class="fas fa-images" aria-hidden="true"></i>
+                    Tumblr Collector
+                </h1>
+                <div class="status-indicator status-info" id="statusIndicator">
+                    <span id="statusText">Ready</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Controls Card -->
+        <div class="card main-controls">
+            <div class="card-header">
+                <h2 class="card-title">Actions</h2>
+            </div>
+            <div class="card-content">
+                <div class="button-group">
+                    <button id="scanPage" class="btn btn-primary btn-full">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                        Scan This Page
+                    </button>
+
+                    <button id="downloadAll" class="btn btn-success btn-full" disabled>
+                        <i class="fas fa-download" aria-hidden="true"></i>
+                        Download All Media
+                    </button>
+
+                    <button id="downloadSelected" class="btn btn-warning btn-full" disabled>
+                        <i class="fas fa-check-circle" aria-hidden="true"></i>
+                        Download Selected
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters Card -->
+        <div class="card filters-section">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-filter" aria-hidden="true"></i>
+                    Filters
+                </h2>
+            </div>
+            <div class="card-content">
+                <!-- Media Type Filters -->
+                <div class="form-group">
+                    <label class="form-label">Media Types</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="filterImages" checked>
+                            <span class="checkbox-label">Images</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="filterVideos" checked>
+                            <span class="checkbox-label">Videos</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="filterGifs" checked>
+                            <span class="checkbox-label">GIFs</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Resolution Filter -->
+                <div class="form-group">
+                    <label class="form-label">Minimum Resolution</label>
+                    <div class="resolution-inputs">
+                        <input type="number" id="minWidth" class="form-field" placeholder="Width" min="0">
+                        <span class="resolution-separator">×</span>
+                        <input type="number" id="minHeight" class="form-field" placeholder="Height" min="0">
+                    </div>
+                </div>
+
+                <!-- Additional Options -->
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="skipDuplicates" checked>
+                            <span class="checkbox-label">Skip duplicates</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Media List Card -->
+        <div class="card media-section">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-list" aria-hidden="true"></i>
+                    Found Media (<span id="mediaCount">0</span>)
+                </h2>
+            </div>
+            <div class="card-content">
+                <div id="mediaContainer" class="media-container" role="list" aria-label="Found media items">
+                    <!-- Media items will be inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Section -->
+        <div class="progress-section" id="progressSection" style="display: none;" role="status" aria-live="polite">
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-info">
+                    <span id="progressText" class="progress-text">Downloading...</span>
+                    <span id="progressStats" class="progress-stats">(0/0)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="footer-actions">
+            <div class="button-group">
+                <button id="clearList" class="btn btn-secondary">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                    Clear List
+                </button>
+                <button id="openOptions" class="btn btn-secondary">
+                    <i class="fas fa-cog" aria-hidden="true"></i>
+                    Options
+                </button>
+            </div>
+        </div>
+
+        <!-- Activity Log (Collapsible) -->
+        <details class="log-section">
+            <summary class="log-toggle">
+                <i class="fas fa-history" aria-hidden="true"></i>
+                Activity Log
+            </summary>
+            <div id="logContainer" class="log-container" role="log" aria-live="polite" aria-label="Activity log">
+                <!-- Log entries will be inserted here -->
+            </div>
+        </details>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

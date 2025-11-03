@@ -1,0 +1,103 @@
+{
+  "welcome_message": "ברוך הבא ל-Tumblr Image Collector",
+  "configuring_application": "מגדיר יישום...",
+  "initialization_complete": "האתחול הושלם",
+  "starting_download": "מתחיל תהליך הורדה...",
+  "download_complete": "ההורדה הושלמה",
+  "error_occurred": "אירעה שגיאה",
+  "rate_limit_exceeded": "חרגת ממגבלת המהירות",
+  "waiting_for_resume": "מחכה לחידוש...",
+
+  "enter_consumer_key": "הזן את מפתח הצרכן של Tumblr",
+  "enter_consumer_secret": "הזן את סוד הצרכן של Tumblr",
+  "enter_blog_name": "הזן את שם הבלוג להורדה",
+  "select_output_directory": "בחר תיקיית פלט",
+  "configuration_saved": "התצורה נשמרה בהצלחה",
+
+  "invalid_input": "קלט לא תקין",
+  "file_not_found": "הקובץ לא נמצא",
+  "permission_denied": "ההרשאה נדחתה",
+  "network_error": "שגיאת רשת",
+  "api_error": "שגיאת API",
+
+  "download_statistics": "סטטיסטיקות הורדה",
+  "total_downloads": "סך כל ההורדות",
+  "successful_downloads": "הורדות מוצלחות",
+  "failed_downloads": "הורדות כושלות",
+  "skipped_duplicates": "דילוג על כפילויות",
+  "success_rate": "שיעור הצלחה",
+
+  "press_enter_to_continue": "לחץ Enter כדי להמשיך...",
+  "confirm_action": "אשר פעולה זו",
+  "select_option": "בחר אפשרות",
+
+  "creating_directory": "יוצר תיקייה",
+  "saving_file": "שומר קובץ",
+  "file_saved": "הקובץ נשמר",
+  "exporting_metadata": "מייצא מטה-נתונים",
+
+  "processing_image": "מעבד תמונה",
+  "generating_thumbnail": "יוצר תמונה ממוזערת",
+  "analyzing_image": "מנתח תמונה",
+  "duplicate_detected": "זוהה כפילות",
+
+  "connecting_to_api": "מתחבר ל-API",
+  "request_timeout": "תם הזמן הקצוב לבקשה",
+  "retrying_request": "מנסה שוב בקשה",
+  "connection_failed": "החיבור נכשל",
+
+  "memory_optimization": "אופטימיזציית זיכרון",
+  "security_hardening": "חיזוק אבטחה",
+  "internationalization": "בינאום",
+  "performance_improvement": "שיפור ביצועים",
+
+  "initializing_system": "מאתחל מערכת",
+  "loading_configuration": "טוען תצורה",
+  "validating_credentials": "מאמת אישורים",
+  "preparing_download": "מכין הורדה",
+
+  "image_quality_check": "בדיקת איכות תמונה",
+  "duplicate_detection": "זיהוי כפילויות",
+  "metadata_extraction": "חילוץ מטה-נתונים",
+  "batch_processing": "עיבוד אצווה",
+
+  "user_interface": "ממשק משתמש",
+  "progress_display": "תצוגת התקדמות",
+  "error_reporting": "דיווח שגיאות",
+  "logging_system": "מערכת רישום",
+
+  "rate_limiting": "הגבלת קצב",
+  "input_validation": "אימות קלט",
+  "secure_coding": "קידוד בטוח",
+  "data_protection": "הגנת נתונים",
+
+  "commercial_grade": "דרגה מסחרית",
+  "enterprise_ready": "מוכן לארגון",
+  "production_quality": "איכות ייצור",
+  "market_ready": "מוכן לשוק",
+
+  "advanced_features": "תכונות מתקדמות",
+  "ai_powered": "מופעל על ידי AI",
+  "cloud_ready": "מוכן לענן",
+  "scalable_architecture": "ארכיטקטורה ניתנת להרחבה",
+
+  "documentation": "תיעוד",
+  "user_guide": "מדריך משתמש",
+  "api_reference": "הפניה API",
+  "installation_guide": "מדריך התקנה",
+
+  "testing_suite": "חבילת בדיקות",
+  "unit_tests": "בדיקות יחידה",
+  "integration_tests": "בדיקות אינטגרציה",
+  "end_to_end_tests": "בדיקות מקצה לקצה",
+
+  "deployment": "פריסה",
+  "packaging": "אריזה",
+  "distribution": "הפצה",
+  "containerization": "קונטיינריזציה",
+
+  "support": "תמיכה",
+  "maintenance": "תחזוקה",
+  "updates": "עדכונים",
+  "bug_fixes": "תיקוני באגים"
+}

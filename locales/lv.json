@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Laipni lūdzam Tumblr Image Collector",
+  "configuring_application": "Konfigurē lietojumprogrammu...",
+  "initialization_complete": "Inicializēšana pabeigta",
+  "starting_download": "Sāk lejupielādes procesu...",
+  "download_complete": "Lejupielāde pabeigta",
+  "error_occurred": "Radās kļūda",
+  "rate_limit_exceeded": "Pārsniegts ātruma limits",
+  "waiting_for_resume": "Gaida atsākšanu...",
+
+  "enter_consumer_key": "Ievadiet savu Tumblr Consumer Key",
+  "enter_consumer_secret": "Ievadiet savu Tumblr Consumer Secret",
+  "enter_blog_name": "Ievadiet bloga nosaukumu lejupielādei",
+  "select_output_directory": "Izvēlieties izvades direktoriju",
+  "configuration_saved": "Konfigurācija veiksmīgi saglabāta",
+
+  "invalid_input": "Nederīga ievade",
+  "file_not_found": "Fails nav atrasts",
+  "permission_denied": "Atļauja liegta",
+  "network_error": "Tīkla kļūda",
+  "api_error": "API kļūda",
+
+  "download_statistics": "Lejupielādes Statistika",
+  "total_downloads": "Kopējās Lejupielādes",
+  "successful_downloads": "Veiksmīgas Lejupielādes",
+  "failed_downloads": "Neveiksmīgas Lejupielādes",
+  "skipped_duplicates": "Izlaisti Dublikāti",
+  "success_rate": "Veiksmes Līmenis",
+
+  "press_enter_to_continue": "Nospiediet Enter, lai turpinātu...",
+  "confirm_action": "Apstipriniet šo darbību",
+  "select_option": "Izvēlieties opciju",
+
+  "creating_directory": "Direktorijas izveide",
+  "saving_file": "Faila saglabāšana",
+  "file_saved": "Fails saglabāts",
+  "exporting_metadata": "Metadatu eksportēšana",
+
+  "processing_image": "Attēla apstrāde",
+  "generating_thumbnail": "Sīktēla ģenerēšana",
+  "analyzing_image": "Attēla analīze",
+  "duplicate_detected": "Dublikāts atklāts",
+
+  "connecting_to_api": "Savienojums ar API",
+  "request_timeout": "Pieprasījuma noildze",
+  "retrying_request": "Pieprasījuma atkārtošana",
+  "connection_failed": "Savienojums neizdevās",
+
+  "memory_optimization": "Atmiņas optimizācija",
+  "security_hardening": "Drošības stiprināšana",
+  "internationalization": "Internacionalizācija",
+  "performance_improvement": "Veiktspējas uzlabošana",
+
+  "initializing_system": "Sistēmas inicializēšana",
+  "loading_configuration": "Konfigurācijas ielāde",
+  "validating_credentials": "Akreditācijas datu pārbaude",
+  "preparing_download": "Lejupielādes sagatavošana",
+
+  "image_quality_check": "Attēla kvalitātes pārbaude",
+  "duplicate_detection": "Dublikātu noteikšana",
+  "metadata_extraction": "Metadatu ieguve",
+  "batch_processing": "Pakešu apstrāde",
+
+  "user_interface": "Lietotāja Saskarne",
+  "progress_display": "Progresa Attēlošana",
+  "error_reporting": "Kļūdu Ziņošana",
+  "logging_system": "Žurnalēšanas Sistēma",
+
+  "rate_limiting": "Ātruma Ierobežojums",
+  "input_validation": "Ievades Pārbaude",
+  "secure_coding": "Droša Kodēšana",
+  "data_protection": "Datu Aizsardzība",
+
+  "commercial_grade": "Komerciālā Kvalitāte",
+  "enterprise_ready": "Uzņēmuma Gatavs",
+  "production_quality": "Ražošanas Kvalitāte",
+  "market_ready": "Tirgus Gatavs",
+
+  "advanced_features": "Papildu Funkcijas",
+  "ai_powered": "AI Darbināts",
+  "cloud_ready": "Mākoņa Gatavs",
+  "scalable_architecture": "Mērogojama Arhitektūra",
+
+  "documentation": "Dokumentācija",
+  "user_guide": "Lietotāja Ceļvedis",
+  "api_reference": "API Atsauce",
+  "installation_guide": "Uzstādīšanas Ceļvedis",
+
+  "testing_suite": "Testu Komplekts",
+  "unit_tests": "Vienības Testi",
+  "integration_tests": "Integrācijas Testi",
+  "end_to_end_tests": "End-to-End Testi",
+
+  "deployment": "Izvietošana",
+  "packaging": "Iepakošana",
+  "distribution": "Izplatīšana",
+  "containerization": "Konteinerizēšana",
+
+  "support": "Atbalsts",
+  "maintenance": "Apkope",
+  "updates": "Atjauninājumi",
+  "bug_fixes": "Kļūdu Labojumi"
+}

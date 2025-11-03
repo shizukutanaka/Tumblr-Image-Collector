@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Karibu kwenye Tumblr Image Collector",
+  "configuring_application": "Inasanidi programu...",
+  "initialization_complete": "Kuanzisha kumekamilika",
+  "starting_download": "Inaanza mchakato wa kupakua...",
+  "download_complete": "Upakuaji umekamilika",
+  "error_occurred": "Kosa lilitokea",
+  "rate_limit_exceeded": "Kikomo cha kasi kilizidiwa",
+  "waiting_for_resume": "Inasubiri kuendelea...",
+
+  "enter_consumer_key": "Ingiza Tumblr Consumer Key yako",
+  "enter_consumer_secret": "Ingiza Tumblr Consumer Secret yako",
+  "enter_blog_name": "Ingiza jina la blogu ya kupakua",
+  "select_output_directory": "Chagua saraka ya pato",
+  "configuration_saved": "Usanidi umehifadhiwa kwa mafanikio",
+
+  "invalid_input": "Ingizo batili",
+  "file_not_found": "Faili haikupatikana",
+  "permission_denied": "Ruhusa ilikataliwa",
+  "network_error": "Kosa la mtandao",
+  "api_error": "Kosa la API",
+
+  "download_statistics": "Takwimu za Upakuaji",
+  "total_downloads": "Jumla ya Upakuaji",
+  "successful_downloads": "Upakuaji wa Mafanikio",
+  "failed_downloads": "Upakuaji wa Kushindwa",
+  "skipped_duplicates": "Nakala Zilizorukwa",
+  "success_rate": "Kiwango cha Mafanikio",
+
+  "press_enter_to_continue": "Bonyeza Enter kuendelea...",
+  "confirm_action": "Thibitisha kitendo hiki",
+  "select_option": "Chagua chaguo",
+
+  "creating_directory": "Inaunda saraka",
+  "saving_file": "Inahifadhi faili",
+  "file_saved": "Faili imehifadhiwa",
+  "exporting_metadata": "Inatumia metadata",
+
+  "processing_image": "Inachakata picha",
+  "generating_thumbnail": "Inatengeneza picha ndogo",
+  "analyzing_image": "Inachanganua picha",
+  "duplicate_detected": "Nakala iligunduliwa",
+
+  "connecting_to_api": "Inaunganisha na API",
+  "request_timeout": "Muda wa ombi uliisha",
+  "retrying_request": "Inajaribu ombi tena",
+  "connection_failed": "Muunganisho ulishindwa",
+
+  "memory_optimization": "Uboreshaji wa kumbukumbu",
+  "security_hardening": "Kuimarisha usalama",
+  "internationalization": "Kimataifa",
+  "performance_improvement": "Uboreshaji wa utendaji",
+
+  "initializing_system": "Inaanza mfumo",
+  "loading_configuration": "Inapakia usanidi",
+  "validating_credentials": "Inathibitisha kitambulisho",
+  "preparing_download": "Inatayarisha upakuaji",
+
+  "image_quality_check": "Ukaguzi wa ubora wa picha",
+  "duplicate_detection": "Ugunduzi wa nakala",
+  "metadata_extraction": "Uchimbuaji wa metadata",
+  "batch_processing": "Uchakataji wa kundi",
+
+  "user_interface": "Kiolesura cha Mtumiaji",
+  "progress_display": "Onyesho la Maendeleo",
+  "error_reporting": "Taarifa ya Makosa",
+  "logging_system": "Mfumo wa Kumbukumbu",
+
+  "rate_limiting": "Kikomo cha Kasi",
+  "input_validation": "Uthibitishaji wa Ingizo",
+  "secure_coding": "Usimbaji Salama",
+  "data_protection": "Ulinzi wa Data",
+
+  "commercial_grade": "Daraja la Biashara",
+  "enterprise_ready": "Tayari kwa Biashara",
+  "production_quality": "Ubora wa Uzalishaji",
+  "market_ready": "Tayari kwa Soko",
+
+  "advanced_features": "Vipengele vya Juu",
+  "ai_powered": "Inaendeshwa na AI",
+  "cloud_ready": "Tayari kwa Wingu",
+  "scalable_architecture": "Usanifu Unaoweza Kupanuka",
+
+  "documentation": "Nyaraka",
+  "user_guide": "Mwongozo wa Mtumiaji",
+  "api_reference": "Rejeleo la API",
+  "installation_guide": "Mwongozo wa Usakinishaji",
+
+  "testing_suite": "Seti ya Majaribio",
+  "unit_tests": "Majibu ya Kitengo",
+  "integration_tests": "Majibu ya Ujumuishaji",
+  "end_to_end_tests": "Majibu ya Mwisho hadi Mwisho",
+
+  "deployment": "Usambazaji",
+  "packaging": "Upakiaji",
+  "distribution": "Usambazaji",
+  "containerization": "Uwekaji Kontena",
+
+  "support": "Msaada",
+  "maintenance": "Matengenezo",
+  "updates": "Sasisho",
+  "bug_fixes": "Marekebisho ya Hitilafu"
+}

@@ -1,0 +1,72 @@
+from pathlib import Path
+
+# Crash Report Settings
+CRASH_REPORT_DIR = Path(__file__).parent.parent / 'crash_reports'
+CRASH_REPORT_DIR.mkdir(exist_ok=True)
+
+# Default Proxy Configuration
+DEFAULT_PROXY_CONFIG = {
+    'type': None,  # 'http', 'socks4', 'socks5'
+    'host': None,
+    'port': None,
+    'username': None,
+    'password': None
+}
+
+# --- General Constants ---
+DEFAULT_CONFIG_FILE = "config.json"
+DEFAULT_LOG_FILE = "tumblr_collector.log"
+
+# --- Network and Processing Constants ---
+DEFAULT_TIMEOUT_SECONDS = 30
+DEFAULT_RETRY_ATTEMPTS = 3
+DEFAULT_BACKOFF_FACTOR = 0.5
+MAX_DIMENSION_RESIZE = 2048
+EXPONENTIAL_BACKOFF_BASE = 2
+DEFAULT_CHUNK_SIZE = 8192
+
+# --- Image Processing Constants ---
+MIN_IMAGE_DIMENSION = 500
+MIN_RESOLUTION_WIDTH = 300
+MIN_RESOLUTION_HEIGHT = 300
+MAX_FILE_SIZE_MB = 10
+DEFAULT_THUMBNAIL_SIZE = (200, 200)
+DEFAULT_QUALITY = 85
+MAX_METADATA_SIZE_BYTES = 1024 * 1024  # 1MB guardrail
+
+# --- AI Model Constants ---
+DEFAULT_MODEL_INPUT_SIZE = 224
+DEFAULT_DENSE_LAYER_SIZE = 1024
+DEFAULT_EPOCHS = 50
+DEFAULT_BATCH_SIZE = 32
+
+# --- Image Analysis Constants ---
+CANNY_LOWER_THRESHOLD = 100
+CANNY_UPPER_THRESHOLD = 200
+BLUR_THRESHOLD = 50
+FACE_MIN_SIZE = 30
+FACE_MAX_SIZE = 300
+DEFAULT_COLOR_CLUSTERS = 3
+QUALITY_THRESHOLD_LOW = 0.3
+BRIGHTNESS_THRESHOLD_LOW = 0.3
+CONFIDENCE_THRESHOLD = 0.5
+IOU_THRESHOLD = 0.3
+RESIZE_THRESHOLD = 300
+SCALE_FACTOR_FACE = 1.1
+MIN_NEIGHBORS_FACE = 3
+
+# --- Cache and Memory Constants ---
+DEFAULT_CACHE_SIZE_MB = 500
+CLEANUP_THRESHOLD = 0.8
+MEMORY_CHUNK_SIZE = 1048576  # 1024*1024
+BYTES_TO_MB_DIVISOR = 1048576  # 1024*1024
+
+# --- Date and Time Constants ---
+DEFAULT_DAYS_BACK = 30
+DEFAULT_PAGE_LIMIT = 50
+SOBEL_KERNEL_SIZE = 3
+
+# --- Color Analysis Constants ---
+COLOR_TOLERANCE = 30
+HISTOGRAM_BINS = 256
+COLOR_HISTOGRAM_BINS = 16

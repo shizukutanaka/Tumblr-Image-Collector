@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Καλώς ήρθατε στο Tumblr Image Collector",
+  "configuring_application": "Διαμόρφωση εφαρμογής...",
+  "initialization_complete": "Η αρχικοποίηση ολοκληρώθηκε",
+  "starting_download": "Εκκίνηση διαδικασίας λήψης...",
+  "download_complete": "Η λήψη ολοκληρώθηκε",
+  "error_occurred": "Προέκυψε σφάλμα",
+  "rate_limit_exceeded": "Υπέρβαση ορίου ταχύτητας",
+  "waiting_for_resume": "Αναμονή για συνέχιση...",
+
+  "enter_consumer_key": "Εισάγετε το Tumblr Consumer Key σας",
+  "enter_consumer_secret": "Εισάγετε το Tumblr Consumer Secret σας",
+  "enter_blog_name": "Εισάγετε το όνομα του blog για λήψη",
+  "select_output_directory": "Επιλέξτε κατάλογο εξόδου",
+  "configuration_saved": "Η διαμόρφωση αποθηκεύτηκε επιτυχώς",
+
+  "invalid_input": "Μη έγκυρη εισαγωγή",
+  "file_not_found": "Το αρχείο δεν βρέθηκε",
+  "permission_denied": "Η άδεια απορρίφθηκε",
+  "network_error": "Σφάλμα δικτύου",
+  "api_error": "Σφάλμα API",
+
+  "download_statistics": "Στατιστικά Λήψης",
+  "total_downloads": "Σύνολο Λήψεων",
+  "successful_downloads": "Επιτυχείς Λήψεις",
+  "failed_downloads": "Αποτυχημένες Λήψεις",
+  "skipped_duplicates": "Παράλειψη Αντιγράφων",
+  "success_rate": "Ποσοστό Επιτυχίας",
+
+  "press_enter_to_continue": "Πατήστε Enter για συνέχεια...",
+  "confirm_action": "Επιβεβαιώστε αυτή την ενέργεια",
+  "select_option": "Επιλέξτε μια επιλογή",
+
+  "creating_directory": "Δημιουργία καταλόγου",
+  "saving_file": "Αποθήκευση αρχείου",
+  "file_saved": "Το αρχείο αποθηκεύτηκε",
+  "exporting_metadata": "Εξαγωγή μεταδεδομένων",
+
+  "processing_image": "Επεξεργασία εικόνας",
+  "generating_thumbnail": "Δημιουργία μικρογραφίας",
+  "analyzing_image": "Ανάλυση εικόνας",
+  "duplicate_detected": "Εντοπίστηκε αντίγραφο",
+
+  "connecting_to_api": "Σύνδεση με API",
+  "request_timeout": "Λήξη χρονικού ορίου αιτήματος",
+  "retrying_request": "Επανάληψη αιτήματος",
+  "connection_failed": "Η σύνδεση απέτυχε",
+
+  "memory_optimization": "Βελτιστοποίηση μνήμης",
+  "security_hardening": "Ενίσχυση ασφαλείας",
+  "internationalization": "Διεθνοποίηση",
+  "performance_improvement": "Βελτίωση επιδόσεων",
+
+  "initializing_system": "Εκκίνηση συστήματος",
+  "loading_configuration": "Φόρτωση διαμόρφωσης",
+  "validating_credentials": "Επικύρωση διαπιστευτηρίων",
+  "preparing_download": "Προετοιμασία λήψης",
+
+  "image_quality_check": "Έλεγχος ποιότητας εικόνας",
+  "duplicate_detection": "Ανίχνευση αντιγράφων",
+  "metadata_extraction": "Εξαγωγή μεταδεδομένων",
+  "batch_processing": "Μαζική επεξεργασία",
+
+  "user_interface": "Περιβάλλον Χρήστη",
+  "progress_display": "Εμφάνιση Προόδου",
+  "error_reporting": "Αναφορά Σφαλμάτων",
+  "logging_system": "Σύστημα Καταγραφής",
+
+  "rate_limiting": "Περιορισμός Ταχύτητας",
+  "input_validation": "Επικύρωση Εισόδου",
+  "secure_coding": "Ασφαλής Προγραμματισμός",
+  "data_protection": "Προστασία Δεδομένων",
+
+  "commercial_grade": "Εμπορική Ποιότητα",
+  "enterprise_ready": "Έτοιμο για Επιχείρηση",
+  "production_quality": "Ποιότητα Παραγωγής",
+  "market_ready": "Έτοιμο για Αγορά",
+
+  "advanced_features": "Προηγμένες Λειτουργίες",
+  "ai_powered": "Υποστηριζόμενο από AI",
+  "cloud_ready": "Έτοιμο για Cloud",
+  "scalable_architecture": "Κλιμακούμενη Αρχιτεκτονική",
+
+  "documentation": "Τεκμηρίωση",
+  "user_guide": "Οδηγός Χρήστη",
+  "api_reference": "Αναφορά API",
+  "installation_guide": "Οδηγός Εγκατάστασης",
+
+  "testing_suite": "Σουίτα Δοκιμών",
+  "unit_tests": "Μονάδα Δοκιμών",
+  "integration_tests": "Δοκιμές Ενοποίησης",
+  "end_to_end_tests": "Δοκιμές Από Άκρο σε Άκρο",
+
+  "deployment": "Ανάπτυξη",
+  "packaging": "Συσκευασία",
+  "distribution": "Διανομή",
+  "containerization": "Περιέκτες",
+
+  "support": "Υποστήριξη",
+  "maintenance": "Συντήρηση",
+  "updates": "Ενημερώσεις",
+  "bug_fixes": "Διορθώσεις Σφαλμάτων"
+}

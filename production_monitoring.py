@@ -105,6 +105,172 @@ class MetricsCollector:
             )
             self._metrics[name].append(snapshot)
 
+    def record_download_metrics(self, blog_name: str, download_time: float,
+                               file_size: int, success: bool, error_type: str = None):
+        """Record detailed download metrics"""
+        tags = {
+            "blog": blog_name,
+            "success": "true" if success else "false",
+            "file_size_mb": str(file_size / (1024 * 1024))
+        }
+
+        if not success and error_type:
+            tags["error_type"] = error_type
+
+        self.counter("downloads.total", 1, tags)
+        self.histogram("download.duration", download_time, tags)
+        self.gauge("download.file_size", file_size, tags)
+
+        if success:
+            self.counter("downloads.success", 1, tags)
+        else:
+            self.counter("downloads.failure", 1, tags)
+
+    def record_system_metrics(self):
+        """Record comprehensive system metrics"""
+        try:
+            # CPU metrics
+            cpu_percent = psutil.cpu_percent(interval=1)
+            cpu_freq = psutil.cpu_freq()
+            self.gauge("system.cpu.percent", cpu_percent)
+            if cpu_freq:
+                self.gauge("system.cpu.frequency", cpu_freq.current)
+
+            # Memory metrics
+            memory = psutil.virtual_memory()
+            self.gauge("system.memory.percent", memory.percent)
+            self.gauge("system.memory.used_gb", memory.used / (1024**3))
+            self.gauge("system.memory.available_gb", memory.available / (1024**3))
+
+            # Disk metrics
+            disk = psutil.disk_usage('/')
+            self.gauge("system.disk.percent", disk.percent)
+            self.gauge("system.disk.used_gb", disk.used / (1024**3))
+            self.gauge("system.disk.free_gb", disk.free / (1024**3))
+
+            # Network metrics
+            net = psutil.net_io_counters()
+            self.counter("system.network.bytes_sent", net.bytes_sent)
+            self.counter("system.network.bytes_recv", net.bytes_recv)
+
+            # Process metrics
+            process = psutil.Process()
+            self.gauge("process.memory.rss_mb", process.memory_info().rss / (1024**2))
+            self.gauge("process.cpu.percent", process.cpu_percent())
+
+        except Exception as e:
+            logger.error(f"Failed to record system metrics: {e}")
+
+    def record_cache_metrics(self, cache_hits: int, cache_misses: int, cache_size: int):
+        """Record cache performance metrics"""
+        total_requests = cache_hits + cache_misses
+        if total_requests > 0:
+            hit_rate = cache_hits / total_requests
+        else:
+            hit_rate = 0.0
+
+        self.counter("cache.requests", total_requests)
+        self.counter("cache.hits", cache_hits)
+        self.counter("cache.misses", cache_misses)
+        self.gauge("cache.hit_rate", hit_rate)
+        self.gauge("cache.size", cache_size)
+
+    def record_security_metrics(self, event_type: str, severity: str, details: Dict = None):
+        """Record security-related metrics"""
+        tags = {
+            "event_type": event_type,
+            "severity": severity
+        }
+
+        if details:
+            for key, value in details.items():
+                tags[f"detail_{key}"] = str(value)
+
+        self.counter("security.events", 1, tags)
+
+    def record_download_metrics(self, blog_name: str, download_time: float,
+                               file_size: int, success: bool, error_type: str = None):
+        """Record detailed download metrics"""
+        tags = {
+            "blog": blog_name,
+            "success": "true" if success else "false",
+            "file_size_mb": str(file_size / (1024 * 1024))
+        }
+
+        if not success and error_type:
+            tags["error_type"] = error_type
+
+        self.counter("downloads.total", 1, tags)
+        self.histogram("download.duration", download_time, tags)
+        self.gauge("download.file_size", file_size, tags)
+
+        if success:
+            self.counter("downloads.success", 1, tags)
+        else:
+            self.counter("downloads.failure", 1, tags)
+
+    def record_system_metrics(self):
+        """Record comprehensive system metrics"""
+        try:
+            # CPU metrics
+            cpu_percent = psutil.cpu_percent(interval=1)
+            cpu_freq = psutil.cpu_freq()
+            self.gauge("system.cpu.percent", cpu_percent)
+            if cpu_freq:
+                self.gauge("system.cpu.frequency", cpu_freq.current)
+
+            # Memory metrics
+            memory = psutil.virtual_memory()
+            self.gauge("system.memory.percent", memory.percent)
+            self.gauge("system.memory.used_gb", memory.used / (1024**3))
+            self.gauge("system.memory.available_gb", memory.available / (1024**3))
+
+            # Disk metrics
+            disk = psutil.disk_usage('/')
+            self.gauge("system.disk.percent", disk.percent)
+            self.gauge("system.disk.used_gb", disk.used / (1024**3))
+            self.gauge("system.disk.free_gb", disk.free / (1024**3))
+
+            # Network metrics
+            net = psutil.net_io_counters()
+            self.counter("system.network.bytes_sent", net.bytes_sent)
+            self.counter("system.network.bytes_recv", net.bytes_recv)
+
+            # Process metrics
+            process = psutil.Process()
+            self.gauge("process.memory.rss_mb", process.memory_info().rss / (1024**2))
+            self.gauge("process.cpu.percent", process.cpu_percent())
+
+        except Exception as e:
+            logger.error(f"Failed to record system metrics: {e}")
+
+    def record_cache_metrics(self, cache_hits: int, cache_misses: int, cache_size: int):
+        """Record cache performance metrics"""
+        total_requests = cache_hits + cache_misses
+        if total_requests > 0:
+            hit_rate = cache_hits / total_requests
+        else:
+            hit_rate = 0.0
+
+        self.counter("cache.requests", total_requests)
+        self.counter("cache.hits", cache_hits)
+        self.counter("cache.misses", cache_misses)
+        self.gauge("cache.hit_rate", hit_rate)
+        self.gauge("cache.size", cache_size)
+
+    def record_security_metrics(self, event_type: str, severity: str, details: Dict = None):
+        """Record security-related metrics"""
+        tags = {
+            "event_type": event_type,
+            "severity": severity
+        }
+
+        if details:
+            for key, value in details.items():
+                tags[f"detail_{key}"] = str(value)
+
+        self.counter("security.events", 1, tags)
+
     def get_metric_stats(self, name: str, time_window_seconds: int = 3600) -> Dict[str, Any]:
         """Get statistics for metric"""
         cutoff_time = time.time() - time_window_seconds

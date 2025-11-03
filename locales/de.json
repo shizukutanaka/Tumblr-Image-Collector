@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Willkommen bei Tumblr Image Collector",
+  "configuring_application": "Anwendung wird konfiguriert...",
+  "initialization_complete": "Initialisierung abgeschlossen",
+  "starting_download": "Download-Prozess wird gestartet...",
+  "download_complete": "Download abgeschlossen",
+  "error_occurred": "Ein Fehler ist aufgetreten",
+  "rate_limit_exceeded": "Rate-Limit überschritten",
+  "waiting_for_resume": "Warten auf Fortsetzung...",
+
+  "enter_consumer_key": "Geben Sie Ihren Tumblr Consumer Key ein",
+  "enter_consumer_secret": "Geben Sie Ihr Tumblr Consumer Secret ein",
+  "enter_blog_name": "Geben Sie den Blog-Namen zum Download ein",
+  "select_output_directory": "Ausgabeverzeichnis auswählen",
+  "configuration_saved": "Konfiguration erfolgreich gespeichert",
+
+  "invalid_input": "Ungültige Eingabe",
+  "file_not_found": "Datei nicht gefunden",
+  "permission_denied": "Berechtigung verweigert",
+  "network_error": "Netzwerkfehler",
+  "api_error": "API-Fehler",
+
+  "download_statistics": "Download-Statistiken",
+  "total_downloads": "Downloads Gesamt",
+  "successful_downloads": "Erfolgreiche Downloads",
+  "failed_downloads": "Fehlgeschlagene Downloads",
+  "skipped_duplicates": "Übersprungene Duplikate",
+  "success_rate": "Erfolgsrate",
+
+  "press_enter_to_continue": "Drücken Sie Enter zum Fortfahren...",
+  "confirm_action": "Diese Aktion bestätigen",
+  "select_option": "Option auswählen",
+
+  "creating_directory": "Verzeichnis wird erstellt",
+  "saving_file": "Datei wird gespeichert",
+  "file_saved": "Datei gespeichert",
+  "exporting_metadata": "Metadaten werden exportiert",
+
+  "processing_image": "Bild wird verarbeitet",
+  "generating_thumbnail": "Vorschaubild wird generiert",
+  "analyzing_image": "Bild wird analysiert",
+  "duplicate_detected": "Duplikat erkannt",
+
+  "connecting_to_api": "Verbindung zu API",
+  "request_timeout": "Anfrage-Timeout",
+  "retrying_request": "Anfrage wird wiederholt",
+  "connection_failed": "Verbindung fehlgeschlagen",
+
+  "memory_optimization": "Speicheroptimierung",
+  "security_hardening": "Sicherheitsverstärkung",
+  "internationalization": "Internationalisierung",
+  "performance_improvement": "Leistungsverbesserung",
+
+  "initializing_system": "System wird initialisiert",
+  "loading_configuration": "Konfiguration wird geladen",
+  "validating_credentials": "Anmeldedaten werden validiert",
+  "preparing_download": "Download wird vorbereitet",
+
+  "image_quality_check": "Bildqualitätsprüfung",
+  "duplicate_detection": "Duplikaterkennung",
+  "metadata_extraction": "Metadaten-Extraktion",
+  "batch_processing": "Stapelbetrieb",
+
+  "user_interface": "Benutzeroberfläche",
+  "progress_display": "Fortschrittsanzeige",
+  "error_reporting": "Fehlerberichterstattung",
+  "logging_system": "Protokollierungssystem",
+
+  "rate_limiting": "Rate-Beschränkung",
+  "input_validation": "Eingabevalidierung",
+  "secure_coding": "Sichere Programmierung",
+  "data_protection": "Datenschutz",
+
+  "commercial_grade": "Handelsqualität",
+  "enterprise_ready": "Unternehmensbereit",
+  "production_quality": "Produktionsqualität",
+  "market_ready": "Marktbereit",
+
+  "advanced_features": "Erweiterte Funktionen",
+  "ai_powered": "KI-gestützt",
+  "cloud_ready": "Cloud-Bereit",
+  "scalable_architecture": "Skalierbare Architektur",
+
+  "documentation": "Dokumentation",
+  "user_guide": "Benutzerhandbuch",
+  "api_reference": "API-Referenz",
+  "installation_guide": "Installationsanleitung",
+
+  "testing_suite": "Test-Suite",
+  "unit_tests": "Unit-Tests",
+  "integration_tests": "Integrationstests",
+  "end_to_end_tests": "End-to-End-Tests",
+
+  "deployment": "Bereitstellung",
+  "packaging": "Paketierung",
+  "distribution": "Verteilung",
+  "containerization": "Containerisierung",
+
+  "support": "Support",
+  "maintenance": "Wartung",
+  "updates": "Updates",
+  "bug_fixes": "Bug-Fixes"
+}

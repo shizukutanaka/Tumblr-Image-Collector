@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Vítejte v Tumblr Image Collector",
+  "configuring_application": "Konfigurace aplikace...",
+  "initialization_complete": "Inicializace dokončena",
+  "starting_download": "Spuštění procesu stahování...",
+  "download_complete": "Stahování dokončeno",
+  "error_occurred": "Došlo k chybě",
+  "rate_limit_exceeded": "Překročen limit rychlosti",
+  "waiting_for_resume": "Čekání na pokračování...",
+
+  "enter_consumer_key": "Zadejte svůj Tumblr Consumer Key",
+  "enter_consumer_secret": "Zadejte své Tumblr Consumer Secret",
+  "enter_blog_name": "Zadejte název blogu ke stažení",
+  "select_output_directory": "Vyberte výstupní adresář",
+  "configuration_saved": "Konfigurace byla úspěšně uložena",
+
+  "invalid_input": "Neplatný vstup",
+  "file_not_found": "Soubor nebyl nalezen",
+  "permission_denied": "Přístup odepřen",
+  "network_error": "Chyba sítě",
+  "api_error": "Chyba API",
+
+  "download_statistics": "Statistiky Stahování",
+  "total_downloads": "Celkové Stahování",
+  "successful_downloads": "Úspěšné Stahování",
+  "failed_downloads": "Neúspěšné Stahování",
+  "skipped_duplicates": "Přeskočené Duplikáty",
+  "success_rate": "Míra Úspěchu",
+
+  "press_enter_to_continue": "Stiskněte Enter pro pokračování...",
+  "confirm_action": "Potvrďte tuto akci",
+  "select_option": "Vyberte možnost",
+
+  "creating_directory": "Vytváření adresáře",
+  "saving_file": "Ukládání souboru",
+  "file_saved": "Soubor byl uložen",
+  "exporting_metadata": "Exportování metadat",
+
+  "processing_image": "Zpracování obrázku",
+  "generating_thumbnail": "Generování miniatury",
+  "analyzing_image": "Analýza obrázku",
+  "duplicate_detected": "Byl zjištěn duplikát",
+
+  "connecting_to_api": "Připojování k API",
+  "request_timeout": "Vypršení času požadavku",
+  "retrying_request": "Opakování požadavku",
+  "connection_failed": "Připojení se nezdařilo",
+
+  "memory_optimization": "Optimalizace paměti",
+  "security_hardening": "Posílení zabezpečení",
+  "internationalization": "Internacionalizace",
+  "performance_improvement": "Zlepšení výkonu",
+
+  "initializing_system": "Inicializace systému",
+  "loading_configuration": "Načítání konfigurace",
+  "validating_credentials": "Ověřování přihlašovacích údajů",
+  "preparing_download": "Příprava stahování",
+
+  "image_quality_check": "Kontrola kvality obrázku",
+  "duplicate_detection": "Detekce duplikátů",
+  "metadata_extraction": "Extrakce metadat",
+  "batch_processing": "Dávkové zpracování",
+
+  "user_interface": "Uživatelské Rozhraní",
+  "progress_display": "Zobrazení Průběhu",
+  "error_reporting": "Hlášení Chyb",
+  "logging_system": "Systém Logování",
+
+  "rate_limiting": "Omezení Rychlosti",
+  "input_validation": "Validace Vstupu",
+  "secure_coding": "Bezpečné Kódování",
+  "data_protection": "Ochrana Dat",
+
+  "commercial_grade": "Komerční Kvalita",
+  "enterprise_ready": "Připraveno pro Podniky",
+  "production_quality": "Produkční Kvalita",
+  "market_ready": "Připraveno pro Trh",
+
+  "advanced_features": "Pokročilé Funkce",
+  "ai_powered": "Poháněno AI",
+  "cloud_ready": "Připraveno pro Cloud",
+  "scalable_architecture": "Škálovatelná Architektura",
+
+  "documentation": "Dokumentace",
+  "user_guide": "Uživatelská Příručka",
+  "api_reference": "API Reference",
+  "installation_guide": "Instalační Příručka",
+
+  "testing_suite": "Testovací Sada",
+  "unit_tests": "Unit Testy",
+  "integration_tests": "Integrační Testy",
+  "end_to_end_tests": "End-to-End Testy",
+
+  "deployment": "Nasazení",
+  "packaging": "Balení",
+  "distribution": "Distribuce",
+  "containerization": "Kontejnerizace",
+
+  "support": "Podpora",
+  "maintenance": "Údržba",
+  "updates": "Aktualizace",
+  "bug_fixes": "Opravy Chyb"
+}

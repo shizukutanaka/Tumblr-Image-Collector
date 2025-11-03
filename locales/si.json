@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Tumblr Image Collector වෙත සාදරයෙන් පිළිගනිමු",
+  "configuring_application": "අයදුම්පත වින්‍යාසගත කරමින්...",
+  "initialization_complete": "ආරම්භකරණය අවසන්",
+  "starting_download": "බාගැනීමේ ක්‍රියාවලිය ආරම්භ කරමින්...",
+  "download_complete": "බාගැනීම අවසන්",
+  "error_occurred": "දෝෂයක් සිදුවිය",
+  "rate_limit_exceeded": "වේග සීමාව ඉක්මවා ඇත",
+  "waiting_for_resume": "නැවුම් කිරීමට සිටිමින්...",
+
+  "enter_consumer_key": "ඔබගේ Tumblr Consumer Key ඇතුළත් කරන්න",
+  "enter_consumer_secret": "ඔබගේ Tumblr Consumer Secret ඇතුළත් කරන්න",
+  "enter_blog_name": "බාගැනීම සඳහා බ්ලොග් නාමය ඇතුළත් කරන්න",
+  "select_output_directory": "ප්‍රතිදාන නාමාවලිය තෝරන්න",
+  "configuration_saved": "වින්‍යාසය සාර්ථකව සුරකින ලදි",
+
+  "invalid_input": "අවලංගු ආදානය",
+  "file_not_found": "ගොනුව හමු නොවුණි",
+  "permission_denied": "අවසරය ප්‍රතික්ෂේප විය",
+  "network_error": "ජාල දෝෂය",
+  "api_error": "API දෝෂය",
+
+  "download_statistics": "බාගැනීම් සංඛ්‍යාලේඛන",
+  "total_downloads": "මුළු බාගැනීම්",
+  "successful_downloads": "සාර්ථක බාගැනීම්",
+  "failed_downloads": "අසාර්ථක බාගැනීම්",
+  "skipped_duplicates": "අනුපිටපත් මඟ හැරිය",
+  "success_rate": "සාර්ථකතා අනුපාතය",
+
+  "press_enter_to_continue": "ඉදිරියට යාමට Enter ඔබන්න...",
+  "confirm_action": "මෙම ක්‍රියාව තහවුරු කරන්න",
+  "select_option": "අවස්ථාවක් තෝරන්න",
+
+  "creating_directory": "නාමාවලිය සෑදෙමින්",
+  "saving_file": "ගොනුව සුරකිමින්",
+  "file_saved": "ගොනුව සුරකින ලදි",
+  "exporting_metadata": "මෙටාදත්ත අපනයනය කරමින්",
+
+  "processing_image": "රූපය සකසමින්",
+  "generating_thumbnail": "සිඟිති රූපය සෑදෙමින්",
+  "analyzing_image": "රූපය විශ්ලේෂණය කරමින්",
+  "duplicate_detected": "අනුපිටපත හඳුනාගන්නා ලදි",
+
+  "connecting_to_api": "API වෙත සම්බන්ධ වෙමින්",
+  "request_timeout": "අයදුම්පතේ කාලය ඉකුත්වීම",
+  "retrying_request": "අයදුම්පත නැවුම් කරමින්",
+  "connection_failed": "සම්බන්ධතාවය අසාර්ථක විය",
+
+  "memory_optimization": "මතක බලාපොරොත්තුකරණය",
+  "security_hardening": "ආරක්ෂාව ශක්තිමත් කිරීම",
+  "internationalization": "අන්තර්ජාතිකකරණය",
+  "performance_improvement": "කාර්ය සාධනය වැඩිදියුණු කිරීම",
+
+  "initializing_system": "පද්ධතිය ආරම්භ කරමින්",
+  "loading_configuration": "වින්‍යාසය පූරණය කරමින්",
+  "validating_credentials": "අක්තපත්‍ර තහවුරු කරමින්",
+  "preparing_download": "බාගැනීම සූදානම් කරමින්",
+
+  "image_quality_check": "රූප ගුණාත්මකභාවය පරීක්ෂා කිරීම",
+  "duplicate_detection": "අනුපිටපත් හඳුනාගැනීම",
+  "metadata_extraction": "මෙටාදත්ත උකහා ගැනීම",
+  "batch_processing": "කණ්ඩායම් සැකසීම",
+
+  "user_interface": "පරිශීලක අතුරුමුහුණත",
+  "progress_display": "ප්‍රගතිය ප්‍රදර්ශනය",
+  "error_reporting": "දෝෂ වාර්තාකරණය",
+  "logging_system": "ලොග් කිරීමේ පද්ධතිය",
+
+  "rate_limiting": "වේග සීමාව",
+  "input_validation": "ආදානය තහවුරු කිරීම",
+  "secure_coding": "ආරක්ෂිත කේතනය",
+  "data_protection": "දත්ත ආරක්ෂාව",
+
+  "commercial_grade": "වාණිජ ශ්‍රේණිය",
+  "enterprise_ready": "ව්‍යාපාර සූදානම්",
+  "production_quality": "උත්පාදන ගුණාත්මකභාවය",
+  "market_ready": "වෙළඳපොල සූදානම්",
+
+  "advanced_features": "උසස් විශේෂාංග",
+  "ai_powered": "AI බලගැන්වූ",
+  "cloud_ready": "වලාකුළු සූදානම්",
+  "scalable_architecture": "පරිමාණය වෙනස් කළ හැකි ගෘහ නිර්මාණ ශිල්පය",
+
+  "documentation": "ලේඛනගත කිරීම",
+  "user_guide": "පරිශීලක මාර්ගෝපදේශය",
+  "api_reference": "API යොමුව",
+  "installation_guide": "ස්ථාපන මාර්ගෝපදේශය",
+
+  "testing_suite": "පරීක්ෂණ කට්ටලය",
+  "unit_tests": "ඒකක පරීක්ෂණ",
+  "integration_tests": "අනුකලන පරීක්ෂණ",
+  "end_to_end_tests": "අන්ත මුදල් පරීක්ෂණ",
+
+  "deployment": "අනුවර්තනය",
+  "packaging": "ඇසුරුම්කරණය",
+  "distribution": "බෙදාහැරීම",
+  "containerization": "කන්ටේනර්කරණය",
+
+  "support": "උදව්",
+  "maintenance": "නඩත්තු කිරීම",
+  "updates": "යාවත්කාලීන",
+  "bug_fixes": "දෝෂ නිවර්තන"
+}

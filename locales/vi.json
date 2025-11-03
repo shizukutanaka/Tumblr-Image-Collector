@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Chào mừng đến với Tumblr Image Collector",
+  "configuring_application": "Đang cấu hình ứng dụng...",
+  "initialization_complete": "Khởi tạo hoàn tất",
+  "starting_download": "Bắt đầu quá trình tải xuống...",
+  "download_complete": "Tải xuống hoàn tất",
+  "error_occurred": "Đã xảy ra lỗi",
+  "rate_limit_exceeded": "Vượt quá giới hạn tốc độ",
+  "waiting_for_resume": "Đang chờ tiếp tục...",
+
+  "enter_consumer_key": "Nhập Tumblr Consumer Key của bạn",
+  "enter_consumer_secret": "Nhập Tumblr Consumer Secret của bạn",
+  "enter_blog_name": "Nhập tên blog để tải xuống",
+  "select_output_directory": "Chọn thư mục đầu ra",
+  "configuration_saved": "Cấu hình đã được lưu thành công",
+
+  "invalid_input": "Đầu vào không hợp lệ",
+  "file_not_found": "Không tìm thấy tệp",
+  "permission_denied": "Quyền bị từ chối",
+  "network_error": "Lỗi mạng",
+  "api_error": "Lỗi API",
+
+  "download_statistics": "Thống kê Tải xuống",
+  "total_downloads": "Tổng số Tải xuống",
+  "successful_downloads": "Tải xuống Thành công",
+  "failed_downloads": "Tải xuống Thất bại",
+  "skipped_duplicates": "Bỏ qua Trùng lặp",
+  "success_rate": "Tỷ lệ Thành công",
+
+  "press_enter_to_continue": "Nhấn Enter để tiếp tục...",
+  "confirm_action": "Xác nhận hành động này",
+  "select_option": "Chọn một tùy chọn",
+
+  "creating_directory": "Đang tạo thư mục",
+  "saving_file": "Đang lưu tệp",
+  "file_saved": "Đã lưu tệp",
+  "exporting_metadata": "Đang xuất siêu dữ liệu",
+
+  "processing_image": "Đang xử lý hình ảnh",
+  "generating_thumbnail": "Đang tạo hình thu nhỏ",
+  "analyzing_image": "Đang phân tích hình ảnh",
+  "duplicate_detected": "Phát hiện trùng lặp",
+
+  "connecting_to_api": "Đang kết nối với API",
+  "request_timeout": "Hết thời gian yêu cầu",
+  "retrying_request": "Đang thử lại yêu cầu",
+  "connection_failed": "Kết nối thất bại",
+
+  "memory_optimization": "Tối ưu hóa bộ nhớ",
+  "security_hardening": "Tăng cường bảo mật",
+  "internationalization": "Quốc tế hóa",
+  "performance_improvement": "Cải thiện hiệu suất",
+
+  "initializing_system": "Đang khởi tạo hệ thống",
+  "loading_configuration": "Đang tải cấu hình",
+  "validating_credentials": "Đang xác thực thông tin đăng nhập",
+  "preparing_download": "Đang chuẩn bị tải xuống",
+
+  "image_quality_check": "Kiểm tra chất lượng hình ảnh",
+  "duplicate_detection": "Phát hiện trùng lặp",
+  "metadata_extraction": "Trích xuất siêu dữ liệu",
+  "batch_processing": "Xử lý hàng loạt",
+
+  "user_interface": "Giao diện Người dùng",
+  "progress_display": "Hiển thị Tiến trình",
+  "error_reporting": "Báo cáo Lỗi",
+  "logging_system": "Hệ thống Ghi log",
+
+  "rate_limiting": "Giới hạn Tốc độ",
+  "input_validation": "Xác thực Đầu vào",
+  "secure_coding": "Lập trình Bảo mật",
+  "data_protection": "Bảo vệ Dữ liệu",
+
+  "commercial_grade": "Cấp độ Thương mại",
+  "enterprise_ready": "Sẵn sàng cho Doanh nghiệp",
+  "production_quality": "Chất lượng Sản xuất",
+  "market_ready": "Sẵn sàng cho Thị trường",
+
+  "advanced_features": "Tính năng Nâng cao",
+  "ai_powered": "Được hỗ trợ bởi AI",
+  "cloud_ready": "Sẵn sàng cho Đám mây",
+  "scalable_architecture": "Kiến trúc Có thể mở rộng",
+
+  "documentation": "Tài liệu",
+  "user_guide": "Hướng dẫn Người dùng",
+  "api_reference": "Tham khảo API",
+  "installation_guide": "Hướng dẫn Cài đặt",
+
+  "testing_suite": "Bộ Kiểm thử",
+  "unit_tests": "Kiểm thử Đơn vị",
+  "integration_tests": "Kiểm thử Tích hợp",
+  "end_to_end_tests": "Kiểm thử Đầu cuối",
+
+  "deployment": "Triển khai",
+  "packaging": "Đóng gói",
+  "distribution": "Phân phối",
+  "containerization": "Container hóa",
+
+  "support": "Hỗ trợ",
+  "maintenance": "Bảo trì",
+  "updates": "Cập nhật",
+  "bug_fixes": "Sửa lỗi"
+}

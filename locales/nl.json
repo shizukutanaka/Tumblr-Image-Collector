@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Welkom bij Tumblr Image Collector",
+  "configuring_application": "Applicatie configureren...",
+  "initialization_complete": "Initialisatie voltooid",
+  "starting_download": "Download proces starten...",
+  "download_complete": "Download voltooid",
+  "error_occurred": "Er is een fout opgetreden",
+  "rate_limit_exceeded": "Snelheidslimiet overschreden",
+  "waiting_for_resume": "Wachten om te hervatten...",
+
+  "enter_consumer_key": "Voer uw Tumblr Consumer Key in",
+  "enter_consumer_secret": "Voer uw Tumblr Consumer Secret in",
+  "enter_blog_name": "Voer de blog naam in om te downloaden",
+  "select_output_directory": "Selecteer uitvoerdirectory",
+  "configuration_saved": "Configuratie succesvol opgeslagen",
+
+  "invalid_input": "Ongeldige invoer",
+  "file_not_found": "Bestand niet gevonden",
+  "permission_denied": "Toegang geweigerd",
+  "network_error": "Netwerk fout",
+  "api_error": "API fout",
+
+  "download_statistics": "Download Statistieken",
+  "total_downloads": "Totale Downloads",
+  "successful_downloads": "Geslaagde Downloads",
+  "failed_downloads": "Mislukte Downloads",
+  "skipped_duplicates": "Overgeslagen Duplicaten",
+  "success_rate": "Slagingspercentage",
+
+  "press_enter_to_continue": "Druk op Enter om door te gaan...",
+  "confirm_action": "Bevestig deze actie",
+  "select_option": "Selecteer een optie",
+
+  "creating_directory": "Directory maken",
+  "saving_file": "Bestand opslaan",
+  "file_saved": "Bestand opgeslagen",
+  "exporting_metadata": "Metadata exporteren",
+
+  "processing_image": "Afbeelding verwerken",
+  "generating_thumbnail": "Thumbnail genereren",
+  "analyzing_image": "Afbeelding analyseren",
+  "duplicate_detected": "Duplicaat gedetecteerd",
+
+  "connecting_to_api": "Verbinden met API",
+  "request_timeout": "Aanvraag timeout",
+  "retrying_request": "Aanvraag opnieuw proberen",
+  "connection_failed": "Verbinding mislukt",
+
+  "memory_optimization": "Geheugen optimalisatie",
+  "security_hardening": "Beveiliging verstevigen",
+  "internationalization": "Internationalisering",
+  "performance_improvement": "Prestatie verbetering",
+
+  "initializing_system": "Systeem initialiseren",
+  "loading_configuration": "Configuratie laden",
+  "validating_credentials": "Inloggegevens valideren",
+  "preparing_download": "Download voorbereiden",
+
+  "image_quality_check": "Afbeelding kwaliteit controle",
+  "duplicate_detection": "Duplicaat detectie",
+  "metadata_extraction": "Metadata extractie",
+  "batch_processing": "Batch verwerking",
+
+  "user_interface": "Gebruikersinterface",
+  "progress_display": "Voortgang Weergave",
+  "error_reporting": "Fout Rapportage",
+  "logging_system": "Logging Systeem",
+
+  "rate_limiting": "Snelheid Beperking",
+  "input_validation": "Invoer Validatie",
+  "secure_coding": "Veilige Codering",
+  "data_protection": "Gegevensbescherming",
+
+  "commercial_grade": "Commerciële Kwaliteit",
+  "enterprise_ready": "Enterprise Gereed",
+  "production_quality": "Productie Kwaliteit",
+  "market_ready": "Markt Gereed",
+
+  "advanced_features": "Geavanceerde Functies",
+  "ai_powered": "AI-aangedreven",
+  "cloud_ready": "Cloud Gereed",
+  "scalable_architecture": "Schaalbare Architectuur",
+
+  "documentation": "Documentatie",
+  "user_guide": "Gebruikershandleiding",
+  "api_reference": "API Referentie",
+  "installation_guide": "Installatiehandleiding",
+
+  "testing_suite": "Test Suite",
+  "unit_tests": "Unit Tests",
+  "integration_tests": "Integratie Tests",
+  "end_to_end_tests": "End-to-End Tests",
+
+  "deployment": "Implementatie",
+  "packaging": "Verpakking",
+  "distribution": "Distributie",
+  "containerization": "Containerisatie",
+
+  "support": "Ondersteuning",
+  "maintenance": "Onderhoud",
+  "updates": "Updates",
+  "bug_fixes": "Bug Fixes"
+}

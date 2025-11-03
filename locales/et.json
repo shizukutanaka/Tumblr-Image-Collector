@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Tere tulemast Tumblr Image Collector'i",
+  "configuring_application": "Rakenduse konfigureerimine...",
+  "initialization_complete": "Initsialiseerimine lõpetatud",
+  "starting_download": "Allalaadimisprotsessi alustamine...",
+  "download_complete": "Allalaadimine lõpetatud",
+  "error_occurred": "Tekkis viga",
+  "rate_limit_exceeded": "Kiirusepiirang ületatud",
+  "waiting_for_resume": "Ootan jätkamist...",
+
+  "enter_consumer_key": "Sisestage oma Tumblr Consumer Key",
+  "enter_consumer_secret": "Sisestage oma Tumblr Consumer Secret",
+  "enter_blog_name": "Sisestage blogi nimi allalaadimiseks",
+  "select_output_directory": "Valige väljundkataloog",
+  "configuration_saved": "Konfiguratsioon edukalt salvestatud",
+
+  "invalid_input": "Vigane sisend",
+  "file_not_found": "Faili ei leitud",
+  "permission_denied": "Luba keelatud",
+  "network_error": "Võrgutõrge",
+  "api_error": "API viga",
+
+  "download_statistics": "Allalaadimise Statistika",
+  "total_downloads": "Kokku Allalaadimised",
+  "successful_downloads": "Edukad Allalaadimised",
+  "failed_downloads": "Ebaõnnestunud Allalaadimised",
+  "skipped_duplicates": "Vahelejäetud Duplikaadid",
+  "success_rate": "Edukas Määr",
+
+  "press_enter_to_continue": "Vajutage Enter jätkamiseks...",
+  "confirm_action": "Kinnitage see tegevus",
+  "select_option": "Valige valik",
+
+  "creating_directory": "Kataloogi loomine",
+  "saving_file": "Faili salvestamine",
+  "file_saved": "Fail salvestatud",
+  "exporting_metadata": "Metaandmete eksportimine",
+
+  "processing_image": "Pildi töötlemine",
+  "generating_thumbnail": "Pisipildi genereerimine",
+  "analyzing_image": "Pildi analüüsimine",
+  "duplicate_detected": "Duplikaat tuvastatud",
+
+  "connecting_to_api": "API-ga ühendamine",
+  "request_timeout": "Päringu ajalõpp",
+  "retrying_request": "Päringu kordamine",
+  "connection_failed": "Ühendus ebaõnnestus",
+
+  "memory_optimization": "Mälu optimeerimine",
+  "security_hardening": "Turvalisuse tugevdamine",
+  "internationalization": "Rahvusvahelistamine",
+  "performance_improvement": "Jõudluse parandamine",
+
+  "initializing_system": "Süsteemi initsialiseerimine",
+  "loading_configuration": "Konfiguratsiooni laadimine",
+  "validating_credentials": "Mandaatide valideerimine",
+  "preparing_download": "Allalaadimise ettevalmistamine",
+
+  "image_quality_check": "Pildikvaliteedi kontroll",
+  "duplicate_detection": "Duplikaatide tuvastamine",
+  "metadata_extraction": "Metaandmete eraldamine",
+  "batch_processing": "Partii töötlemine",
+
+  "user_interface": "Kasutajaliides",
+  "progress_display": "Edenemise Kuva",
+  "error_reporting": "Veateated",
+  "logging_system": "Logimissüsteem",
+
+  "rate_limiting": "Kiiruse Piiramine",
+  "input_validation": "Sisendi Valideerimine",
+  "secure_coding": "Turvaline Kodeerimine",
+  "data_protection": "Andmekaitse",
+
+  "commercial_grade": "Kaubanduslik Kvaliteet",
+  "enterprise_ready": "Ettevõtte Valmis",
+  "production_quality": "Tootmiskvaliteet",
+  "market_ready": "Turule Valmis",
+
+  "advanced_features": "Täpsemad Funktsioonid",
+  "ai_powered": "AI-toega",
+  "cloud_ready": "Pilve Valmis",
+  "scalable_architecture": "Skaleeritav Arhitektuur",
+
+  "documentation": "Dokumentatsioon",
+  "user_guide": "Kasutaja Juhend",
+  "api_reference": "API Viide",
+  "installation_guide": "Paigaldusjuhend",
+
+  "testing_suite": "Testide Komplekt",
+  "unit_tests": "Ühiktestid",
+  "integration_tests": "Integratsioonitestid",
+  "end_to_end_tests": "Lõpuni Testid",
+
+  "deployment": "Juurutamine",
+  "packaging": "Pakkimine",
+  "distribution": "Levitamine",
+  "containerization": "Konteineriseerimine",
+
+  "support": "Tugi",
+  "maintenance": "Hooldus",
+  "updates": "Värskendused",
+  "bug_fixes": "Veaparandused"
+}

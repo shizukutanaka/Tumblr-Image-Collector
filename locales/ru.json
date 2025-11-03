@@ -1,0 +1,103 @@
+{
+  "welcome_message": "Добро пожаловать в Tumblr Image Collector",
+  "configuring_application": "Настройка приложения...",
+  "initialization_complete": "Инициализация завершена",
+  "starting_download": "Запуск процесса загрузки...",
+  "download_complete": "Загрузка завершена",
+  "error_occurred": "Произошла ошибка",
+  "rate_limit_exceeded": "Превышен лимит скорости",
+  "waiting_for_resume": "Ожидание возобновления...",
+
+  "enter_consumer_key": "Введите ваш Tumblr Consumer Key",
+  "enter_consumer_secret": "Введите ваш Tumblr Consumer Secret",
+  "enter_blog_name": "Введите имя блога для загрузки",
+  "select_output_directory": "Выберите выходную директорию",
+  "configuration_saved": "Конфигурация успешно сохранена",
+
+  "invalid_input": "Неверный ввод",
+  "file_not_found": "Файл не найден",
+  "permission_denied": "Доступ запрещен",
+  "network_error": "Ошибка сети",
+  "api_error": "Ошибка API",
+
+  "download_statistics": "Статистика Загрузки",
+  "total_downloads": "Всего Загрузок",
+  "successful_downloads": "Успешных Загрузок",
+  "failed_downloads": "Неудачных Загрузок",
+  "skipped_duplicates": "Пропущено Дубликатов",
+  "success_rate": "Уровень Успеха",
+
+  "press_enter_to_continue": "Нажмите Enter для продолжения...",
+  "confirm_action": "Подтвердите это действие",
+  "select_option": "Выберите опцию",
+
+  "creating_directory": "Создание директории",
+  "saving_file": "Сохранение файла",
+  "file_saved": "Файл сохранен",
+  "exporting_metadata": "Экспорт метаданных",
+
+  "processing_image": "Обработка изображения",
+  "generating_thumbnail": "Создание миниатюры",
+  "analyzing_image": "Анализ изображения",
+  "duplicate_detected": "Обнаружен дубликат",
+
+  "connecting_to_api": "Подключение к API",
+  "request_timeout": "Тайм-аут запроса",
+  "retrying_request": "Повтор запроса",
+  "connection_failed": "Подключение не удалось",
+
+  "memory_optimization": "Оптимизация памяти",
+  "security_hardening": "Усиление безопасности",
+  "internationalization": "Интернационализация",
+  "performance_improvement": "Улучшение производительности",
+
+  "initializing_system": "Инициализация системы",
+  "loading_configuration": "Загрузка конфигурации",
+  "validating_credentials": "Проверка учетных данных",
+  "preparing_download": "Подготовка загрузки",
+
+  "image_quality_check": "Проверка качества изображения",
+  "duplicate_detection": "Обнаружение дубликатов",
+  "metadata_extraction": "Извлечение метаданных",
+  "batch_processing": "Пакетная обработка",
+
+  "user_interface": "Пользовательский Интерфейс",
+  "progress_display": "Отображение Прогресса",
+  "error_reporting": "Отчет об Ошибках",
+  "logging_system": "Система Логирования",
+
+  "rate_limiting": "Ограничение Скорости",
+  "input_validation": "Проверка Ввода",
+  "secure_coding": "Безопасное Кодирование",
+  "data_protection": "Защита Данных",
+
+  "commercial_grade": "Коммерческий Уровень",
+  "enterprise_ready": "Готов к Предприятию",
+  "production_quality": "Производственное Качество",
+  "market_ready": "Готов к Рынку",
+
+  "advanced_features": "Расширенные Функции",
+  "ai_powered": "Работает на ИИ",
+  "cloud_ready": "Готов к Облаку",
+  "scalable_architecture": "Масштабируемая Архитектура",
+
+  "documentation": "Документация",
+  "user_guide": "Руководство Пользователя",
+  "api_reference": "Справка API",
+  "installation_guide": "Руководство по Установке",
+
+  "testing_suite": "Набор Тестов",
+  "unit_tests": "Модульные Тесты",
+  "integration_tests": "Интеграционные Тесты",
+  "end_to_end_tests": "Сквозные Тесты",
+
+  "deployment": "Развертывание",
+  "packaging": "Упаковка",
+  "distribution": "Распространение",
+  "containerization": "Контейнеризация",
+
+  "support": "Поддержка",
+  "maintenance": "Обслуживание",
+  "updates": "Обновления",
+  "bug_fixes": "Исправления Ошибок"
+}

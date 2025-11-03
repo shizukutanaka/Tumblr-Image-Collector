@@ -1,0 +1,272 @@
+name: Internationalization and Translation
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'locales/**'
+      - 'localization.py'
+      - 'translation_*.py'
+      - 'continuous_translation.py'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'locales/**'
+      - 'localization.py'
+      - 'translation_*.py'
+      - 'continuous_translation.py'
+  schedule:
+    # Run weekly translation updates
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+    inputs:
+      target_languages:
+        description: 'Target languages for expansion (comma-separated, e.g., pt,it,nl)'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  validate-translations:
+    name: Validate Translation Files
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Validate translation files
+      run: |
+        python -c "
+        from localization import validate_all_language_packs, sync_translation_files, generate_language_statistics
+        print('=== Translation Validation ===')
+        validation = validate_all_language_packs()
+        print(f'Total languages: {validation[\"total_languages\"]}')
+        print(f'Complete: {len(validation[\"complete_languages\"])}')
+        print(f'Incomplete: {len(validation[\"incomplete_languages\"])}')
+        print(f'Overall completeness: {validation[\"overall_completeness\"]:.1f}%')
+        "
+
+    - name: Sync translation files
+      run: |
+        python -c "
+        from localization import sync_translation_files
+        print('=== Syncing Translation Files ===')
+        result = sync_translation_files('en')
+        print(f'Languages synced: {len(result[\"languages_synced\"])}')
+        for lang in result['languages_synced']:
+            print(f'  - {lang}')
+        "
+
+    - name: Generate language statistics
+      run: |
+        python -c "
+        from localization import generate_language_statistics
+        print('=== Language Statistics ===')
+        stats = generate_language_statistics()
+        print(f'Total languages: {stats[\"total_languages\"]}')
+        print(f'Completion summary:')
+        for status, count in stats['completion_summary'].items():
+            if status != 'complete_languages' and status != 'incomplete_languages' and status != 'poor_languages':
+                print(f'  {status}: {count}')
+        "
+
+  expand-language-support:
+    name: Expand Language Support
+    runs-on: ubuntu-latest
+    if: github.event.inputs.target_languages != ''
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Expand language support
+      run: |
+        echo "Expanding language support for: ${{ github.event.inputs.target_languages }}"
+        python -c "
+        from localization import expand_to_global_languages
+        import sys
+
+        target_langs = '${{ github.event.inputs.target_languages }}'.split(',')
+        target_langs = [lang.strip() for lang in target_langs if lang.strip()]
+
+        if target_langs:
+            print(f'Expanding to languages: {target_langs}')
+            result = expand_to_global_languages(target_langs)
+            print(f'Generated: {len(result[\"generated_languages\"])}')
+            print(f'Skipped: {len(result[\"skipped_languages\"])}')
+            print(f'Speakers covered: {result[\"total_speakers_covered\"]} million')
+        else:
+            print('No target languages specified')
+        "
+
+  update-translation-coverage:
+    name: Update Translation Coverage Report
+    runs-on: ubuntu-latest
+    if: always() && (needs.validate-translations.result == 'success' || github.event_name == 'schedule')
+
+    needs: validate-translations
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Generate coverage report
+      run: |
+        python -c "
+        from localization import generate_global_coverage_report
+        import json
+
+        print('=== Global Language Coverage Report ===')
+        report = generate_global_coverage_report()
+
+        print(f'Total global languages: {report[\"total_global_languages\"]}')
+        print(f'Supported languages: {report[\"coverage_analysis\"][\"languages_supported\"]}')
+        print(f'Global speaker coverage: {report[\"coverage_analysis\"][\"global_speaker_coverage_percent\"]:.1f}%')
+
+        # Save detailed report
+        with open('translation_coverage_report.json', 'w') as f:
+            json.dump(report, f, indent=2, ensure_ascii=False)
+        "
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v3
+      with:
+        name: translation-coverage-report
+        path: translation_coverage_report.json
+
+  continuous-translation:
+    name: Continuous Translation Update
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run continuous translation
+      env:
+        GOOGLE_TRANSLATE_API_KEY: ${{ secrets.GOOGLE_TRANSLATE_API_KEY }}
+        DEEP_TRANSLATE_API_KEY: ${{ secrets.DEEP_TRANSLATE_API_KEY }}
+      run: |
+        echo "=== Running Continuous Translation ==="
+        python continuous_translation.py --auto-update --dry-run
+
+    - name: Check for missing translations
+      run: |
+        python -c "
+        from localization import run_comprehensive_i18n_tests
+        print('=== Missing Translations Check ===')
+        test_result = run_comprehensive_i18n_tests(['en', 'ja', 'zh', 'ar', 'ru'])
+        print(f'Test completed: {test_result[\"status\"]}')
+        "
+
+    - name: Generate translation quality report
+      run: |
+        python -c "
+        from localization import generate_key_documentation
+        print('=== Generating Translation Documentation ===')
+        doc_file = generate_key_documentation('docs/TRANSLATION_KEYS.md')
+        if doc_file:
+            print(f'Documentation generated: {doc_file}')
+        "
+
+  integration-tests:
+    name: Internationalization Integration Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run i18n integration tests
+      run: |
+        python -c "
+        from localization import run_comprehensive_i18n_tests, simulate_user_interactions
+        print('=== Running I18n Integration Tests ===')
+
+        # Test multiple languages
+        languages = ['en', 'ja', 'zh', 'ar', 'ru', 'es', 'fr', 'de']
+        test_result = run_comprehensive_i18n_tests(languages)
+        print(f'Languages tested: {len(test_result[\"languages_tested\"])}')
+        print(f'Overall score: {test_result[\"overall_score\"]:.1f}%')
+
+        # Simulate user interactions
+        for lang in ['en', 'ja', 'ar']:
+            sim_result = simulate_user_interactions(lang, 5)
+            print(f'{lang} simulation: {sim_result[\"interactions_simulated\"]} interactions')
+        "
+
+    - name: Validate UI compatibility
+      run: |
+        python -c "
+        from localization import validate_layout_compatibility
+        print('=== UI Layout Compatibility Validation ===')
+
+        # Test layout compatibility for different language groups
+        latin_languages = ['en', 'es', 'fr', 'de', 'pt']
+        asian_languages = ['ja', 'zh', 'ko']
+        rtl_languages = ['ar', 'he', 'fa', 'ur']
+
+        for lang_group, languages in [
+            ('Latin', latin_languages),
+            ('Asian', asian_languages),
+            ('RTL', rtl_languages)
+        ]:
+            validation = validate_layout_compatibility(languages, 'responsive')
+            print(f'{lang_group} languages: {\"✅ Compatible\" if validation[\"is_compatible\"] else \"❌ Issues found\"}')
+        "
