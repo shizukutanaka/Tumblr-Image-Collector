@@ -1,31 +1,87 @@
-# Tumblr Image Collector - Core Requirements
+# Tumblr Image Collector - Core Requirements (Optimized)
+# Production-ready dependencies with minimal bloat
 
-# Core Dependencies
-pytumblr>=0.1.2
-requests>=2.32.3
-Pillow>=10.4.0
-imagehash>=4.3.1
-PySocks>=1.7.1
+# ============================================
+# CORE DEPENDENCIES (REQUIRED)
+# ============================================
+
+# Tumblr API
+pytumblr==0.1.2
+
+# HTTP and Network
+requests==2.32.3
+urllib3==2.2.2
+certifi==2024.7.4
 
 # Security
-urllib3>=2.2.2
-certifi>=2024.7.4
-cryptography>=42.0.0
+cryptography==42.0.8
+keyring==25.3.0  # System credential storage
 
-# System Monitoring
-psutil>=5.9.8
+# Image Processing (Primary)
+Pillow==10.4.0
+numpy==1.26.4
+opencv-python==4.8.1.78
+imagehash==4.3.1
+scikit-image==0.24.0
+pillow-avif-plugin==1.0.0
 
-# Image Processing
-scikit-image>=0.24.0
-numpy>=1.26.0
+# System and Performance
+psutil==5.9.8
+tenacity==8.2.3
+pyrate-limiter==3.1.0
+diskcache==5.6.3
+structlog==24.1.0
 
-# Development and Testing
-pytest>=8.3.0
-pytest-cov>=5.0.0
-pytest-timeout>=2.3.0
+# Configuration and Validation
+pydantic==2.5.0
+pydantic-settings==2.1.0
 
-# Optional: Environment Variables
-python-dotenv>=1.0.0
+# Internationalization
+babel==2.14.0
+pyparsing==3.1.1
 
-# Personal Use Features
-keyring>=25.0.0
+# Web Scraping (Standardized to Playwright)
+playwright==1.47.0
+beautifulsoup4==4.12.3
+httpx==0.27.2
+aiohttp==3.10.5
+
+# Cloud Integration
+dropbox==11.36.2
+google-api-python-client==2.115.0
+google-auth-httplib2==0.2.0
+google-auth-oauthlib==1.2.0
+
+# Optional: Payment Processing
+stripe==9.5.0
+
+# Optional: Environment configuration
+python-dotenv==1.0.1
+
+# Optional: Socks proxy support
+PySocks==1.7.1
+
+# ============================================
+# RECOMMENDED BUT OPTIONAL FEATURES
+# ============================================
+# Uncomment as needed for additional functionality
+
+# YouTube/Media Download
+# yt-dlp==2024.10.7
+
+# Academic Paper Collection
+# arxiv==2.1.0
+# scholarly==1.7.11
+# PyPDF2==3.0.1
+# pdfplumber==0.11.0
+
+# GUI Frameworks
+# kivy==2.2.1  # Mobile app framework
+
+# Web Interface
+# flask==3.0.1
+# flask-cors==4.0.0
+
+# Commercial Features
+# pyinstaller==6.3.0  # Installer builder
+# sentry-sdk==1.40.0  # Error tracking
